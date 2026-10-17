@@ -271,10 +271,13 @@ const api = window.__MOCK_API || {
   jobs: () => q(sb.from('jobs').select('*').order('job_date', { ascending: false }).order('id', { ascending: false }).limit(1000)),
   job: id => q(sb.from('jobs').select('*').eq('id', id).maybeSingle()),
   rpc: (fn, args) => q(sb.rpc(fn, args)),
-  async upload(path, blob, type){ await q(sb.storage.from('jobs').upload(path, blob, { contentType: type, upsert: false })); },
-  async signedUrls(paths){
+  async upload(path, blob, type, bucket){ await q(sb.storage.from(bucket || 'jobs').upload(path, blob, { contentType: type, upsert: false })); },
+  insertSlots: rows => q(sb.from('eval_slots').insert(rows)),
+  updateSlot: (id, f) => q(sb.from('eval_slots').update(f).eq('id', id)),
+  deleteSlot: id => q(sb.from('eval_slots').delete().eq('id', id)),
+  async signedUrls(paths, bucket){
     if (!paths.length) return {};
-    const d = await q(sb.storage.from('jobs').createSignedUrls(paths, 3600));
+    const d = await q(sb.storage.from(bucket || 'jobs').createSignedUrls(paths, 3600));
     const m = {}; (d || []).forEach(x => { if (x.signedUrl) m[x.path] = x.signedUrl; }); return m;
   }
 };
@@ -285,9 +288,9 @@ if (!api.testResults) {
 }
 /* Preview (Admin): look-only. Every write is refused while previewing; test results still save. */
 const PV_MSG = 'Preview is look-only – nothing was saved.';
-['updateProfile', 'saveSettings', 'saveItem', 'upsertItems', 'rpc', 'upload'].forEach(k => {
+['updateProfile', 'saveSettings', 'saveItem', 'upsertItems', 'rpc', 'upload', 'insertSlots', 'updateSlot', 'deleteSlot'].forEach(k => {
   const f = api[k];
-  api[k] = (...a) => (inPreview() && !(k === 'rpc' && ['assembler_list', 'cancel_fee'].includes(a[0]))) ? Promise.reject(new Error(PV_MSG)) : f.apply(api, a);
+  api[k] = (...a) => (inPreview() && !(k === 'rpc' && ['assembler_list', 'cancel_fee', 'eval_slot_list', 'app_list', 'app_me'].includes(a[0]))) ? Promise.reject(new Error(PV_MSG)) : f.apply(api, a);
 });
 
 /* ───────────── Helpers ───────────── */
@@ -300,7 +303,8 @@ const money = v => cur() + Math.round(num(v)).toLocaleString('en-PH');
 const todayISO = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // Asia/Manila
 const addDays = (iso, n) => new Date(Date.parse(iso + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
 const fmtDate = iso => iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00').toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
-const fmtTime = ts => ts ? new Date(ts).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+const TZ = 'Asia/Manila'; // all times are shown in Philippine time, whatever the phone is set to
+const fmtTime = ts => ts ? new Date(ts).toLocaleString('en-PH', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
 const initials = n => (String(n || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('') || '?').toUpperCase();
 const firstName = n => String(n || '').trim().split(/\s+/)[0] || '';
 const mins = m => { m = num(m); return m >= 60 ? (Math.round(m / 6) / 10) + 'h' : m + 'm'; };
@@ -370,7 +374,7 @@ const EVENT_LABEL = { booked:'Booked', assigned:'Assigned', accepted:'Accepted',
   dispute:'Customer reported a problem', resolved:'Decided by Taskadoo' };
 const RES_LABEL = { accepted: 'Confirmed with the customer – job done', revisit: 'Free re-visit to fix it', partial: 'Partial refund',
   full: 'Full refund', rejected: 'No refund – the work was done right' };
-const ROLE_LABEL = { customer:'Customer', assembler:'Assembler', dispatcher:'Dispatcher', enterprise:'Enterprise', admin:'Admin' };
+const ROLE_LABEL = { customer:'Customer', assembler:'Assembler', dispatcher:'Dispatcher', enterprise:'Enterprise', admin:'Admin', evaluator:'Evaluator' };
 
 /* ───────────── State & routes ───────────── */
 const S = { session: null, me: null, settings: {}, catalog: [], jobs: [], profiles: [], assemblers: [],
@@ -384,10 +388,15 @@ const NAV = {
   enterprise: [['book','New booking','🛠️'], ['bookings','Bookings','📋'], ['profile','Account','🏢']],
   assembler:  [['tasks','Tasks','🧰'], ['earnings','Earnings','💰'], ['profile','Profile','👤']],
   dispatcher: [['dispatch','Dispatch','🧭'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
-  admin:      [['dispatch','Dispatch','🧭'], ['payments','Payments','💳'], ['catalog','Catalogue','📦'], ['users','Users','👥'],
+  evaluator:  [['evals','Evaluations','📋'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
+  applicant:  [['apply','My application','🧰'], ['book','Book','🛠️'], ['profile','Profile','👤']],
+  admin:      [['dispatch','Dispatch','🧭'], ['payments','Payments','💳'], ['evals','Evaluations','📋'], ['catalog','Catalogue','📦'], ['users','Users','👥'],
                ['settings','Settings','⚙️'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']]
 };
-const SUB = { booking: 'bookings', job: 'dispatch', task: 'tasks' };
+const SUB = { booking: 'bookings', job: 'dispatch', task: 'tasks', eval: 'evals' };
+// customers who asked to become assemblers see their application first
+const isApplicant = () => role() === 'customer' && ME().requested_role === 'assembler';
+const tabsFor = () => NAV[isApplicant() ? 'applicant' : role()] || [];
 function route(){ const h = location.hash.replace(/^#\/?/, '').split('/'); return { name: h[0] || '', arg: h[1] || '' }; }
 const go = (name, arg) => { location.hash = '#/' + name + (arg ? '/' + arg : ''); };
 const inPreview = () => !!(S.preview && S.me && S.me.role === 'admin');
@@ -397,7 +406,8 @@ const isStaff = () => ['admin','dispatcher'].includes(role());
 function allowed(name){
   if (name === 'whatsnew' || name === 'tests') return true;
   if (name === 'preview') return S.me && S.me.role === 'admin' && !inPreview();
-  const tabs = (NAV[role()] || []).map(t => t[0]);
+  if (name === 'apply') return role() === 'customer';
+  const tabs = tabsFor().map(t => t[0]);
   return tabs.includes(name) || tabs.includes(SUB[name]) || (name === 'job' && isStaff());
 }
 
@@ -410,6 +420,9 @@ async function loadJobs(){ S.jobs = (await api.jobs()) || []; S.loaded.jobs = Da
 async function loadProfiles(){ S.profiles = (await api.profiles()) || []; }
 async function loadAssemblers(date){ S.assemblers = (await api.rpc('assembler_list', { p_date: date || null })) || []; }
 async function refreshMe(){ S.me = await api.me(S.session.user.id); }
+async function loadApp(){ try { S.app = await api.rpc('app_me', {}); } catch (e) { console.warn(e); S.app = null; } }
+async function loadApps(){ try { S.apps = (await api.rpc('app_list', {})) || []; } catch (e) { console.warn(e); S.apps = []; } }
+async function loadSlots(){ S.slots = (await api.rpc('eval_slot_list', {})) || []; S.slotsAt = Date.now(); }
 
 async function boot(){
   try {
@@ -444,7 +457,9 @@ async function afterLogin(){
     if (role() === 'admin') await loadProfiles();
     if (isStaff()) await loadAssemblers(null);
     const r = route();
-    if (!r.name || !allowed(r.name)) { history.replaceState(null, '', '#/' + NAV[role()][0][0]); }
+    if (isApplicant() || role() === 'customer') await loadApp();
+    if (['admin', 'evaluator'].includes(role())) await loadApps();
+    if (!r.name || !allowed(r.name)) { history.replaceState(null, '', '#/' + tabsFor()[0][0]); }
     render();
   } catch (e) { console.error(e); toast(errMsg(e), true); render(); }
 }
@@ -459,12 +474,13 @@ function render(){
   if (!S.me.active) { app.innerHTML = `<div class="auth"><div class="card stack"><h2>Account paused</h2>
     <p>Your Taskadoo account is not active. Please contact Taskadoo support.</p><button class="btn ghost" data-act="logout">Sign out</button></div></div>`; return; }
   let r = route();
-  if (!r.name || !allowed(r.name)) r = { name: NAV[role()][0][0], arg: '' };
+  if (!r.name || !allowed(r.name)) r = { name: tabsFor()[0][0], arg: '' };
   const V = { book: viewBook, bookings: viewBookings, booking: viewBooking, dispatch: viewDispatch, job: viewDispatch,
     tasks: viewTasks, task: viewTask, earnings: viewEarnings, profile: viewProfile, catalog: viewCatalog, users: viewUsers,
-    settings: viewSettings, payments: viewPayments, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo };
+    settings: viewSettings, payments: viewPayments, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo,
+    apply: viewApply, evals: viewEvals, eval: viewEvals };
   const active = SUB[r.name] || r.name;
-  const tabs = NAV[role()];
+  const tabs = tabsFor();
   let body = '';
   try { body = V[r.name](r.arg); } catch (e) { console.error(e); body = `<div class="notice bad">${esc(errMsg(e))}</div>`; }
   const unseen = wnUnseen();
@@ -498,10 +514,12 @@ let tickTimer = null;
 function after(r){
   clearInterval(tickTimer);
   const imgs = [...document.querySelectorAll('img[data-path]')];
-  const need = imgs.map(i => i.dataset.path).filter(p => !S.urls[p]);
   const fill = () => imgs.forEach(i => { const u = S.urls[i.dataset.path]; if (u) { i.src = u; const a = i.closest('a[data-href]'); if (a) a.href = u; } });
   fill();
-  if (need.length) api.signedUrls([...new Set(need)]).then(m => { Object.assign(S.urls, m); fill(); }).catch(e => console.warn(e));
+  ['jobs', 'apps'].forEach(bk => {
+    const need = imgs.filter(i => (i.dataset.bucket || 'jobs') === bk).map(i => i.dataset.path).filter(p => !S.urls[p]);
+    if (need.length) api.signedUrls([...new Set(need)], bk).then(m => { Object.assign(S.urls, m); fill(); }).catch(e => console.warn(e));
+  });
   const pad = document.getElementById('sigpad'); if (pad) sigPad(pad);
   const nb = document.querySelector('[data-ready-at]'); if (nb && nb.dataset.readyAt) { const ms = Number(nb.dataset.readyAt) - Date.now(); clearTimeout(S.nbT); S.nbT = setTimeout(() => { if (route().name === 'task') render(); }, Math.max(1000, ms + 500)); }
   const tm = document.getElementById('timer');
@@ -524,7 +542,7 @@ function viewAuth(){
     ${up ? `
       <div class="choice">
         <button class="${want === '' ? 'on' : ''}" data-act="want" data-v="">🛠️ I need furniture assembled<small>Book an assembler for your home or office</small></button>
-        <button class="${want === 'assembler' ? 'on' : ''}" data-act="want" data-v="assembler">🧰 I want to work as an assembler<small>Taskadoo reviews your account before you get jobs</small></button>
+        <button class="${want === 'assembler' ? 'on' : ''}" data-act="want" data-v="assembler">🧰 I want to work as an assembler<small>Sign up in 4 steps, then come to a short evaluation</small></button>
         <button class="${want === 'enterprise' ? 'on' : ''}" data-act="want" data-v="enterprise">🏢 I book for a business<small>Retailers, TSPs and 3PLs – reviewed in 1–2 business days</small></button>
       </div>
       <label class="f"><span>Full name</span><input id="a_name" autocomplete="name"></label>
@@ -553,7 +571,7 @@ const cartCount = () => cartLines().reduce((s, l) => s + l.n, 0);
 function viewBook(arg){
   if (arg === 'checkout') return viewCheckout();
   if (arg === 'done') return viewBooked();
-  const pending = ME().role === 'customer' && ME().requested_role;
+  const pending = ME().role === 'customer' && ME().requested_role === 'enterprise';
   const brands = ['All', ...new Set(S.catalog.filter(c => c.active).map(c => c.brand))];
   const s = S.search.toLowerCase();
   const list = S.catalog.filter(c => c.active && (S.cat === 'all' || c.cat === S.cat) && (S.brand === 'All' || c.brand === S.brand)
@@ -989,7 +1007,7 @@ function viewProfile(){
     <div class="card">
       <div class="row" style="margin-bottom:14px"><div class="av" style="width:48px;height:48px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900">${esc(initials(m.full_name || m.email))}</div>
         <div><div class="b">${esc(m.email)}</div><span class="chip ink">${esc(ROLE_LABEL[m.role])}</span>
-        ${m.requested_role && m.role === 'customer' ? ` <span class="chip orange">${esc(ROLE_LABEL[m.requested_role])} – waiting for approval</span>` : ''}</div></div>
+        ${m.requested_role === 'enterprise' && m.role === 'customer' ? ` <span class="chip orange">Business account – waiting for approval</span>` : ''}</div></div>
       <label class="f"><span>Full name</span><input id="p_name" value="${esc(m.full_name)}"></label>
       <label class="f"><span>Mobile</span><input id="p_mobile" type="tel" value="${esc(m.mobile)}"></label>
       ${['enterprise','customer'].includes(m.role) && (m.role === 'enterprise' || m.requested_role === 'enterprise') ? `<label class="f"><span>Company</span><input id="p_company" value="${esc(m.company)}"></label>` : ''}
@@ -998,6 +1016,8 @@ function viewProfile(){
     </div>
     ${m.role === 'assembler' ? `<div class="card"><h3>Add Taskadoo to your home screen</h3><p class="small muted" style="margin-bottom:0">
       iPhone: tap Share ⬆ then "Add to Home Screen". Android: tap ⋮ then "Add to Home screen" / "Install app". It then opens like an app.</p></div>` : ''}
+    ${m.role === 'customer' && m.requested_role !== 'assembler' ? `<div class="card"><div class="row"><div class="grow"><h3>Work with Taskadoo</h3>
+      <div class="small muted">Assemble furniture on your own schedule. Sign up in 4 steps and book a short evaluation.</div></div><a class="btn soft" href="#/apply">Become an assembler</a></div></div>` : ''}
     <div class="card"><button class="btn ghost" data-act="logout">Sign out</button></div></div>`;
 }
 
@@ -1152,7 +1172,7 @@ function viewUsers(){
         <td>${self ? '' : `<input data-f="active" type="checkbox" ${p.active ? 'checked' : ''} style="width:auto">`}</td>
         <td>${self ? '<span class="tiny muted">You</span>' : `<button class="btn small" data-act="saveuser" data-id="${esc(p.id)}">Save</button>
           <button class="btn ghost small" data-act="pvperson" data-id="${esc(p.id)}">Preview</button>
-          ${p.requested_role && p.role === 'customer' ? ` <button class="btn green small" data-act="approve" data-id="${esc(p.id)}">Approve as ${esc(ROLE_LABEL[p.requested_role])}</button>` : ''}`}</td></tr>`; }).join('')}</table>`
+          ${p.requested_role && p.role === 'customer' ? ` <button class="btn ${p.requested_role === 'assembler' ? 'ghost' : 'green'} small" data-act="approve" data-id="${esc(p.id)}">${p.requested_role === 'assembler' ? 'Approve without evaluation' : 'Approve as ' + esc(ROLE_LABEL[p.requested_role])}</button>` : ''}`}</td></tr>`; }).join('')}</table>`
       : `<div class="empty">No users here.</div>`}</div>
     <p class="tiny muted">New people sign up themselves on the login page. The very first account became Admin. Change a role here to make someone an Assembler, Dispatcher, Enterprise or Admin.</p>`;
 }
@@ -1199,6 +1219,26 @@ function viewSettings(){
         ${numf('fail_pct', 'Failed-visit fee % of the job', 'When nobody is home.', 0, 100)}
         ${numf('fail_max', 'Failed-visit fee maximum (' + cur() + ')', 'The fee is never more than this.', 0, 100000, 50)}
       </div></div>
+    <div class="card"><h3 style="margin-bottom:4px">Hubs</h3><div class="tiny muted" style="margin-bottom:10px">Where evaluations are held. The address is shown to applicants with a Directions button.</div>
+      <div class="list">${(d.hubs || []).map((h, i) => `<div class="li" style="cursor:default;padding:8px 10px"><div class="row" style="gap:6px">
+        <input data-hub="${i}" data-f="name" value="${esc(h.name)}" placeholder="Hub name" style="flex:1;min-width:120px">
+        <input data-hub="${i}" data-f="address" value="${esc(h.address || '')}" placeholder="Full address" style="flex:2;min-width:160px">
+        <button class="tg-x" data-act="sdrm" data-k="hubs" data-i="${i}" ${(d.hubs || []).length > 1 ? '' : 'disabled title="Keep at least one hub"'} aria-label="Delete">✕</button></div></div>`).join('')}</div>
+      <div class="row" style="margin-top:12px"><input id="sd_hub" placeholder="New hub, e.g. Cebu Hub" style="flex:1;min-width:160px"><button class="btn soft small" data-act="sdaddhub">+ Add hub</button></div></div>
+    <div class="card"><h3 style="margin-bottom:12px">Assembler sign-up &amp; evaluation</h3>
+      <div class="grid2" style="grid-template-columns:repeat(3,1fr)">
+        ${numf('joining_fee', 'Joining fee (' + cur() + ')', '0 = free. Paid at the evaluation.', 0, 100000, 50)}
+        ${numf('min_age', 'Minimum age', 'Younger applicants can\'t continue.', 18, 70)}
+        ${numf('eval_minutes', 'Evaluation length (minutes)', 'Shown to applicants.', 10, 240, 5)}</div>
+      <div class="b small" style="margin:6px 0">What applicants can build</div>
+      <div class="row" style="gap:8px">${(d.skills || []).map((v, i) => chip('skills', v, i)).join('')}</div>
+      <div class="row" style="margin:10px 0 16px"><input id="sd_skill" placeholder="Example: Bunk beds" style="flex:1;min-width:160px"><button class="btn soft small" data-act="sdaddskill">+ Add</button></div>
+      <div class="b small" style="margin-bottom:6px">Scorecard (each item is scored 1–5)</div>
+      <div class="list">${(d.eval_items || []).map((it, i) => `<div class="li" style="cursor:default;padding:8px 10px"><div class="row" style="gap:6px">
+        <select data-ei="${i}" data-f="sec" style="width:auto">${['Interview', 'Build test'].map(x => `<option ${it.sec === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
+        <input data-ei="${i}" data-f="label" value="${esc(it.label)}" style="flex:1;min-width:140px">
+        <button class="tg-x" data-act="sdrm" data-k="eval_items" data-i="${i}" aria-label="Delete">✕</button></div></div>`).join('')}</div>
+      <div class="row" style="margin-top:10px"><input id="sd_ei" placeholder="New item, e.g. Wears safety shoes" style="flex:1;min-width:160px"><button class="btn soft small" data-act="sdaddei">+ Add item</button></div></div>
     <div class="card"><h3 style="margin-bottom:12px">Payment note</h3>
       <label class="f"><span>Shown to customers on their booking</span><textarea data-sd="payment_note">${esc(d.payment_note || '')}</textarea></label>
       <div class="tiny muted b" style="margin-bottom:6px">PREVIEW</div><div class="notice warn" id="sd_pay_prev">💳 ${esc(d.payment_note || '')}</div></div>
@@ -1240,6 +1280,12 @@ function sigPad(c){
 // for: roles that see the line (customer, enterprise, assembler, dispatcher, admin) or 'all'.
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
+  { v: '1.4', d: '2026-10-17', where: 'staging', title: 'Assembler sign-up and evaluation', changes: [
+    { k: 'New', t: 'Become an assembler in 4 steps: about you (21 or older), documents (valid ID, NBI clearance, medical certificate – Mober employees only need the medical certificate), where & what (base, brands, skills, GCash), then book an evaluation time at the hub. You can move it once.', for: ['customer'] },
+    { k: 'New', t: 'Evaluator role. Evaluations → Applicants: check each document photo (OK / Not OK with a reason), confirm Mober employee IDs, score the interview and build test 1–5, then Pass, Fail or Didn\'t come. Pass makes them an assembler straight away.', for: ['admin'] },
+    { k: 'New', t: 'Evaluations → Calendar: add evaluation times for a hub and date with the number of seats; close or delete times.', for: ['admin'] },
+    { k: 'New', t: 'Settings: hubs (Pasay Hub to start, with address), joining fee (free for now), minimum age, evaluation length, the skills list and the scorecard items.', for: ['admin'] }
+  ] },
   { v: '1.3', d: '2026-10-17', where: 'staging', title: 'Catalogue in Excel or Google Sheets', changes: [
     { k: 'New', t: 'Catalogue → Download CSV gives you every item in a spreadsheet file. Change prices or add rows in Excel or Google Sheets, then Import CSV. You see what will be added and changed – and any rows with a problem – before anything is saved.', for: ['admin'] }
   ] },
@@ -1272,6 +1318,22 @@ const WHATSNEW = [
 ];
 // Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
 const WN_TESTS = {
+  '1.4': [
+    ['J1', 'Admin', 'Set up the hub and times', ['Settings → Hubs: type the Pasay Hub address, Save settings.', 'Evaluations → Calendar: pick tomorrow, keep 9:00 AM and 1:00 PM, seats 2, tap Create.'], 'Tomorrow shows two times with "0 of 2 booked".'],
+    ['J2', 'Customer', 'Sign up as an assembler', ['Create a new account and choose "I want to work as an assembler".'], 'The app opens on "Become a Taskadoo assembler" with 4 steps.'],
+    ['J3', 'Customer', 'Step 1 – age check', ['Enter a birth date that makes you 20 years old and tap Save and continue. Then enter your real birth date.'], 'The first time it says you must be at least 21. With the real date you go to step 2.'],
+    ['J4', 'Customer', 'Step 2 – documents', ['Answer No to Mober employee. Add photos of a valid ID, NBI clearance and medical certificate (use your phone camera). Tap Continue.'], 'Each photo shows a small picture and "Uploaded – checked at the evaluation". Continue goes to step 3.'],
+    ['J5', 'Customer', 'Step 3 – where & what', ['Pick your base location, travel distance, experience, tap a few brands and skills, choose Full-time or Part-time, enter GCash name and number. Save and continue.'], 'Step 4 shows the evaluation times from J1 with seats left.'],
+    ['J6', 'Customer', 'Book and move once', ['Tap a time, then Book this time.', 'Tap Move to another time, pick the other time, Move to this time.'], 'A dark card shows your evaluation time and the hub with Directions. After moving, it says you already moved it once.'],
+    ['J7', 'Customer', 'Mober employee', ['With another new account, answer Yes to Mober employee and type an employee ID.'], 'Only the medical certificate is asked for. The note says ID and NBI are already on file with Mober.'],
+    ['J8', 'Admin or Evaluator', 'Check documents', ['Evaluations → Booked → tap the applicant. Tap a photo to see it full size.', 'Tap OK on the ID and medical certificate. For the NBI type "Blurry" and tap Not OK.'], 'The applicant sees "Please upload a new photo" with "Blurry" under the NBI. After they upload a new one it shows "To check" again.'],
+    ['J9', 'Admin or Evaluator', 'Pass needs documents OK', ['On the applicant, try Pass before every document is OK. Then mark them all OK (for Mober: tap Confirm on the employee ID).'], 'Pass stays greyed out with a note until everything is OK, then it works.'],
+    ['J10', 'Admin or Evaluator', 'Score and pass', ['Give each scorecard item a score from 1 to 5, write a note, tap Pass – make assembler.'], 'The average and a suggestion show as you score. After Pass, the person appears in Users as Assembler and in Dispatch as someone you can assign.'],
+    ['J11', 'Customer', 'Applicant sees the result', ['As the applicant who passed in J10, refresh the app.'], 'It says "You passed – welcome to Taskadoo!". Open my assembler app shows Tasks, Earnings and Profile.'],
+    ['J12', 'Admin or Evaluator', 'Fail and no-show', ['On another booked applicant tap Didn\'t come. On another, write a note and tap Fail.'], 'Didn\'t come: the applicant is asked to book a new time. Fail: the applicant sees the thank-you message with your note.'],
+    ['J13', 'Admin', 'Evaluator account', ['Users → set someone\'s role to Evaluator → Save. They refresh the app.'], 'They see Evaluations, What\'s new and Profile only – no Dispatch or Payments.'],
+    ['J14', 'Admin', 'Scorecard and joining fee settings', ['Settings → add a scorecard item and a skill, set Joining fee to 500, Save. Look at step 4 as an applicant, then set the fee back to 0.'], 'The new item appears on the scorecard and the skill in step 3. Step 4 says "Joining fee: ₱500, paid at the evaluation", and "Free" again after you set it to 0.']
+  ],
   '1.3': [
     ['K5', 'Admin', 'Download the catalogue', ['Catalogue → ⬇ Download CSV. Open the file in Excel or Google Sheets.'], 'One row per item with sku, name, brand, category, fee, crew, minutes, emoji and bookable. Peso signs and emojis look right.'],
     ['K6', 'Admin', 'Change prices by file', ['In the file change two fees and add one new row (new SKU). Save it as CSV.', 'Catalogue → ⬆ Import CSV → choose the file.'], 'The window shows 1 New and 2 Changed with old → new fees. After Apply, the list shows the new prices and the new item.'],
@@ -1328,6 +1390,9 @@ const WN_TESTS = {
 };
 // Preparation a test needs
 const WN_SETUP = {
+  J1: 'Admin only.', J2: 'Use a new email (e.g. yourname+asm1@gmail.com).', J3: 'Do J2 first.', J4: 'Do J3 first. A phone camera is easiest.', J5: 'Do J4 first.',
+  J6: 'Needs the two times from J1.', J7: 'Another new email.', J8: 'Admin (or an Evaluator). Needs a booked applicant (J6).', J9: 'Do J8 first.', J10: 'Do J9 first.',
+  J11: 'Do J10 first.', J12: 'Admin (or Evaluator). Needs two more booked applicants.', J13: 'Admin only.', J14: 'Admin only.',
   K5: 'Admin only. A computer with Excel or Google Sheets is easiest.', K6: 'Admin only. Do K5 first.', K7: 'Admin only.',
   F1: 'A dispatcher or Admin assigns you a job with only one-assembler items.', R1: 'Needs a job completed in the last 24 hours (see A4–A5).', R2: 'Do R1 first.', R3: 'Needs another completed job with a reported problem.',
   N1: 'You must be the lead on a job that is being assembled today.', N2: 'Do N1 first.', H1: 'You must be the lead on a job for today. It takes 15 minutes of waiting.',
@@ -1368,7 +1433,7 @@ async function tsSave(id, patch, quiet){
   if (!quiet) { if (route().name === 'whatsnew') render(); else tgPaint(); }
   try { await api.saveTest(row); } catch (e) { toast(TR.err === 'setup' || /relation|does not exist|schema cache/i.test(errMsg(e)) ? 'Results can\'t be saved yet: run the test-results SQL in Supabase first.' : 'Couldn\'t save: ' + errMsg(e), true); await tsLoad(); }
 }
-const TG_ROLE = { customer: 'customer', assembler: 'assembler', dispatcher: 'dispatcher', enterprise: 'enterprise', admin: 'admin' };
+const TG_ROLE = { customer: 'customer', assembler: 'assembler', dispatcher: 'dispatcher', enterprise: 'enterprise', admin: 'admin', evaluator: 'evaluator' };
 function tsMine(t){
   const who = t[1].toLowerCase();
   if (S.me.role === 'admin' && !inPreview()) return true;
@@ -1509,9 +1574,10 @@ function tgAfterMove(){ TG.note = null; tgRepaint(); const b = document.querySel
 
 /* ───────────── Preview the app as (Admin) ───────────── */
 const PV_ROLES = [['customer', 'Customer', 'Books from the catalogue and follows their bookings'], ['enterprise', 'Business (Enterprise)', 'Books for end customers under a company name'],
-  ['assembler', 'Assembler', 'Offers, jobs, photos, sign-off and earnings – on a phone'], ['dispatcher', 'Dispatcher', 'Assigns assemblers to jobs']];
-function pvStart(p){ S.preview = p; S.menu = false; S.wnF = null; TG.i = null; history.replaceState(null, '', '#/' + NAV[p.p.role][0][0]); render(); window.scrollTo(0, 0); }
-function pvRole(r){ const x = PV_ROLES.find(y => y[0] === r); pvStart({ key: 'r:' + r, label: x ? x[1] : r, p: Object.assign({}, S.me, { id: 'preview-' + r, role: r, requested_role: '', company: r === 'enterprise' ? 'Sample company' : '' }) }); }
+  ['assembler', 'Assembler', 'Offers, jobs, photos, sign-off and earnings – on a phone'], ['dispatcher', 'Dispatcher', 'Assigns assemblers to jobs'],
+  ['applicant', 'Assembler applicant', 'Signs up in 4 steps and books an evaluation'], ['evaluator', 'Evaluator', 'Evaluation calendar, documents and scorecards']];
+function pvStart(p){ S.preview = p; S.menu = false; S.wnF = null; TG.i = null; history.replaceState(null, '', '#/' + (NAV[p.p.role === 'customer' && p.p.requested_role === 'assembler' ? 'applicant' : p.p.role] || NAV.customer)[0][0]); render(); window.scrollTo(0, 0); }
+function pvRole(r){ const x = PV_ROLES.find(y => y[0] === r); pvStart({ key: 'r:' + r, label: x ? x[1] : r, p: Object.assign({}, S.me, { id: 'preview-' + r, role: r === 'applicant' ? 'customer' : r, requested_role: r === 'applicant' ? 'assembler' : '', company: r === 'enterprise' ? 'Sample company' : '' }) }); }
 function pvPerson(id){ const p = S.profiles.find(x => x.id === id); if (!p) return; if (p.role === 'admin') return toast('That person is an Admin – they see what you see.'); pvStart({ key: 'p:' + id, label: p.full_name || p.email, person: true, p }); }
 function pvBar(){
   if (!inPreview()) return '';
@@ -1534,10 +1600,288 @@ function viewPreview(){
         <button class="btn soft small" data-act="pvperson" data-id="${esc(p.id)}">Preview</button></div></div>`).join('')}</div>` : '<div class="empty">No one to preview yet.</div>'}</div></div>`;
 }
 
+
+/* ───────────── Assembler application (applicant) ───────────── */
+const DOCS = { id: 'Valid ID', nbi: 'NBI clearance', med: 'Medical certificate' };
+const DOC_HELP = { id: 'UMID, driver\'s license, passport or PhilSys ID – the whole card, readable.', nbi: 'Your NBI clearance, the whole page.', med: 'A medical certificate saying you are fit to work.' };
+const myApp = () => (inPreview() ? (S.preview.person ? (S.apps || []).find(a => a.user_id === ME().id) || null : null) : S.app);
+const needDocs = a => ((a && a.data && a.data.mober) ? ['med'] : ['id', 'nbi', 'med']);
+const hubOf = name => (S.settings.hubs || []).find(h => h.name === name) || { name: name || '', address: '' };
+const ageOf = bd => { if (!bd) return ''; const t = todayISO(), y = Number(t.slice(0, 4)) - Number(bd.slice(0, 4)); return (t.slice(5) < bd.slice(5) ? y - 1 : y); };
+const slotLabel = ts => ts ? new Date(ts).toLocaleString('en-PH', { timeZone: TZ, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+const feeLine = () => num(S.settings.joining_fee) > 0 ? `Joining fee: <b>${money(S.settings.joining_fee)}</b>, paid at the evaluation.` : 'Joining fee: <b>Free</b>.';
+function appStepDone(a, k){
+  const d = (a && a.data) || {}, docs = (a && a.docs) || {};
+  if (k === 1) return !!d.birth_date;
+  if (k === 2) return needDocs(a).every(x => docs[x]) && (!d.mober || !!d.employee_id);
+  if (k === 3) return !!(d.base_area && d.commitment && d.gcash_number && d.gcash_name);
+  return a && a.status === 'booked';
+}
+function docStatus(doc){
+  if (!doc) return '<span class="chip">Not uploaded</span>';
+  if (doc.ok === true) return '<span class="chip green">✓ Checked</span>';
+  if (doc.ok === false) return `<span class="chip red">Please upload a new photo</span><div class="tiny" style="color:var(--red);margin-top:4px">${esc(doc.note)}</div>`;
+  return '<span class="chip blue">Uploaded – checked at the evaluation</span>';
+}
+function docUploader(a, k){
+  const doc = (a && a.docs || {})[k];
+  return `<div class="li" style="cursor:default"><div class="row" style="align-items:flex-start">
+    ${doc ? `<a data-href target="_blank" rel="noopener" style="width:64px;height:64px;border-radius:10px;overflow:hidden;flex:none;background:var(--soft)"><img data-bucket="apps" data-path="${esc(doc.path)}" alt="${esc(DOCS[k])}" style="width:100%;height:100%;object-fit:cover"></a>` : `<div style="width:64px;height:64px;border-radius:10px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:26px;flex:none">📄</div>`}
+    <div class="grow"><div class="b">${esc(DOCS[k])}</div><div class="tiny muted">${esc(DOC_HELP[k])}</div><div style="margin-top:6px">${docStatus(doc)}</div></div></div>
+    ${doc && doc.ok === true ? '' : `<label class="btn soft small" style="cursor:pointer;margin-top:10px">📷 ${doc ? 'Replace photo' : 'Take or choose a photo'}<input type="file" accept="image/*" hidden data-change="appdoc" data-kind="${k}"></label>`}</div>`;
+}
+function slotPicker(a){
+  if (!S.slots || Date.now() - (S.slotsAt || 0) > 60000) { if (!S.slotsLoading) { S.slotsLoading = true; loadSlots().catch(e => toast(errMsg(e), true)).finally(() => { S.slotsLoading = false; render(); }); } }
+  const list = (S.slots || []).filter(x => x.active && Date.parse(x.starts_at) > Date.now() + 2 * 3600e3);
+  if (!S.slots) return '<div class="muted">Loading times…</div>';
+  if (!list.length) return `<div class="notice warn">No evaluation times are open right now. Please check again tomorrow – we add new times every week.</div>`;
+  const byDay = {}; list.forEach(x => { const d = new Date(Date.parse(x.starts_at) + 8 * 3600e3).toISOString().slice(0, 10); (byDay[d] = byDay[d] || []).push(x); });
+  return Object.entries(byDay).map(([d, xs]) => `<div style="margin-bottom:12px"><div class="tiny muted b" style="margin-bottom:6px">${esc(fmtDate(d).toUpperCase())}</div>
+    <div class="slots">${xs.map(x => { const left = x.seats - x.booked, mine = a && a.slot_id === x.id;
+      return `<button class="slot ${mine ? 'on' : ''} ${S.pickSlot === x.id ? 'on' : ''}" data-act="pickslot" data-id="${x.id}" ${left <= 0 && !mine ? 'disabled style="opacity:.45"' : ''}>
+        ${esc(new Date(x.starts_at).toLocaleTimeString('en-PH', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }))}<div class="tiny" style="font-weight:700;opacity:.8">${esc(x.hub)} · ${mine ? 'your time' : left <= 0 ? 'full' : left + ' left'}</div></button>`; }).join('')}</div></div>`).join('');
+}
+function viewApply(){
+  const a = myApp(), d = (a && a.data) || {}, st = a ? a.status : 'draft', m = ME();
+  if (st === 'passed') return `<div class="narrow card" style="text-align:center;padding:30px 20px"><div style="font-size:44px">🎉</div><h1>You passed – welcome to Taskadoo!</h1>
+    <p>You're now an assembler. Open your app to go online and get job offers.</p>${a.result_note ? `<p class="muted">“${esc(a.result_note)}”</p>` : ''}
+    <button class="btn" data-act="becomeasm">Open my assembler app</button></div>`;
+  if (st === 'failed') return `<div class="narrow card" style="padding:24px"><h1>Thank you for coming to the evaluation</h1>
+    <p>This time we can't add you as an assembler.</p>${a.result_note ? `<div class="notice">${esc(a.result_note)}</div>` : ''}
+    <p class="small muted">You can still book assembly for your own home any time.</p><a class="btn ghost" href="#/book">Book an assembler</a></div>`;
+  if (st === 'booked' && !S.moving) {
+    const hub = hubOf(a.slot_hub), bad = needDocs(a).filter(k => a.docs[k] && a.docs[k].ok === false);
+    return `<div class="narrow">
+      <div class="card" style="background:var(--ink);color:#fff;border:0"><div class="tiny" style="opacity:.75">YOUR EVALUATION</div>
+        <div style="font-size:22px;font-weight:900;margin:4px 0">${esc(slotLabel(a.slot_at))}</div>
+        <div>${esc(hub.name)}${hub.address ? ' · ' + esc(hub.address) : ''}</div>
+        ${hub.address ? `<a class="btn small" style="margin-top:10px;background:#fff;color:var(--ink)" href="${mapHref(hub.address)}" target="_blank" rel="noopener">🧭 Directions</a>` : ''}</div>
+      ${bad.length ? `<div class="notice bad" style="margin-top:14px">Please upload a new photo of your ${bad.map(k => esc(DOCS[k])).join(' and ')} below.</div>` : ''}
+      <div class="card"><h3 style="margin-bottom:8px">What to expect</h3>
+        <ul class="small" style="margin:0;padding-left:18px"><li>About ${num(S.settings.eval_minutes || 45)} minutes: a short interview and a hands-on build test.</li>
+        <li>Bring the <b>original</b> ${needDocs(a).map(k => esc(DOCS[k])).join(', ')}${d.mober ? ' and your Mober company ID' : ''}.</li>
+        <li>Wear closed shoes. Arrive 10 minutes early.</li><li>${feeLine()}</li></ul>
+        <div class="tiny muted" style="margin-top:8px">We'll tell you the result right after. If you pass, your assembler app opens straight away.</div></div>
+      <div class="card"><h3 style="margin-bottom:8px">Your documents</h3><div class="list">${needDocs(a).map(k => docUploader(a, k)).join('')}</div></div>
+      <div class="row" style="margin-top:14px">${a.moved < 1 ? '<button class="btn ghost" data-act="appmove">Move to another time</button>' : '<span class="tiny muted">You already moved your evaluation once.</span>'}
+        <button class="btn red" data-act="appcancel">Cancel evaluation</button></div></div>`;
+  }
+  const done = k => appStepDone(a, k), first = [1, 2, 3, 4].find(k => !done(k)) || 4;
+  let step = S.moving ? 4 : (S.aStep || first);
+  const stepper = `<div class="steps" style="margin:6px 0 2px">${[1, 2, 3, 4].map(k => `<i class="${done(k) || k < step ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="row tiny muted b" style="justify-content:space-between">${['You', 'Documents', 'Skills', 'Book'].map((t, i) => `<button class="linkbtn" style="text-decoration:none;color:${i + 1 === step ? 'var(--ink)' : 'var(--muted)'}" data-act="astep" data-v="${i + 1}">${i + 1}. ${t}</button>`).join('')}</div>`;
+  const maxBd = addDays(todayISO(), -365.25 * num(S.settings.min_age || 21));
+  let body = '';
+  if (step === 1) body = `<h2 style="margin-bottom:12px">About you</h2>
+    <label class="f"><span>Full name</span><input id="ap_name" value="${esc(m.full_name)}" autocomplete="name"></label>
+    <label class="f"><span>Mobile</span><input id="ap_mobile" type="tel" value="${esc(m.mobile)}" autocomplete="tel"></label>
+    <label class="f"><span>Birth date</span><input id="ap_bd" type="date" max="${maxBd}" value="${esc(d.birth_date || '')}"><div class="tiny muted" style="margin-top:4px">You must be at least ${num(S.settings.min_age || 21)} years old.</div></label>
+    <label class="f"><span>Email</span><input value="${esc(m.email)}" disabled></label>
+    <button class="btn block" data-act="apsave1">Save and continue</button>`;
+  if (step === 2) body = `<h2 style="margin-bottom:12px">Documents</h2>
+    <div class="b" style="margin-bottom:6px">Are you currently a Mober employee?</div>
+    <div class="grid2" style="margin-bottom:12px"><button class="slot ${d.mober ? 'on' : ''}" data-act="apmober" data-v="1">Yes</button><button class="slot ${d.mober === false || !d.mober ? (d.mober === false ? 'on' : '') : ''}" data-act="apmober" data-v="0">No</button></div>
+    ${d.mober ? `<label class="f"><span>Mober employee ID</span><input id="ap_emp" value="${esc(d.employee_id || '')}" placeholder="EMP-00000"></label>
+      <div class="notice small" style="margin-bottom:12px">Your ID and NBI are already on file with Mober, so you only need the medical certificate. We confirm your employee ID before the evaluation.</div>` : ''}
+    <div class="list">${needDocs(a).map(k => docUploader(a, k)).join('')}</div>
+    <div class="tiny muted" style="margin:10px 0">Photos are private: only Taskadoo evaluators can see them.</div>
+    <button class="btn block" data-act="apsave2">Continue</button>`;
+  if (step === 3) {
+    const brands = [...new Set(S.catalog.map(c => c.brand).filter(b => b && b !== 'Any'))], skills = S.settings.skills || [];
+    const sel = S.aSel || (S.aSel = { brands: [...(d.brands || [])], skills: [...(d.skills || [])], commitment: d.commitment || '' });
+    const chips = (k, list) => `<div class="row" style="gap:8px">${list.map(v => `<button class="pill ${sel[k].includes(v) ? 'on' : ''}" data-act="aptog" data-k="${k}" data-v="${esc(v)}">${esc(v)}</button>`).join('')}</div>`;
+    body = `<h2 style="margin-bottom:12px">Where &amp; what</h2>
+      <div class="grid2"><label class="f"><span>Base location</span><select id="ap_area"><option value="">Choose…</option>${(S.settings.areas || []).map(x => `<option ${d.base_area === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+      <label class="f"><span>Willing to travel</span><select id="ap_km">${[5, 10, 15, 20, 30, 50].map(k => `<option value="${k}" ${num(d.travel_km || 10) === k ? 'selected' : ''}>${k} km</option>`).join('')}</select></label></div>
+      <label class="f"><span>Years of assembly experience</span><select id="ap_years">${['None yet', 'Less than 1', '1-2', '3-5', 'More than 5'].map(y => `<option ${d.years === y ? 'selected' : ''}>${y}</option>`).join('')}</select></label>
+      <div class="b" style="margin:6px 0">Brands you've worked with</div>${chips('brands', brands)}
+      <div class="b" style="margin:14px 0 6px">What you can build</div>${chips('skills', skills)}
+      <div class="b" style="margin:14px 0 6px">Commitment</div>
+      <div class="grid2">${['Full-time', 'Part-time'].map(c => `<button class="slot ${sel.commitment === c ? 'on' : ''}" data-act="apcommit" data-v="${c}">${c}</button>`).join('')}</div>
+      <h3 style="margin:18px 0 8px">GCash for your payouts</h3>
+      <div class="grid2"><label class="f"><span>Name on GCash</span><input id="ap_gname" value="${esc(d.gcash_name || '')}"></label>
+      <label class="f"><span>GCash number</span><input id="ap_gnum" type="tel" value="${esc(d.gcash_number || '')}" placeholder="09XX XXX XXXX"></label></div>
+      <button class="btn block" data-act="apsave3">Save and continue</button>`;
+  }
+  if (step === 4) {
+    const miss = [1, 2, 3].filter(k => !done(k));
+    body = `<h2 style="margin-bottom:6px">${S.moving ? 'Move your evaluation' : 'Book your evaluation'}</h2>
+      <div class="small muted" style="margin-bottom:12px">About ${num(S.settings.eval_minutes || 45)} minutes: a short interview and a hands-on build test. ${feeLine()} Your application is sent once you book a time.</div>
+      ${miss.length && !S.moving ? `<div class="notice warn">Finish step ${miss.join(' and ')} first.</div>` : `${slotPicker(a)}
+      <div class="row" style="margin-top:12px"><button class="btn green" data-act="apbook" ${S.pickSlot ? '' : 'disabled'}>${S.moving ? 'Move to this time' : 'Book this time'}</button>
+        ${S.moving ? '<button class="btn ghost" data-act="appmovex">Keep my time</button>' : ''}</div>
+      <div class="tiny muted" style="margin-top:8px">Need to change it later? You can move it once, up to 2 hours before.</div>`}`;
+  }
+  return `<div class="narrow">
+    ${st === 'no_show' ? '<div class="notice warn" style="margin-bottom:14px">You missed your evaluation. Book a new time below.</div>' : ''}
+    <h1>Become a Taskadoo assembler</h1><div class="muted" style="margin-bottom:10px">4 short steps. Your answers are saved as you go.</div>
+    ${stepper}<div class="card" style="margin-top:14px">${body}</div></div>`;
+}
+
+/* ───────────── Evaluations (Evaluator + Admin) ───────────── */
+const EFILTERS = [
+  ['today', 'Today', a => a.status === 'booked' && a.slot_at && new Date(Date.parse(a.slot_at) + 8 * 3600e3).toISOString().slice(0, 10) === todayISO()],
+  ['upcoming', 'Booked', a => a.status === 'booked'],
+  ['notbooked', 'Not booked yet', a => ['draft', 'no_show'].includes(a.status)],
+  ['passed', 'Passed', a => a.status === 'passed'],
+  ['failed', 'Failed', a => a.status === 'failed'],
+  ['all', 'All', () => true]
+];
+const APP_ST = { draft: ['', 'Not booked yet'], booked: ['blue', 'Evaluation booked'], passed: ['green', 'Passed'], failed: ['red', 'Failed'], no_show: ['orange', 'Missed evaluation'] };
+const docIcons = a => needDocs(a).map(k => { const x = (a.docs || {})[k]; return `<span title="${esc(DOCS[k])}" style="margin-right:6px">${!x ? '⬜' : x.ok === true ? '✅' : x.ok === false ? '❌' : '🟦'} ${esc(k.toUpperCase())}</span>`; }).join('');
+function viewEvals(id){
+  if (S.eTab === 'calendar') return evalTabs() + viewEvalCalendar();
+  const apps = S.apps || [], f = EFILTERS.find(x => x[0] === (S.eFilter || 'upcoming')) || EFILTERS[1];
+  const list = apps.filter(f[2]).sort((x, y) => String(x.slot_at || x.created_at).localeCompare(String(y.slot_at || y.created_at)));
+  const sel = id ? apps.find(a => a.id === id) : null;
+  return `${evalTabs()}
+    <div class="pills" style="margin-bottom:14px">${EFILTERS.map(x => `<button class="pill ${(S.eFilter || 'upcoming') === x[0] ? 'on' : ''}" data-act="efilter" data-v="${x[0]}">${esc(x[1])}<span class="n">${apps.filter(x[2]).length}</span></button>`).join('')}</div>
+    <div class="split ${sel ? 'has-sel' : ''}">
+      <div class="list">${list.length ? list.map(a => `<a class="li ${sel && sel.id === a.id ? 'on' : ''}" href="#/eval/${a.id}"><div class="row"><div class="grow">
+        <div class="b">${esc(a.full_name || a.email)} ${a.data && a.data.mober ? '<span class="chip blue">Mober</span>' : ''}</div>
+        <div class="tiny muted">${a.slot_at ? esc(slotLabel(a.slot_at)) + ' · ' + esc(a.slot_hub) : 'Started ' + esc(fmtTime(a.created_at))}${a.data && a.data.base_area ? ' · ' + esc(a.data.base_area) : ''}</div>
+        <div class="tiny" style="margin-top:3px">${docIcons(a)}</div></div><span class="chip ${APP_ST[a.status][0]}">${esc(APP_ST[a.status][1])}</span></div></a>`).join('')
+        : '<div class="card empty"><div class="ic">📋</div>Nobody here.</div>'}</div>
+      <div class="sticky">${sel ? '<a class="backsm" href="#/evals">‹ All applicants</a>' + evalPanel(sel) : '<div class="card empty"><div class="ic">👈</div>Pick an applicant to check documents and score the evaluation.</div>'}</div></div>`;
+}
+const evalTabs = () => `<div class="row" style="margin-bottom:14px"><h1 class="grow">Evaluations</h1>
+  <div class="tabs2" style="margin:0;width:auto"><button class="${S.eTab !== 'calendar' ? 'on' : ''}" data-act="etab" data-v="apps">Applicants</button><button class="${S.eTab === 'calendar' ? 'on' : ''}" data-act="etab" data-v="calendar">Calendar</button></div>
+  <button class="btn ghost small" data-act="ereload">↻ Refresh</button></div>`;
+function evalPanel(a){
+  const d = a.data || {}, items = S.settings.eval_items || [], sc = (S.score || {})[a.id] || a.score || {};
+  const rated = items.filter(i => sc[i.id]), avg = rated.length ? rated.reduce((t, i) => t + num(sc[i.id]), 0) / rated.length : 0, low = rated.some(i => num(sc[i.id]) <= 2);
+  const docsOk = needDocs(a).every(k => (a.docs || {})[k] && a.docs[k].ok === true) && (!d.mober || a.emp_verified === true);
+  const secs = [...new Set(items.map(i => i.sec))];
+  return `<div class="card">
+      <div class="row"><div class="grow"><h2>${esc(a.full_name || a.email)}</h2><div class="tiny muted">${esc(a.email)} · <a href="${telHref(a.mobile)}">${esc(a.mobile)}</a></div></div><span class="chip ${APP_ST[a.status][0]}">${esc(APP_ST[a.status][1])}</span></div>
+      ${a.slot_at ? `<div class="notice small" style="margin-top:10px">📅 ${esc(slotLabel(a.slot_at))} · ${esc(a.slot_hub)}${a.moved ? ' · moved once' : ''}</div>` : ''}
+      <dl class="kv" style="margin-top:12px">
+        <dt>Age</dt><dd>${d.birth_date ? ageOf(d.birth_date) + ' (' + esc(fmtDate(d.birth_date)) + ')' : '—'}</dd>
+        <dt>Base</dt><dd>${esc(d.base_area || '—')}${d.travel_km ? ' · travels ' + d.travel_km + ' km' : ''}</dd>
+        <dt>Experience</dt><dd>${esc(d.years || '—')}</dd><dt>Commitment</dt><dd>${esc(d.commitment || '—')}</dd>
+        <dt>Brands</dt><dd>${esc((d.brands || []).join(', ') || '—')}</dd><dt>Can build</dt><dd>${esc((d.skills || []).join(', ') || '—')}</dd>
+        <dt>GCash</dt><dd>${esc(d.gcash_name || '—')} · ${esc(d.gcash_number || '')}</dd>
+      </dl></div>
+    ${d.mober ? `<div class="card"><h3 style="margin-bottom:6px">Mober employee</h3><div class="row"><div class="grow">Employee ID <b>${esc(d.employee_id || '—')}</b>
+      <div style="margin-top:4px">${a.emp_verified === true ? '<span class="chip green">✓ Confirmed</span>' : a.emp_verified === false ? '<span class="chip red">Not confirmed</span>' : '<span class="chip">Not checked yet</span>'}</div></div>
+      ${a.status === 'booked' || a.status === 'draft' ? `<button class="btn green small" data-act="empok" data-id="${a.id}" data-v="1">Confirm</button><button class="btn red small" data-act="empok" data-id="${a.id}" data-v="0">Not right</button>` : ''}</div>
+      <div class="tiny muted" style="margin-top:6px">Check the ID with Mober HR. Mober employees skip the ID and NBI step.</div></div>` : ''}
+    <div class="card"><h3 style="margin-bottom:10px">Documents</h3>${needDocs(a).map(k => { const x = (a.docs || {})[k];
+      return `<div class="li" style="cursor:default;margin-bottom:8px"><div class="row" style="align-items:flex-start">
+        ${x ? `<a data-href target="_blank" rel="noopener" style="width:96px;height:96px;border-radius:10px;overflow:hidden;flex:none;background:var(--soft)"><img data-bucket="apps" data-path="${esc(x.path)}" alt="${esc(DOCS[k])}" style="width:100%;height:100%;object-fit:cover"></a>` : '<div style="width:96px;height:96px;border-radius:10px;background:var(--soft);flex:none"></div>'}
+        <div class="grow"><div class="b">${esc(DOCS[k])}</div>${x ? `<div class="tiny muted">Uploaded ${esc(fmtTime(x.at))} · tap the photo to open it full size</div><div style="margin-top:6px">${x.ok === true ? '<span class="chip green">✓ OK</span>' : x.ok === false ? '<span class="chip red">Not OK: ' + esc(x.note) + '</span>' : '<span class="chip blue">To check</span>'}</div>
+          ${['booked', 'draft', 'no_show'].includes(a.status) ? `<div class="row" style="margin-top:8px"><button class="btn green small" data-act="docok" data-id="${a.id}" data-k="${k}" data-v="1">OK</button>
+            <input id="dn_${k}" placeholder="What's wrong (if not OK)" style="flex:1;min-width:120px;padding:7px 9px"><button class="btn red small" data-act="docok" data-id="${a.id}" data-k="${k}" data-v="0">Not OK</button></div>` : ''}`
+          : '<div class="tiny muted">Not uploaded yet</div>'}</div></div></div>`; }).join('')}</div>
+    ${a.status === 'booked' ? `<div class="card"><h3 style="margin-bottom:4px">Scorecard</h3><div class="tiny muted" style="margin-bottom:10px">1 = poor · 3 = OK · 5 = excellent</div>
+      ${secs.map(sec => `<div class="tiny muted b" style="margin:10px 0 4px">${esc(String(sec).toUpperCase())}</div>${items.filter(i => i.sec === sec).map(i => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)">
+        <span class="grow small" style="color:var(--ink);font-weight:700">${esc(i.label)}</span>
+        <span class="row" style="gap:4px">${[1, 2, 3, 4, 5].map(n => `<button class="tg-x" style="min-width:34px;${num(sc[i.id]) === n ? 'background:var(--ink);color:#fff;border-color:var(--ink)' : ''}" data-act="escore" data-id="${a.id}" data-i="${esc(i.id)}" data-v="${n}">${n}</button>`).join('')}</span></div>`).join('')}`).join('')}
+      <div class="notice small" style="margin-top:12px">${rated.length ? `Average <b>${avg.toFixed(1)}</b> of 5 (${rated.length}/${items.length} scored) · suggested: <b>${avg >= 3.5 && !low ? 'Pass' : 'Fail'}</b>${low ? ' (an item scored 2 or lower)' : ''}` : 'Score each item during the interview and the build test.'}</div>
+      ${docsOk ? '' : `<div class="notice warn small" style="margin-top:8px">Before Pass: mark every document OK${d.mober ? ' and confirm the employee ID' : ''}.</div>`}
+      <label class="f" style="margin-top:12px"><span>Note for the applicant (shown to them)</span><textarea id="ev_note" placeholder="Example: Great attitude and clean build. Welcome!"></textarea></label>
+      <div class="row"><button class="btn green" data-act="edecide" data-id="${a.id}" data-v="passed" ${docsOk ? '' : 'disabled'}>✓ Pass – make assembler</button>
+        <button class="btn red" data-act="edecide" data-id="${a.id}" data-v="failed">✕ Fail</button><button class="btn ghost" data-act="edecide" data-id="${a.id}" data-v="no_show">Didn't come</button></div></div>`
+    : ['passed', 'failed'].includes(a.status) ? `<div class="card"><h3 style="margin-bottom:6px">Result: ${esc(APP_ST[a.status][1])}</h3>
+      <div class="small">${items.filter(i => (a.score || {})[i.id]).map(i => esc(i.label) + ': <b>' + a.score[i.id] + '</b>').join(' · ') || 'No scores recorded.'}</div>
+      ${a.result_note ? `<div class="notice small" style="margin-top:8px">${esc(a.result_note)}</div>` : ''}<div class="tiny muted" style="margin-top:6px">${esc(a.evaluator_name)} · ${esc(fmtTime(a.evaluated_at))}</div></div>` : ''}
+    <div class="card"><h3 style="margin-bottom:8px">History</h3><div class="events">${(a.events || []).slice().reverse().map(e => `<div><span class="b">${esc(APP_EV[e.action] || e.action)}</span>${e.note ? ' – ' + esc(e.note) : ''} <span class="tiny">· ${esc(e.name || '')} · ${esc(fmtTime(e.at))}</span></div>`).join('')}</div></div>`;
+}
+const APP_EV = { started: 'Started the application', booked: 'Booked the evaluation', moved: 'Moved the evaluation', cancelled: 'Cancelled the evaluation', doc_ok: 'Document OK',
+  doc_bad: 'Document not OK', emp_ok: 'Employee ID confirmed', emp_bad: 'Employee ID not confirmed', passed: 'Passed', failed: 'Failed', no_show: "Didn't come" };
+function viewEvalCalendar(){
+  if (!S.slots || Date.now() - (S.slotsAt || 0) > 60000) { if (!S.slotsLoading) { S.slotsLoading = true; loadSlots().catch(e => toast(errMsg(e), true)).finally(() => { S.slotsLoading = false; render(); }); } }
+  const hubs = S.settings.hubs || [], up = (S.slots || []).filter(x => Date.parse(x.starts_at) > Date.now() - 12 * 3600e3);
+  const byDay = {}; up.forEach(x => { const d = new Date(Date.parse(x.starts_at) + 8 * 3600e3).toISOString().slice(0, 10); (byDay[d] = byDay[d] || []).push(x); });
+  const times = S.newTimes || (S.newTimes = ['9:00 AM', '1:00 PM']);
+  return `<div class="split"><div>
+    ${!S.slots ? '<div class="muted">Loading…</div>' : Object.keys(byDay).length ? Object.entries(byDay).map(([d, xs]) => `<h3 style="margin:6px 0 8px">${esc(fmtDate(d))}</h3><div class="list" style="margin-bottom:14px">${xs.map(x => `<div class="li" style="cursor:default${x.active ? '' : ';opacity:.6'}"><div class="row">
+      <div class="grow"><div class="b">${esc(new Date(x.starts_at).toLocaleTimeString('en-PH', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }))} · ${esc(x.hub)}</div>
+        <div class="tiny muted">${x.booked} of ${x.seats} booked${x.active ? '' : ' · closed – applicants can\'t pick it'}</div></div>
+      <button class="btn ghost small" data-act="slotact" data-id="${x.id}" data-v="${x.active ? 0 : 1}">${x.active ? 'Close' : 'Open'}</button>
+      ${x.booked ? '' : `<button class="btn red small" data-act="slotdel" data-id="${x.id}">Delete</button>`}</div></div>`).join('')}</div>`).join('')
+      : '<div class="card empty"><div class="ic">📅</div>No evaluation times yet. Add some on the right.</div>'}</div>
+    <div class="sticky"><div class="card"><h3 style="margin-bottom:10px">Add evaluation times</h3>
+      <label class="f"><span>Hub</span><select id="ns_hub">${hubs.map(h => `<option>${esc(h.name)}</option>`).join('')}</select></label>
+      <label class="f"><span>Date</span><input id="ns_date" type="date" min="${todayISO()}" value="${esc(S.nsDate || addDays(todayISO(), 1))}" data-in="nsDate"></label>
+      <div class="b small" style="margin-bottom:6px">Times</div>
+      <div class="row" style="gap:8px">${times.map((t, i) => `<span class="chip" style="font-size:13.5px;padding:6px 6px 6px 12px;background:#fff">${esc(t)}<button class="linkbtn" data-act="nstrm" data-i="${i}" style="text-decoration:none;color:var(--muted);padding:0 4px" aria-label="Remove">✕</button></span>`).join('')}</div>
+      <div class="row" style="margin:10px 0 12px"><input type="time" id="ns_time" value="10:00" style="width:auto"><button class="btn soft small" data-act="nstadd">+ Add time</button></div>
+      <label class="f"><span>Seats per time</span><input id="ns_seats" type="number" min="1" max="50" value="${esc(S.nsSeats || 4)}" data-in="nsSeats"></label>
+      <button class="btn block" data-act="nscreate" ${times.length ? '' : 'disabled'}>Create ${times.length} time${times.length === 1 ? '' : 's'}</button>
+      <div class="tiny muted" style="margin-top:8px">Hubs and their addresses are in Settings. Tip: repeat for each day of the week.</div></div></div></div>`;
+}
+
 /* ───────────── Actions ───────────── */
 async function reloadJob(id){ const j = await api.job(id); const k = S.jobs.findIndex(x => x.id === id); if (j) { if (k >= 0) S.jobs[k] = j; else S.jobs.unshift(j); } else if (k >= 0) S.jobs.splice(k, 1); }
 const ACT = {
   menu(){ S.menu = !S.menu; render(); },
+  // application (applicant)
+  astep(b){ S.aStep = Number(b.dataset.v); S.aSel = null; render(); window.scrollTo(0, 0); },
+  async apsave1(b){ await busy(b, async () => {
+    if (val('ap_name').length < 2) throw new Error('Please enter your full name.');
+    if (val('ap_mobile').replace(/\D/g, '').length < 10) throw new Error('Please enter a valid mobile number.');
+    if (!val('ap_bd')) throw new Error('Please enter your birth date.');
+    S.app = await api.rpc('app_save', { p: { full_name: val('ap_name'), mobile: val('ap_mobile'), birth_date: val('ap_bd') } });
+    await refreshMe(); S.aStep = 2; render(); window.scrollTo(0, 0); }); },
+  async apmober(b){ await busy(b, async () => { S.app = await api.rpc('app_save', { p: { mober: b.dataset.v === '1' } }); render(); }); },
+  async apsave2(b){ await busy(b, async () => {
+    const a = S.app || {}, d = a.data || {};
+    if (d.mober === undefined) throw new Error('Tell us if you are a Mober employee.');
+    if (d.mober) { if (val('ap_emp').length < 3) throw new Error('Enter your Mober employee ID.'); S.app = await api.rpc('app_save', { p: { employee_id: val('ap_emp') } }); }
+    const miss = needDocs(S.app).filter(k => !(S.app.docs || {})[k]);
+    if (miss.length) throw new Error('Please add a photo of your ' + miss.map(k => DOCS[k]).join(' and ') + '.');
+    S.aStep = 3; S.aSel = null; render(); window.scrollTo(0, 0); }); },
+  aptog(b){ const k = b.dataset.k, v = b.dataset.v, l = S.aSel[k]; const i = l.indexOf(v); if (i >= 0) l.splice(i, 1); else l.push(v); b.classList.toggle('on'); },
+  apcommit(b){ S.aSel.commitment = b.dataset.v; document.querySelectorAll('[data-act=apcommit]').forEach(x => x.classList.toggle('on', x === b)); },
+  async apsave3(b){ await busy(b, async () => {
+    const sel = S.aSel || {};
+    if (!val('ap_area')) throw new Error('Choose your base location.');
+    if (!sel.commitment) throw new Error('Choose full-time or part-time.');
+    if (val('ap_gname').length < 2) throw new Error('Enter the name on your GCash account.');
+    if (val('ap_gnum').replace(/\D/g, '').length < 10) throw new Error('Enter your GCash number.');
+    S.app = await api.rpc('app_save', { p: { base_area: val('ap_area'), travel_km: Number(val('ap_km')), years: val('ap_years'), brands: sel.brands, skills: sel.skills,
+      commitment: sel.commitment, gcash_name: val('ap_gname'), gcash_number: val('ap_gnum') } });
+    S.aStep = 4; S.aSel = null; S.slots = null; render(); window.scrollTo(0, 0); }); },
+  pickslot(b){ S.pickSlot = Number(b.dataset.id); render(); },
+  async apbook(b){ await busy(b, async () => {
+    S.app = await api.rpc('app_book', { p_slot: S.pickSlot }); const moved = S.moving;
+    S.pickSlot = null; S.moving = false; S.aStep = null; S.slots = null; await refreshMe(); toast(moved ? 'Evaluation moved' : 'Booked! See you at the evaluation.'); render(); window.scrollTo(0, 0); }); },
+  appmove(){ S.moving = true; S.pickSlot = null; S.slots = null; render(); },
+  appmovex(){ S.moving = false; S.pickSlot = null; render(); },
+  async appcancel(b){ if (!confirm('Cancel your evaluation? You can book a new time later.')) return;
+    await busy(b, async () => { S.app = await api.rpc('app_cancel', {}); S.aStep = 4; render(); }); },
+  async becomeasm(b){ await busy(b, async () => { await refreshMe(); await loadJobs(); go('tasks'); render(); }); },
+  // evaluations (staff)
+  etab(b){ S.eTab = b.dataset.v; if (b.dataset.v === 'calendar') S.slots = null; history.replaceState(null, '', '#/evals'); render(); },
+  efilter(b){ S.eFilter = b.dataset.v; render(); },
+  async ereload(b){ await busy(b, async () => { await loadApps(); S.slots = null; if (S.eTab === 'calendar') await loadSlots(); render(); toast('Updated'); }); },
+  async docok(b){ await busy(b, async () => { const ok = b.dataset.v === '1';
+    const r = await api.rpc('app_doc_review', { p_app: b.dataset.id, p_kind: b.dataset.k, p_ok: ok, p_note: ok ? '' : val('dn_' + b.dataset.k) });
+    const k = S.apps.findIndex(a => a.id === r.id); if (k >= 0) S.apps[k] = r; render(); }); },
+  async empok(b){ await busy(b, async () => { const r = await api.rpc('app_emp_verify', { p_app: b.dataset.id, p_ok: b.dataset.v === '1' });
+    const k = S.apps.findIndex(a => a.id === r.id); if (k >= 0) S.apps[k] = r; render(); }); },
+  escore(b){ S.score = S.score || {}; const a = S.apps.find(x => x.id === b.dataset.id); S.score[b.dataset.id] = S.score[b.dataset.id] || Object.assign({}, (a && a.score) || {});
+    S.score[b.dataset.id][b.dataset.i] = Number(b.dataset.v); const keep = val('ev_note'); render(); const t = document.getElementById('ev_note'); if (t) t.value = keep; },
+  async edecide(b){ const v = b.dataset.v, a = S.apps.find(x => x.id === b.dataset.id);
+    if (!confirm(v === 'passed' ? `Pass ${a.full_name}? They become an assembler straight away.` : v === 'failed' ? `Fail ${a.full_name}?` : `Mark that ${a.full_name} didn't come? They can book a new time.`)) return;
+    await busy(b, async () => { const r = await api.rpc('app_decide', { p_app: a.id, p_result: v, p_score: (S.score || {})[a.id] || a.score || {}, p_note: val('ev_note') });
+      const k = S.apps.findIndex(x => x.id === r.id); if (k >= 0) S.apps[k] = r; if (S.score) delete S.score[a.id];
+      if (role() === 'admin') await loadProfiles(); if (isStaff()) await loadAssemblers(null);
+      toast(v === 'passed' ? a.full_name + ' is now an assembler 🎉' : 'Saved'); render(); }); },
+  nstadd(){ const v = val('ns_time'); if (!v) return; const t = toSlot(v); if (!S.newTimes.includes(t)) S.newTimes = [...S.newTimes, t].sort((x, y) => slotMin(x) - slotMin(y)); render(); },
+  nstrm(b){ S.newTimes.splice(Number(b.dataset.i), 1); render(); },
+  async nscreate(b){ await busy(b, async () => {
+    const date = val('ns_date'), seats = Math.max(1, Math.min(50, Math.round(num(val('ns_seats'))) || 4)), hub = val('ns_hub');
+    if (!date) throw new Error('Pick a date.'); if (!hub) throw new Error('Add a hub in Settings first.');
+    const rows = S.newTimes.map(t => { const mm = slotMin(t); return { hub, seats, starts_at: date + 'T' + String(Math.floor(mm / 60)).padStart(2, '0') + ':' + String(mm % 60).padStart(2, '0') + ':00+08:00' }; })
+      .filter(r => Date.parse(r.starts_at) > Date.now());
+    if (!rows.length) throw new Error('Those times have already passed.');
+    await api.insertSlots(rows); await loadSlots(); toast(rows.length + ' time' + (rows.length === 1 ? '' : 's') + ' added'); render(); }); },
+  async slotact(b){ await busy(b, async () => { await api.updateSlot(Number(b.dataset.id), { active: b.dataset.v === '1' }); await loadSlots(); render(); }); },
+  async slotdel(b){ if (!confirm('Delete this evaluation time?')) return;
+    await busy(b, async () => { try { await api.deleteSlot(Number(b.dataset.id)); } catch (e) { throw new Error(/foreign key|violates/i.test(errMsg(e)) ? 'Someone was evaluated at this time, so it can\'t be deleted. Tap Close instead.' : errMsg(e)); }
+      await loadSlots(); render(); }); },
   tsfilter(b){ S.wnF = b.dataset.v; render(); },
   async tsreload(b){ await busy(b, async () => { await tsLoad(); toast('Results refreshed'); }); },
   tsset(b){ const id = b.dataset.id, cur = (TR.map[id] || {}).status, ta = document.getElementById('ts-note-' + id);
@@ -1681,6 +2025,12 @@ const ACT = {
     while ((S.sd.categories || []).some(c => c.id === id)) id = base + '-' + n++;
     S.sd.categories = [...(S.sd.categories || []), { id, name: v }]; render(); },
   sdundo(){ S.sd = null; render(); toast('Changes undone'); },
+  sdaddhub(){ const v = val('sd_hub'); if (!v) return toast('Type the hub name first.', true);
+    if ((S.sd.hubs || []).some(h => h.name.toLowerCase() === v.toLowerCase())) return toast(v + ' is already there.', true);
+    S.sd.hubs = [...(S.sd.hubs || []), { id: v.toLowerCase().replace(/[^a-z0-9]+/g, '-'), name: v, address: '' }]; render(); },
+  sdaddskill(){ const v = val('sd_skill'); if (!v) return; if ((S.sd.skills || []).includes(v)) return toast(v + ' is already there.', true); S.sd.skills = [...(S.sd.skills || []), v]; render(); },
+  sdaddei(){ const v = val('sd_ei'); if (!v) return toast('Type the item first.', true);
+    S.sd.eval_items = [...(S.sd.eval_items || []), { id: 'i' + Date.now().toString(36), sec: 'Build test', label: v }]; render(); },
   async savesettings(b){ await busy(b, async () => {
     const v = S.sd;
     const n = k => num(v[k]);
@@ -1689,7 +2039,10 @@ const ACT = {
     if (!(v.slots || []).length) throw new Error('Add at least one time slot.');
     if (!(v.areas || []).length) throw new Error('Add at least one service area.');
     if ((v.categories || []).some(c => !String(c.name).trim())) throw new Error('Every category needs a name.');
-    ['commission','lead_pct','dispute_hours','cancel_free_hours','cancel_fee','nobody_wait_min','fail_pct','fail_max'].forEach(k => v[k] = n(k));
+    ['commission','lead_pct','dispute_hours','cancel_free_hours','cancel_fee','nobody_wait_min','fail_pct','fail_max','joining_fee','min_age','eval_minutes'].forEach(k => v[k] = n(k));
+    if (!(v.hubs || []).length || v.hubs.some(h => !String(h.name).trim())) throw new Error('Every hub needs a name.');
+    if ((v.eval_items || []).some(i => !String(i.label).trim())) throw new Error('Every scorecard item needs a text.');
+    if (v.min_age < 18) throw new Error('The minimum age can\'t be below 18.');
     if (v.dispute_hours < 1) throw new Error('Allow at least 1 hour to report a problem.');
     await api.saveSettings(v); S.settings = JSON.parse(JSON.stringify(v)); S.sd = null; toast('Settings saved'); render(); }); },
   // problems & missed visits
@@ -1714,6 +2067,16 @@ const ACT = {
   gotoattention(b, e){ e.preventDefault(); S.dFilter = 'attention'; S.dFilterSet = true; go('dispatch'); },
 };
 const CHANGE = {
+  async appdoc(el){
+    const f = el.files[0], kind = el.dataset.kind; el.value = ''; if (!f) return;
+    const label = el.closest('label'); if (label) { label.style.opacity = .6; label.firstChild.textContent = 'Uploading… '; }
+    try {
+      const blob = await compress(f, 1800), path = S.me.id + '/' + kind + '_' + rid() + '.jpg';
+      await api.upload(path, blob, 'image/jpeg', 'apps');
+      S.app = await api.rpc('app_doc', { p_kind: kind, p_path: path }); toast(DOCS[kind] + ' added');
+    } catch (e) { console.warn(e); toast(errMsg(e), true); }
+    render();
+  },
   async csvfile(el){ const f = el.files[0]; el.value = ''; if (!f) return;
     try { if (f.size > 2e6) throw new Error('That file is too big for a catalogue (over 2 MB).'); S.csv = csvCheck(await f.text()); render(); }
     catch (e) { toast(errMsg(e), true); } },
@@ -1749,8 +2112,11 @@ document.addEventListener('input', e => {
   const t = e.target; if (!t.dataset || !S.sd) return;
   if (t.dataset.sd != null) { S.sd[t.dataset.sd] = t.type === 'number' ? (t.value === '' ? '' : Number(t.value)) : t.value; sdPaint(); }
   if (t.dataset.cat != null) { S.sd.categories[Number(t.dataset.cat)].name = t.value; sdPaint(); }
+  if (t.dataset.hub != null) { S.sd.hubs[Number(t.dataset.hub)][t.dataset.f] = t.value; sdPaint(); }
+  if (t.dataset.ei != null && t.tagName === 'INPUT') { S.sd.eval_items[Number(t.dataset.ei)].label = t.value; sdPaint(); }
 });
-document.addEventListener('change', e => { const t = e.target; if (t.dataset && t.dataset.sd != null && S.sd && t.tagName === 'SELECT') { S.sd[t.dataset.sd] = t.value; sdPaint(); render(); } });
+document.addEventListener('change', e => { const t = e.target; if (t.dataset && t.dataset.sd != null && S.sd && t.tagName === 'SELECT') { S.sd[t.dataset.sd] = t.value; sdPaint(); render(); }
+  if (t.dataset && t.dataset.ei != null && t.tagName === 'SELECT' && S.sd) { S.sd.eval_items[Number(t.dataset.ei)].sec = t.value; sdPaint(); } });
 document.addEventListener('input', e => { if (e.target.id === 'nh_note') S.nhNote = e.target.value; });
 document.addEventListener('toggle', e => { if (e.target.matches && e.target.matches('details[data-nh]')) S.nhOpen = e.target.open; }, true);
 const noteT = {};
@@ -1765,6 +2131,7 @@ document.addEventListener('change', e => { const k = e.target.dataset && e.targe
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest('.auth') && e.target.tagName === 'INPUT') { const b = document.querySelector('.auth .btn[data-act]'); if (b) b.click(); } });
 window.addEventListener('hashchange', async () => {
   S.menu = false; S.resOpt = null; S.report = null; S.noSign = null; S.editItem = null; S.csv = null;
+  if (route().name === 'eval') S.eTab = 'apps';
   const r = route();
   if (S.me && isStaff() && r.name === 'job') { const j = S.jobs.find(x => String(x.id) === r.arg); try { await loadAssemblers(j ? j.job_date : null); } catch (e) { console.warn(e); } }
   render(); if (!['job'].includes(r.name)) window.scrollTo(0, 0);
@@ -1773,9 +2140,9 @@ window.addEventListener('hashchange', async () => {
 setInterval(async () => {
   if (!S.me || document.hidden) return;
   const r = route().name;
-  if (!['tasks','bookings','dispatch','booking'].includes(r)) return;
+  if (!['tasks','bookings','dispatch','booking','evals','apply'].includes(r)) return;
   const a = document.activeElement; if (a && ['INPUT','SELECT','TEXTAREA'].includes(a.tagName)) return;
-  try { await loadJobs(); if (route().name === r) render(); } catch (e) { console.warn(e); }
+  try { if (r === 'evals') await loadApps(); else if (r === 'apply') { if (!S.app || S.app.status !== 'booked') return; await loadApp(); } else await loadJobs(); if (route().name === r) render(); } catch (e) { console.warn(e); }
 }, 45000);
 boot();
 </script>

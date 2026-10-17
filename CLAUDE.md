@@ -32,6 +32,13 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   `report_problem` (customer, within `dispute_hours` of completion), `resolve_job` (staff: accepted/revisit/partial/full/rejected; revisit
   creates a ₱0 job with `revisit_of`), `cancel_fee` (what cancelling now costs). Trigger `block_unpaid`: customers with an unpaid job/fee
   older than the problem window can't book. `job_due()` = what the customer owes (total − refund, or the kept fee).
+- v1.4 assembler sign-up: `applications` (one per user: status draft/booked/passed/failed/no_show, `data` jsonb, `docs` jsonb id/nbi/med
+  {path, ok, note}, Mober employees need only `med` + `emp_verified`), `eval_slots` (hub name, starts_at, seats). Role `evaluator`
+  (`is_evaluator()` = admin or evaluator). RPCs: `app_me`, `app_save`, `app_doc`, `eval_slot_list`, `app_book` (move once, ≥2 h before),
+  `app_cancel`, `app_list`, `app_doc_review`, `app_emp_verify`, `app_decide` (passed → role assembler). Private bucket `apps/<user id>/…`.
+  Settings: hubs [{id,name,address}], joining_fee (0 = free), min_age 21, eval_minutes, skills, eval_items [{id,sec,label}] scored 1–5.
+  An applicant = customer with requested_role 'assembler' (nav `applicant`: My application first).
+- All times on screen use `TZ = 'Asia/Manila'`.
 - Rules in settings `main`: dispute_hours 24, cancel_free_hours 24, cancel_fee 300, fail_pct 30, fail_max 500, nobody_wait_min 15.
 - Storage bucket `jobs` (private): photos and signature at `<jobId>/<file>`; upload only by the job's assemblers once arrived.
 - Payment in Phase 1: customer pays after sign-off (cash/GCash/bank); Admin marks it paid. Assembler payouts are "held" for the
@@ -56,8 +63,9 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
+  v1.4: assembler sign-up + evaluation (Evaluator role, calendar, document checks, scorecard). v1.3: catalogue CSV import/export.
   v1.2: problems after the job, missed visits, late-cancel fee, payout holds, unpaid block, Settings + Catalogue redesign.
-- Phase 2: assembler registration + evaluation booking, enterprise portal (CSV upload, billing, self-dispatch), earnings payouts.
+- Phase 2: (done: assembler registration + evaluation) enterprise portal (CSV upload, billing, self-dispatch), earnings payouts.
 - Phase 3: receipt upload + pricing desk, auto-matching/offer cascade, Thailand (THB, Thai), native app if push/background location needed.
 
 ## Files
