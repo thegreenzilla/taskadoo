@@ -1,0 +1,33 @@
+﻿sku,name,brand,category,fee,crew,minutes,emoji,bookable
+IK-PAX-2D,PAX Wardrobe (2-door),IKEA,Bedroom,1200,2,180,🚪,yes
+IK-PAX-CNR,PAX Corner Wardrobe,IKEA,Bedroom,1650,2,240,🗄️,yes
+IK-MALM-Q,MALM Bed Frame (Queen),IKEA,Bedroom,950,2,120,🛏️,yes
+IK-BRM-STO,BRIMNES Bed with storage,IKEA,Bedroom,1100,2,150,🛏️,yes
+IK-HEM-8D,HEMNES Dresser (8-drawer),IKEA,Bedroom,700,1,100,🗃️,yes
+IK-NOR-3D,NORDLI Chest (3-drawer),IKEA,Bedroom,550,1,70,🗃️,yes
+IK-MALM-NS,MALM Nightstand,IKEA,Bedroom,280,1,30,🪑,yes
+NT-WRD-SL,N-Slide Wardrobe (2-door),NITORI,Bedroom,1050,2,150,🚪,yes
+MJ-BED-OAK,Oak Bed Frame (Double),MUJI,Bedroom,880,2,120,🛏️,yes
+MF-DRS-6D,Dresser with mirror,Mandaue Foam,Bedroom,820,2,120,🪞,yes
+IK-KAL-4C,KALLAX Shelf (4-cube),IKEA,Storage & shelving,600,1,90,📦,yes
+IK-KAL-16C,KALLAX Shelf (16-cube),IKEA,Storage & shelving,1100,2,150,📦,yes
+IK-BIL-BC,BILLY Bookcase,IKEA,Storage & shelving,450,1,60,📚,yes
+IK-IVAR-3S,IVAR Shelving Unit,IKEA,Storage & shelving,520,1,70,🪜,yes
+MJ-SH-5T,Stacking Oak Shelf (5-tier),MUJI,Storage & shelving,380,1,45,🪵,yes
+NT-RACK-5T,N-Click Shelf Unit,NITORI,Storage & shelving,520,1,70,🪜,yes
+IK-MIC-DSK,MICKE Desk,IKEA,Office,520,1,60,🖥️,yes
+IK-BEK-DSK,BEKANT Sit/Stand Desk,IKEA,Office,780,1,90,🖥️,yes
+IK-MKS-CHR,MARKUS Office Chair,IKEA,Office,350,1,40,🪑,yes
+IK-ALX-DRW,ALEX Drawer Unit,IKEA,Office,600,1,70,🗄️,yes
+IK-BES-TV,BESTÅ TV Unit,IKEA,Living room,850,1,120,📺,yes
+IK-KIV-3S,KIVIK Sofa (3-seat),IKEA,Living room,1200,2,150,🛋️,yes
+MF-SF-31,Sofa Set (3+1),Mandaue Foam,Living room,1100,2,150,🛋️,yes
+IK-LCK-CT,LACK Coffee Table,IKEA,Living room,250,1,30,🪑,yes
+TD-TVM-55,"TV wall mount (up to 55"")",Any,TV & wall mounting,700,1,60,📺,yes
+TD-TVM-65,"TV wall mount (65"" and up)",Any,TV & wall mounting,950,2,90,📺,yes
+TD-SHF-FLT,Floating shelf set,Any,TV & wall mounting,420,1,60,🪵,yes
+TD-MIR-HNG,Mirror & wall art hanging,Any,TV & wall mounting,350,1,45,🪞,yes
+NT-DT-6S,Dining table set (6-seat),NITORI,Dining,1600,2,240,🍽️,yes
+IK-EKD-TBL,EKEDALEN Extendable Table,IKEA,Dining,700,1,90,🍽️,yes
+IK-CHR-X4,Dining chairs (set of 4),IKEA,Dining,600,1,70,🪑,yes
+MF-BST-X2,Bar stools (set of 2),Mandaue Foam,Dining,380,1,45,🪑,yes

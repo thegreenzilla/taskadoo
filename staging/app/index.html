@@ -263,6 +263,7 @@ const api = window.__MOCK_API || {
   async settings(){ const r = await q(sb.from('settings').select('value').eq('key', 'main').maybeSingle()); return r ? r.value : {}; },
   saveSettings: v => q(sb.from('settings').upsert({ key: 'main', value: v, updated_at: new Date().toISOString() })),
   catalog: () => q(sb.from('catalog').select('*').order('cat').order('name')),
+  upsertItems: rows => q(sb.from('catalog').upsert(rows, { onConflict: 'sku' })),
   saveItem(it){
     const { id, ...f } = it;
     return id ? q(sb.from('catalog').update(f).eq('id', id)) : q(sb.from('catalog').insert(f));
@@ -284,7 +285,7 @@ if (!api.testResults) {
 }
 /* Preview (Admin): look-only. Every write is refused while previewing; test results still save. */
 const PV_MSG = 'Preview is look-only – nothing was saved.';
-['updateProfile', 'saveSettings', 'saveItem', 'rpc', 'upload'].forEach(k => {
+['updateProfile', 'saveSettings', 'saveItem', 'upsertItems', 'rpc', 'upload'].forEach(k => {
   const f = api[k];
   api[k] = (...a) => (inPreview() && !(k === 'rpc' && ['assembler_list', 'cancel_fee'].includes(a[0]))) ? Promise.reject(new Error(PV_MSG)) : f.apply(api, a);
 });
@@ -1029,6 +1030,8 @@ function viewCatalog(){
   const hidden = S.catalog.filter(c => !c.active).length;
   return `<div class="row" style="margin-bottom:6px"><h1 class="grow">Catalogue</h1>
       <div style="flex:0 1 260px"><input placeholder="Search item, brand or SKU" value="${esc(S.cSearch || '')}" data-in="cSearch"></div>
+      <button class="btn ghost small" data-act="csvdown">⬇ Download CSV</button>
+      <label class="btn ghost small" style="cursor:pointer">⬆ Import CSV<input type="file" accept=".csv,text/csv" hidden data-change="csvfile"></label>
       <button class="btn" data-act="itemnew">+ Add item</button></div>
     <p class="muted" style="margin-top:0">Every item has a fixed assembly fee. Crew = how many assemblers the item needs (a job takes the highest). Hidden items can't be booked.</p>
     <div class="pills" style="margin-bottom:14px"><button class="pill ${S.cHidden ? '' : 'on'}" data-act="chidden" data-v="0">Bookable (${S.catalog.length - hidden})</button>
@@ -1041,7 +1044,72 @@ function viewCatalog(){
         <div class="b" style="font-size:16px">${money(c.fee)}</div>
         <button class="btn ghost small" data-act="itemedit" data-id="${c.id}">Edit</button></div></div>`).join('')}</div>`).join('')
       : '<div class="card empty">No items match.</div>'}
-    ${S.editItem ? itemModal(S.editItem) : ''}`;
+    ${S.editItem ? itemModal(S.editItem) : ''}${S.csv ? csvModal(S.csv) : ''}`;
+}
+/* ── catalogue CSV: download the current list, edit it in Excel / Google Sheets, import it back (matched by SKU) ── */
+const CSV_COLS = ['sku', 'name', 'brand', 'category', 'fee', 'crew', 'minutes', 'emoji', 'bookable'];
+const csvCell = v => { v = String(v == null ? '' : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+function csvParse(text){
+  const rows = []; let row = [], f = '', q = false;
+  text = text.replace(/^\uFEFF/, '');
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ',' || c === ';' || c === '\t') { row.push(f); f = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+    else f += c;
+  }
+  if (f !== '' || row.length) { row.push(f); rows.push(row); }
+  return rows.filter(r => r.some(x => String(x).trim() !== ''));
+}
+function csvCheck(text){
+  const rows = csvParse(text); if (!rows.length) throw new Error('The file is empty.');
+  const head = rows[0].map(h => h.trim().toLowerCase());
+  const miss = ['sku', 'name', 'brand', 'category', 'fee'].filter(c => !head.includes(c));
+  if (miss.length) throw new Error('The first row must have the column names. Missing: ' + miss.join(', ') + '. Download the CSV first and use it as your template.');
+  const col = k => head.indexOf(k), catOf = v => { v = String(v || '').trim().toLowerCase(); const c = cats().find(x => x.id === v || x.name.toLowerCase() === v); return c ? c.id : null; };
+  const out = { add: [], change: [], same: 0, errors: [] }, seen = {};
+  rows.slice(1).forEach((r, k) => {
+    const line = k + 2, g = c => (col(c) < 0 ? '' : String(r[col(c)] == null ? '' : r[col(c)]).trim());
+    const sku = g('sku'), bk = g('bookable').toLowerCase();
+    const it = { sku, name: g('name'), brand: g('brand'), cat: catOf(g('category')), fee: Number(g('fee').replace(/[₱฿,\s]/g, '')),
+      crew: g('crew') === '' ? 1 : Number(g('crew')), minutes: g('minutes') === '' ? 60 : Number(g('minutes')), emoji: g('emoji') || '📦',
+      active: !['no', 'n', 'false', '0', 'hidden', 'hide'].includes(bk) };
+    const bad = [];
+    if (!sku) bad.push('SKU is empty');
+    if (sku && seen[sku.toLowerCase()]) bad.push('SKU ' + sku + ' appears twice (also row ' + seen[sku.toLowerCase()] + ')');
+    if (!it.name) bad.push('name is empty');
+    if (!it.brand) bad.push('brand is empty');
+    if (!it.cat) bad.push('category "' + g('category') + '" is not in Settings → Categories');
+    if (!isFinite(it.fee) || g('fee') === '' || it.fee < 0) bad.push('fee "' + g('fee') + '" is not a number');
+    if (!Number.isInteger(it.crew) || it.crew < 1 || it.crew > 4) bad.push('crew must be 1 to 4');
+    if (!Number.isInteger(it.minutes) || it.minutes < 5 || it.minutes > 1440) bad.push('minutes must be a whole number from 5 to 1440');
+    if (sku) seen[sku.toLowerCase()] = line;
+    if (bad.length) { out.errors.push('Row ' + line + (sku ? ' (' + sku + ')' : '') + ': ' + bad.join('; ')); return; }
+    const old = S.catalog.find(c => c.sku.toLowerCase() === sku.toLowerCase());
+    if (!old) { out.add.push(it); return; }
+    it.sku = old.sku;
+    const diff = ['name', 'brand', 'cat', 'fee', 'crew', 'minutes', 'emoji', 'active'].filter(k2 => String(old[k2]) !== String(it[k2]) && !(k2 === 'fee' && num(old.fee) === it.fee));
+    if (diff.length) out.change.push(Object.assign(it, { _diff: diff, _old: old })); else out.same++;
+  });
+  return out;
+}
+const FIELD_LABEL = { name: 'name', brand: 'brand', cat: 'category', fee: 'fee', crew: 'crew', minutes: 'minutes', emoji: 'icon', active: 'bookable' };
+function csvModal(r){
+  const line = it => `<div class="small" style="padding:4px 0;border-bottom:1px solid var(--line)">${esc(it.emoji)} <b>${esc(it.name)}</b> <span class="muted">${esc(it.sku)}</span>
+    ${it._diff ? '<span class="muted"> – ' + it._diff.map(k => esc(FIELD_LABEL[k]) + (k === 'fee' ? ' ' + money(it._old.fee) + ' → ' + money(it.fee) : '')).join(', ') + '</span>' : ' · ' + money(it.fee)}</div>`;
+  return `<div class="modal-bg" data-act="csvclose"><div class="modal" data-stop>
+    <div class="row" style="margin-bottom:12px"><h2 class="grow">Import catalogue</h2><button class="tg-x" data-act="csvclose" aria-label="Close">✕</button></div>
+    <div class="grid2" style="grid-template-columns:repeat(4,1fr);margin-bottom:12px">
+      ${[['New', r.add.length, 'green'], ['Changed', r.change.length, 'blue'], ['No change', r.same, ''], ['Problems', r.errors.length, 'red']].map(k =>
+        `<div style="text-align:center;background:var(--soft);border-radius:12px;padding:10px"><div class="big" style="font-size:22px;${k[2] ? 'color:var(--' + k[2] + ')' : ''}">${k[1]}</div><div class="tiny muted b">${k[0]}</div></div>`).join('')}</div>
+    ${r.errors.length ? `<div class="notice bad small" style="margin-bottom:10px"><b>These rows will be skipped – fix them in the file and import again:</b>${r.errors.slice(0, 30).map(e => '<div>• ' + esc(e) + '</div>').join('')}${r.errors.length > 30 ? '<div>…and ' + (r.errors.length - 30) + ' more</div>' : ''}</div>` : ''}
+    ${r.add.length ? `<h3 style="margin:8px 0 4px">New items</h3>${r.add.map(line).join('')}` : ''}
+    ${r.change.length ? `<h3 style="margin:12px 0 4px">Changed items</h3>${r.change.map(line).join('')}` : ''}
+    <div class="tiny muted" style="margin:12px 0">Items that are not in the file are left as they are. To stop an item from being booked, put "no" in the bookable column. Existing bookings keep their old prices.</div>
+    <div class="row"><button class="btn" data-act="csvapply" ${r.add.length + r.change.length ? '' : 'disabled'}>Apply ${r.add.length + r.change.length} change${r.add.length + r.change.length === 1 ? '' : 's'}</button>
+      <button class="btn ghost" data-act="csvclose">Cancel</button></div></div></div>`;
 }
 function itemModal(c){
   const isNew = !c.id;
@@ -1172,6 +1240,9 @@ function sigPad(c){
 // for: roles that see the line (customer, enterprise, assembler, dispatcher, admin) or 'all'.
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
+  { v: '1.3', d: '2026-10-17', where: 'staging', title: 'Catalogue in Excel or Google Sheets', changes: [
+    { k: 'New', t: 'Catalogue → Download CSV gives you every item in a spreadsheet file. Change prices or add rows in Excel or Google Sheets, then Import CSV. You see what will be added and changed – and any rows with a problem – before anything is saved.', for: ['admin'] }
+  ] },
   { v: '1.2', d: '2026-10-17', where: 'staging', title: 'Problems after the job, missed visits, and easier Settings', changes: [
     { k: 'New', t: 'After a job is completed you have 24 hours to tap "Report a problem". Taskadoo checks the photos, calls you and decides: a free re-visit, a partial refund or a full refund.', for: ['customer', 'enterprise'] },
     { k: 'New', t: 'Cancelling is free until 24 hours before the visit. Later, a ₱300 late cancellation fee applies – you see it before you confirm.', for: ['customer', 'enterprise'] },
@@ -1201,6 +1272,11 @@ const WHATSNEW = [
 ];
 // Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
 const WN_TESTS = {
+  '1.3': [
+    ['K5', 'Admin', 'Download the catalogue', ['Catalogue → ⬇ Download CSV. Open the file in Excel or Google Sheets.'], 'One row per item with sku, name, brand, category, fee, crew, minutes, emoji and bookable. Peso signs and emojis look right.'],
+    ['K6', 'Admin', 'Change prices by file', ['In the file change two fees and add one new row (new SKU). Save it as CSV.', 'Catalogue → ⬆ Import CSV → choose the file.'], 'The window shows 1 New and 2 Changed with old → new fees. After Apply, the list shows the new prices and the new item.'],
+    ['K7', 'Admin', 'Mistakes in the file', ['Put a word in a fee cell and a category that does not exist in another row. Import it.'], 'Those rows are listed under Problems with the row number and what is wrong, and they are not saved. The other rows can still be applied.']
+  ],
   '1.2': [
     ['F1', 'Assembler', 'Accept a one-assembler job', ['Ask the dispatcher to assign you a job with one small item (e.g. a MALM Nightstand). Tasks → Refresh → Accept job.'], 'It is accepted with no error and says Confirmed.'],
     ['R1', 'Customer', 'Report a problem', ['Open a booking that was completed less than 24 hours ago.', 'Tap Report a problem, write what is wrong, tap Send to Taskadoo.'], 'The booking shows "You reported a problem" with your words, and a red "Problem reported" tag. The button is gone.'],
@@ -1252,6 +1328,7 @@ const WN_TESTS = {
 };
 // Preparation a test needs
 const WN_SETUP = {
+  K5: 'Admin only. A computer with Excel or Google Sheets is easiest.', K6: 'Admin only. Do K5 first.', K7: 'Admin only.',
   F1: 'A dispatcher or Admin assigns you a job with only one-assembler items.', R1: 'Needs a job completed in the last 24 hours (see A4–A5).', R2: 'Do R1 first.', R3: 'Needs another completed job with a reported problem.',
   N1: 'You must be the lead on a job that is being assembled today.', N2: 'Do N1 first.', H1: 'You must be the lead on a job for today. It takes 15 minutes of waiting.',
   B1: 'Needs an unpaid job or fee that is more than 24 hours old – or ask Admin to test with an old job.', P2: 'Admin only. Works best after H1, X1 and R2.',
@@ -1572,6 +1649,14 @@ const ACT = {
   itemedit(b){ S.editItem = Object.assign({}, S.catalog.find(c => String(c.id) === b.dataset.id)); render(); },
   itemclose(b, e){ if (e && e.target.closest('[data-stop]') && !b.matches('button')) return; S.editItem = null; render(); },
   chidden(b){ S.cHidden = b.dataset.v === '1'; render(); },
+  csvdown(){ const nm = id => (cats().find(c => c.id === id) || {}).name || id;
+    const lines = [CSV_COLS.join(',')].concat(S.catalog.map(c => [c.sku, c.name, c.brand, nm(c.cat), num(c.fee), c.crew, c.minutes, c.emoji, c.active ? 'yes' : 'no'].map(csvCell).join(',')));
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'taskadoo-catalogue-' + todayISO() + '.csv'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); },
+  csvclose(b, e){ S.csv = null; render(); },
+  async csvapply(b){ await busy(b, async () => {
+    const rows = [...S.csv.add, ...S.csv.change].map(({ _diff, _old, ...it }) => it);
+    await api.upsertItems(rows); S.catalog = await api.catalog(); const n = rows.length; S.csv = null; toast(n + ' item' + (n === 1 ? '' : 's') + ' saved'); render(); }); },
   async saveitem(b){ await busy(b, async () => {
     const it = { sku: val('ci_sku'), name: val('ci_name'), brand: val('ci_brand'), cat: val('ci_cat'), fee: num(val('ci_fee')),
       crew: Math.max(1, Math.min(4, Math.round(num(val('ci_crew'))) || 1)), minutes: Math.max(5, Math.round(num(val('ci_minutes'))) || 60),
@@ -1629,6 +1714,9 @@ const ACT = {
   gotoattention(b, e){ e.preventDefault(); S.dFilter = 'attention'; S.dFilterSet = true; go('dispatch'); },
 };
 const CHANGE = {
+  async csvfile(el){ const f = el.files[0]; el.value = ''; if (!f) return;
+    try { if (f.size > 2e6) throw new Error('That file is too big for a catalogue (over 2 MB).'); S.csv = csvCheck(await f.text()); render(); }
+    catch (e) { toast(errMsg(e), true); } },
   pvswitch(el){ const v = el.value; if (v.startsWith('r:')) pvRole(v.slice(2)); else pvPerson(v.slice(2)); },
   async photos(el){
     const id = Number(el.dataset.id), files = [...el.files]; if (!files.length) return;
@@ -1676,7 +1764,7 @@ document.addEventListener('toggle', e => { const d = e.target; if (d.matches && 
 document.addEventListener('change', e => { const k = e.target.dataset && e.target.dataset.change; if (k && CHANGE[k]) CHANGE[k](e.target); });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest('.auth') && e.target.tagName === 'INPUT') { const b = document.querySelector('.auth .btn[data-act]'); if (b) b.click(); } });
 window.addEventListener('hashchange', async () => {
-  S.menu = false; S.resOpt = null; S.report = null; S.noSign = null; S.editItem = null;
+  S.menu = false; S.resOpt = null; S.report = null; S.noSign = null; S.editItem = null; S.csv = null;
   const r = route();
   if (S.me && isStaff() && r.name === 'job') { const j = S.jobs.find(x => String(x.id) === r.arg); try { await loadAssemblers(j ? j.job_date : null); } catch (e) { console.warn(e); } }
   render(); if (!['job'].includes(r.name)) window.scrollTo(0, 0);
