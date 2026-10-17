@@ -9,7 +9,10 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 - GitHub Pages from repo `thegreenzilla/taskadoo`, branch `main`, folder `/ (root)`.
   Domain later: **taskadoo.asia** (main) with taskadoo.ph forwarding to it; staging will be `taskadoo.asia/staging/`.
 - **Staging** (try changes here first): `staging/` → https://thegreenzilla.github.io/taskadoo/staging/
-  - `staging/index.html` – customer landing page (design export, still a prototype)
+  - `staging/index.html` – customer landing page = Dennis's design export, built with
+    `python3 originals/build.py originals/Taskadoo_Landing-3.html staging/index.html "Taskadoo" 1 originals/landing-links.js`
+    (landing-links.js sends its buttons to the app: Book now/Browse → `app/#/book` or `#/shop/<category>`, Log in → `#/login`,
+    For business → `#/signup/enterprise`, Become an assembler → `#/signup/assembler`, receipt buttons → `#/receipt`).
   - `staging/app/` – **the real system** (Phase 1): `index.html` (vanilla JS, no build step), `config.js`
     (staging Supabase URL + publishable key, `STAGING:true`), `manifest.webmanifest`, `img/`
   - `staging/demo/index.html` – the original clickable apps design, kept as the reference for later phases
@@ -44,6 +47,10 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   `payout_create`, `payout_mark_sent`, `payout_cancel` (Admin). GCash on `profiles.gcash_name/gcash_number` (copied on pass).
   Payout amounts are shown exact (`money2`). UI: Payments → "To assemblers"; assembler Earnings shows payout status/history.
 - All times on screen use `TZ = 'Asia/Manila'`.
+- v1.6 customer pages follow the landing design (system font -apple-system/Segoe UI, weights ≤ 700, colours from the design):
+  guests and customers/enterprise get `renderSite()` (design header + footer, `CAT_META` titles/blurbs, `TINTS` per SKU,
+  item cards, navy cart bar, two-column quote). Guests can browse and quote without an account (`GUEST_ROUTES`); Confirm
+  booking sends them to sign-up and back (`S.next`, checkout draft `CD` in sessionStorage). Staff/assemblers keep the app shell.
 - Rules in settings `main`: dispute_hours 24, cancel_free_hours 24, cancel_fee 300, fail_pct 30, fail_max 500, nobody_wait_min 15.
 - Storage bucket `jobs` (private): photos and signature at `<jobId>/<file>`; upload only by the job's assemblers once arrived.
 - Payment in Phase 1: customer pays after sign-off (cash/GCash/bank); Admin marks it paid. Assembler payouts are "held" for the
