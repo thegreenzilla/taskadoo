@@ -139,6 +139,77 @@ label.f>span{display:block;font-size:11.5px;font-weight:800;letter-spacing:.07em
 .stagebadge{position:fixed;left:10px;bottom:10px;z-index:70;background:#d32f2f;color:#fff;font:800 11px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.08em;padding:5px 10px;border-radius:999px;pointer-events:none}
 .offer{border:2px solid var(--orange);border-radius:18px;background:#fff;padding:16px}
 .timer{font-size:40px;font-weight:900;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+/* what's new + tests */
+.wn-rel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.wn-rel+.wn-rel{margin-top:14px}
+.wn-rel h2{font-size:18px}
+.wn-v{font-family:ui-monospace,Menlo,monospace;font-weight:800;color:var(--blue)}
+.wn-ch{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-size:14.5px;color:var(--ink)}
+.kind{flex:none;font-size:10.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 8px;margin-top:2px}
+.kind.New{background:var(--green-soft);color:var(--green)} .kind.Improved{background:var(--blue-soft);color:var(--blue)} .kind.Fixed{background:var(--orange-soft);color:var(--orange)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:6px;vertical-align:middle}
+.av{position:relative} .av .dot{position:absolute;top:-1px;right:-1px;margin:0;border:2px solid var(--bg)}
+details.wn-tests{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+details.wn-tests>summary{cursor:pointer;font-weight:900;color:var(--ink)}
+.ts{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px;padding:12px;border:1px solid var(--line);border-radius:14px;margin-top:10px;background:var(--soft)}
+.ts.is-pass{background:var(--green-soft)} .ts.is-fail{background:var(--red-soft)} .ts.is-skip{opacity:.75}
+.ts h4{margin:0 0 4px;color:var(--ink);font-size:14.5px}
+.ts .tid{font-family:ui-monospace,Menlo,monospace;color:var(--blue);margin-right:6px}
+.ts .who{margin-left:8px;font-size:11.5px;font-weight:800;color:var(--muted)}
+.ts ol{margin:4px 0;padding-left:18px;font-size:13.5px} .ts .exp{margin:4px 0 0;font-size:13.5px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:6px}
+.seg button{border:1px solid var(--line2);background:#fff;border-radius:9px;padding:7px 4px;font-weight:800;font-size:12.5px;cursor:pointer;color:var(--ink)}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ts textarea{min-height:56px;font-size:13px;padding:8px}
+.ts .meta,.tg-saved{font-size:11.5px;color:var(--muted);margin-top:4px}
+.wn-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.wn-sum .c{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.wn-sum .c b{display:block;font-size:24px;font-weight:900;color:var(--ink)} .wn-sum .c span{font-size:12px;font-weight:800;color:var(--muted)}
+.wn-sum .c.p b{color:var(--green)} .wn-sum .c.f b{color:var(--red)}
+/* guided tests panel */
+.tg-panel[hidden],.tg-fab[hidden]{display:none!important}
+.tg-fab{position:fixed;right:16px;bottom:16px;z-index:65;border:0;border-radius:999px;padding:12px 16px;font-weight:900;background:var(--ink);color:#fff;box-shadow:0 6px 20px rgba(38,34,97,.35);cursor:pointer}
+.has-cart .tg-fab{bottom:80px}
+.tg-fab .rdy{background:var(--orange);border-radius:999px;padding:1px 8px;margin-left:6px}
+.tg-panel{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100%;z-index:80;background:var(--bg);border-left:1px solid var(--line2);box-shadow:-10px 0 30px rgba(38,34,97,.15);display:flex;flex-direction:column}
+.tg-head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line2);background:#fff}
+.tg-head b{flex:1;color:var(--ink);font-size:16px}
+.tg-x{border:1px solid var(--line2);background:#fff;border-radius:9px;padding:6px 10px;font-weight:800;cursor:pointer;color:var(--ink)}
+.tg-body{flex:1;overflow:auto;padding:14px}
+.tg-solo{max-width:560px;margin:0 auto}
+.tg-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:12px;box-shadow:var(--shadow)}
+.tg-card h2{font-size:21px}
+.tg-card ul{margin:0;padding-left:18px} .tg-card li{margin:4px 0}
+.tg-upd{font-size:12px;font-weight:800;color:var(--muted)}
+.tg-where{justify-self:start;background:var(--blue-soft);color:var(--blue);border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:800}
+.tg-steps{margin:0;padding-left:22px;font-size:16px;color:var(--ink)} .tg-steps li{margin:6px 0}
+.tg-exp{background:var(--green-soft);border-radius:12px;padding:12px;font-size:15px;color:var(--ink)}
+.tg-setup{background:var(--orange-soft);border-radius:12px;padding:12px;font-size:14.5px;color:var(--ink)}
+.tg-fixed{background:var(--blue);color:#fff;border-radius:12px;padding:10px 12px;font-weight:900}
+.tg-btns{display:grid;gap:8px}
+.tg-btns button{border:1px solid var(--line2);background:#fff;border-radius:14px;padding:14px;font-weight:900;font-size:16px;cursor:pointer;color:var(--ink)}
+.tg-btns button.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.tg-btns button.bad{background:#fff;color:var(--red);border-color:#F1C4C4}
+.tg-btns button[aria-pressed=true]{box-shadow:0 0 0 3px var(--ink)}
+.tg-nav{display:flex;justify-content:space-between;gap:8px}
+.tg-prog{height:8px;background:var(--line2);border-radius:6px;overflow:hidden;margin:4px 0 12px} .tg-prog i{display:block;height:100%;background:var(--green)}
+.linkbtn{border:0;background:none;color:var(--blue);font-weight:800;cursor:pointer;padding:0;text-decoration:underline}
+/* preview bar */
+.pvbar{background:#FFE08A;color:#3B2F00;padding:9px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:700;font-size:14px;position:sticky;top:0;z-index:22}
+.pvbar select{width:auto;padding:6px 8px;background:#fff}
+.pvbar .btn{padding:7px 12px}
+.has-pv .top{top:46px}
+.roles4{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.roles4 button{text-align:left;border:1px solid var(--line2);background:#fff;border-radius:14px;padding:14px;cursor:pointer;font-weight:900;color:var(--ink)}
+.roles4 button small{display:block;font-weight:600;color:var(--muted);margin-top:4px}
+@media (max-width:860px){
+  .ts{grid-template-columns:1fr}
+  .wn-sum{grid-template-columns:repeat(2,1fr)}
+  .tg-fab{bottom:calc(68px + env(safe-area-inset-bottom))}
+  .has-cart .tg-fab{bottom:calc(140px + env(safe-area-inset-bottom))}
+  .has-pv .top{top:0}
+  .pvbar{position:static}
+}
 @media (max-width:860px){
   .split{grid-template-columns:1fr}
   .sticky{position:static}
@@ -197,6 +268,17 @@ const api = window.__MOCK_API || {
   }
 };
 
+if (!api.testResults) {
+  api.testResults = () => q(sb.from('test_results').select('*'));
+  api.saveTest = row => q(sb.from('test_results').upsert(row));
+}
+/* Preview (Admin): look-only. Every write is refused while previewing; test results still save. */
+const PV_MSG = 'Preview is look-only – nothing was saved.';
+['updateProfile', 'saveSettings', 'saveItem', 'rpc', 'upload'].forEach(k => {
+  const f = api[k];
+  api[k] = (...a) => (inPreview() && !(k === 'rpc' && a[0] === 'assembler_list')) ? Promise.reject(new Error(PV_MSG)) : f.apply(api, a);
+});
+
 /* ───────────── Helpers ───────────── */
 const $ = s => document.querySelector(s);
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -232,7 +314,7 @@ function split(j){
   const lead = two ? pool * num(j.lead_pct) / 100 : pool;
   return { total, cut, pool, lead, helper: two ? pool - lead : 0, two };
 }
-const myShare = j => { const s = split(j); return j.lead_id === S.me.id ? s.lead : j.helper_id === S.me.id ? s.helper : 0; };
+const myShare = j => { const s = split(j); return j.lead_id === ME().id ? s.lead : j.helper_id === ME().id ? s.helper : 0; };
 
 const STATUS = {
   new:        { staff: 'Needs assembler',  cust: 'Booked – finding your assembler', c: 'orange' },
@@ -272,16 +354,20 @@ const NAV = {
   customer:   [['book','Book','🛠️'], ['bookings','My bookings','📋'], ['profile','Profile','👤']],
   enterprise: [['book','New booking','🛠️'], ['bookings','Bookings','📋'], ['profile','Account','🏢']],
   assembler:  [['tasks','Tasks','🧰'], ['earnings','Earnings','💰'], ['profile','Profile','👤']],
-  dispatcher: [['dispatch','Dispatch','🧭'], ['book','New booking','🛠️'], ['profile','Profile','👤']],
+  dispatcher: [['dispatch','Dispatch','🧭'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
   admin:      [['dispatch','Dispatch','🧭'], ['payments','Payments','💳'], ['catalog','Catalogue','📦'], ['users','Users','👥'],
-               ['settings','Settings','⚙️'], ['book','New booking','🛠️'], ['profile','Profile','👤']]
+               ['settings','Settings','⚙️'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']]
 };
 const SUB = { booking: 'bookings', job: 'dispatch', task: 'tasks' };
 function route(){ const h = location.hash.replace(/^#\/?/, '').split('/'); return { name: h[0] || '', arg: h[1] || '' }; }
 const go = (name, arg) => { location.hash = '#/' + name + (arg ? '/' + arg : ''); };
-const role = () => (S.me ? S.me.role : '');
+const inPreview = () => !!(S.preview && S.me && S.me.role === 'admin');
+const ME = () => (inPreview() ? S.preview.p : S.me);   // the person whose screens are shown
+const role = () => (S.me ? ME().role : '');
 const isStaff = () => ['admin','dispatcher'].includes(role());
 function allowed(name){
+  if (name === 'whatsnew' || name === 'tests') return true;
+  if (name === 'preview') return S.me && S.me.role === 'admin' && !inPreview();
   const tabs = (NAV[role()] || []).map(t => t[0]);
   return tabs.includes(name) || tabs.includes(SUB[name]) || (name === 'job' && isStaff());
 }
@@ -338,7 +424,7 @@ async function afterLogin(){
 function render(){
   const app = $('#app');
   if (S.recovery && S.session) { app.innerHTML = viewNewPassword(); return; }
-  if (!S.session) { app.innerHTML = viewAuth(); badge(); return; }
+  if (!S.session) { app.innerHTML = viewAuth(); badge(); tgPaint(); return; }
   if (!S.me) { app.innerHTML = `<div class="auth"><div class="card"><p class="muted">Loading your account…</p>
     <button class="btn ghost small" data-act="logout">Sign out</button></div></div>`; return; }
   if (!S.me.active) { app.innerHTML = `<div class="auth"><div class="card stack"><h2>Account paused</h2>
@@ -347,27 +433,32 @@ function render(){
   if (!r.name || !allowed(r.name)) r = { name: NAV[role()][0][0], arg: '' };
   const V = { book: viewBook, bookings: viewBookings, booking: viewBooking, dispatch: viewDispatch, job: viewDispatch,
     tasks: viewTasks, task: viewTask, earnings: viewEarnings, profile: viewProfile, catalog: viewCatalog, users: viewUsers,
-    settings: viewSettings, payments: viewPayments };
+    settings: viewSettings, payments: viewPayments, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo };
   const active = SUB[r.name] || r.name;
   const tabs = NAV[role()];
   let body = '';
   try { body = V[r.name](r.arg); } catch (e) { console.error(e); body = `<div class="notice bad">${esc(errMsg(e))}</div>`; }
-  app.innerHTML = `
+  const unseen = wnUnseen();
+  app.innerHTML = `${pvBar()}
   <header class="top"><div class="top-in">
     <a href="#/${tabs[0][0]}"><img class="logo" src="img/logo.png" alt="Taskadoo"></a>
-    <nav class="nav">${tabs.map(t => `<a href="#/${t[0]}" class="${t[0] === active ? 'on' : ''}">${esc(t[1])}</a>`).join('')}</nav>
+    <nav class="nav">${tabs.map(t => `<a href="#/${t[0]}" class="${t[0] === active ? 'on' : ''}">${esc(t[1])}${t[0] === 'whatsnew' && unseen ? '<span class="dot"></span>' : ''}</a>`).join('')}</nav>
     <div class="who"><span class="chip ink hide-sm">${esc(ROLE_LABEL[role()])}</span>
-      <button class="av" data-act="menu" aria-label="Account menu">${esc(initials(S.me.full_name || S.me.email))}</button></div>
+      <button class="av" data-act="menu" aria-label="Account menu">${esc(initials(ME().full_name || ME().email))}${unseen ? '<span class="dot"></span>' : ''}</button></div>
   </div>
   ${S.menu ? `<div class="menu"><div style="padding:8px 12px"><div class="b">${esc(S.me.full_name || S.me.email)}</div>
      <div class="tiny muted">${esc(S.me.email)} · ${esc(ROLE_LABEL[role()])}</div></div>
-     ${tabs.map(t => `<a class="mi" href="#/${t[0]}">${t[2]} ${esc(t[1])}</a>`).join('')}
+     ${tabs.map(t => `<a class="mi" href="#/${t[0]}">${t[2]} ${esc(t[1])}${t[0] === 'whatsnew' && unseen ? '<span class="dot"></span>' : ''}</a>`).join('')}
+     ${tabs.some(t => t[0] === 'whatsnew') ? '' : `<a class="mi" href="#/whatsnew">✨ What's new${unseen ? '<span class="dot"></span>' : ''}</a>`}
+     ${S.me.role === 'admin' && !inPreview() ? `<a class="mi" href="#/preview">👁 Preview the app as…</a>` : ''}
      <button class="mi" data-act="logout">↩ Sign out</button></div>` : ''}
   </header>
   <main class="main">${body}</main>
   <nav class="bottom">${tabs.slice(0, 5).map(t => `<a href="#/${t[0]}" class="${t[0] === active ? 'on' : ''}"><span class="i">${t[2]}</span>${esc(t[1])}</a>`).join('')}</nav>`;
   document.body.classList.toggle('has-bottom', true);
-  badge();
+  document.body.classList.toggle('has-pv', inPreview());
+  document.body.classList.toggle('has-cart', !!document.querySelector('.cartbar'));
+  badge(); tgPaint();
   after(r);
 }
 function badge(){ if (CFG.STAGING && !document.querySelector('.stagebadge')) { const b = document.createElement('div'); b.className = 'stagebadge'; b.textContent = 'STAGING'; document.body.appendChild(b); } }
@@ -431,15 +522,15 @@ const cartCount = () => cartLines().reduce((s, l) => s + l.n, 0);
 function viewBook(arg){
   if (arg === 'checkout') return viewCheckout();
   if (arg === 'done') return viewBooked();
-  const pending = S.me.role === 'customer' && S.me.requested_role;
+  const pending = ME().role === 'customer' && ME().requested_role;
   const brands = ['All', ...new Set(S.catalog.filter(c => c.active).map(c => c.brand))];
   const s = S.search.toLowerCase();
   const list = S.catalog.filter(c => c.active && (S.cat === 'all' || c.cat === S.cat) && (S.brand === 'All' || c.brand === S.brand)
     && (!s || (c.name + ' ' + c.sku + ' ' + c.brand).toLowerCase().includes(s)));
-  const who = role() === 'enterprise' ? (S.me.company || 'your company') : '';
+  const who = role() === 'enterprise' ? (ME().company || 'your company') : '';
   return `
-  ${pending ? `<div class="notice warn" style="margin-bottom:14px">⏳ Your ${S.me.requested_role === 'assembler' ? 'assembler' : 'business'} account is waiting for approval by Taskadoo.
-     ${S.me.requested_role === 'assembler' ? 'We will contact you about your evaluation.' : 'Meanwhile you can book as a regular customer.'}</div>` : ''}
+  ${pending ? `<div class="notice warn" style="margin-bottom:14px">⏳ Your ${ME().requested_role === 'assembler' ? 'assembler' : 'business'} account is waiting for approval by Taskadoo.
+     ${ME().requested_role === 'assembler' ? 'We will contact you about your evaluation.' : 'Meanwhile you can book as a regular customer.'}</div>` : ''}
   <div class="row" style="margin-bottom:14px;align-items:flex-end">
     <div class="grow"><h1>${role() === 'customer' ? 'What needs building?' : 'New booking'}</h1>
       <div class="muted">${who ? 'Booking for ' + esc(who) + ' · ' : ''}Fixed assembly fee per item – the cart totals it live.</div></div>
@@ -502,10 +593,10 @@ function viewCheckout(){
   <div class="card">
     <h3 style="margin-bottom:12px">Where?</h3>
     ${staff ? `<label class="f"><span>Company (optional)</span><input id="c_company"></label>` : ''}
-    <label class="f"><span>${nameLabel}</span><input id="c_name" autocomplete="name" value="${esc(ent || staff ? '' : S.me.full_name)}"></label>
-    <label class="f"><span>Mobile</span><input id="c_mobile" type="tel" autocomplete="tel" value="${esc(ent || staff ? '' : S.me.mobile)}"></label>
+    <label class="f"><span>${nameLabel}</span><input id="c_name" autocomplete="name" value="${esc(ent || staff ? '' : ME().full_name)}"></label>
+    <label class="f"><span>Mobile</span><input id="c_mobile" type="tel" autocomplete="tel" value="${esc(ent || staff ? '' : ME().mobile)}"></label>
     <label class="f"><span>Full address</span><textarea id="c_address" placeholder="Unit / house no., building, street, barangay">${''}</textarea></label>
-    <label class="f"><span>City / area</span><select id="c_area"><option value="">Choose…</option>${areas.map(a => `<option ${S.me.area === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></label>
+    <label class="f"><span>City / area</span><select id="c_area"><option value="">Choose…</option>${areas.map(a => `<option ${ME().area === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></label>
     <label class="f"><span>Notes for the assembler (optional)</span><textarea id="c_notes" placeholder="Parking, gate code, floor, elevator…"></textarea></label>
   </div>
   <div class="notice" style="margin:14px 0">💳 ${esc(S.settings.payment_note || 'You pay after the job is signed off.')}</div>
@@ -519,12 +610,12 @@ function viewBooked(){
     <p>${j ? `Reference <span class="b">${esc(j.code)}</span> · ${esc(fmtDate(j.job_date))}, ${esc(j.slot)}` : ''}</p>
     <p class="muted">We're matching ${j && num(j.crew) > 1 ? 'a crew of ' + j.crew + ' assemblers' : 'a vetted assembler'} now. You'll see their name here once confirmed.</p>
     <div class="row" style="justify-content:center;margin-top:16px">
-      ${j ? `<a class="btn" href="#/booking/${j.id}">View booking</a>` : ''}<a class="btn ghost" href="#/book">Book something else</a></div></div>`;
+      ${j ? `<a class="btn" href="#/${isStaff() ? 'job' : 'booking'}/${j.id}">View booking</a>` : ''}<a class="btn ghost" href="#/book">Book something else</a></div></div>`;
 }
 
 /* ───────────── Customer / enterprise bookings ───────────── */
 function viewBookings(){
-  const mine = S.jobs.filter(j => j.customer_id === S.me.id || role() !== 'customer');
+  const mine = S.jobs.filter(j => isStaff() || j.customer_id === ME().id);
   const open = mine.filter(j => !['done','cancelled'].includes(j.status));
   const closed = mine.filter(j => ['done','cancelled'].includes(j.status));
   const card = j => `<a class="li" href="#/booking/${j.id}"><div class="row"><div class="grow"><div class="b">${esc(itemsSummary(j))}</div>
@@ -666,7 +757,7 @@ const payBtn = j => j.paid ? `<span class="chip green">Paid ${esc(fmtTime(j.paid
 
 /* ───────────── Assembler app ───────────── */
 function viewTasks(){
-  const me = S.me.id, t = todayISO();
+  const me = ME().id, t = todayISO();
   const mine = S.jobs.filter(j => j.lead_id === me || j.helper_id === me);
   const myOk = j => (j.lead_id === me ? j.lead_ok : j.helper_ok);
   const offers = mine.filter(j => ['assigned','accepted'].includes(j.status) && !myOk(j));
@@ -679,7 +770,7 @@ function viewTasks(){
       <div style="text-align:right">${statusChip(j)}<div class="money" style="margin-top:4px">${money(myShare(j))}</div></div></div></a>`;
   return `<div class="narrow">
     <div class="card" style="background:var(--ink);color:#fff;border:0">
-      <div class="row"><div class="grow"><div class="tiny" style="opacity:.7">Hello</div><div class="b" style="color:#fff;font-size:18px">${esc(S.me.full_name || S.me.email)}</div></div>
+      <div class="row"><div class="grow"><div class="tiny" style="opacity:.7">Hello</div><div class="b" style="color:#fff;font-size:18px">${esc(ME().full_name || ME().email)}</div></div>
         <div style="text-align:right"><div class="tiny" style="opacity:.7">Earned today</div><div style="font-weight:900;font-size:20px;color:#FFB27A">${money(todayEarn)}</div></div></div>
     </div>
     <div class="row" style="margin:16px 0 10px"><h2 class="grow">New offers</h2><button class="btn ghost small" data-act="reload">↻ Refresh</button></div>
@@ -690,7 +781,7 @@ function viewTasks(){
   </div>`;
 }
 function offerCard(j){
-  const me = S.me.id, lead = j.lead_id === me, sp = split(j);
+  const me = ME().id, lead = j.lead_id === me, sp = split(j);
   const mate = lead ? j.helper_name : j.lead_name;
   return `<div class="offer">
     <div class="row"><span class="chip orange">● NEW OFFER</span><span class="grow"></span><span class="tiny muted b">${esc(j.code)}</span></div>
@@ -708,7 +799,7 @@ function offerCard(j){
 function viewTask(id){
   const j = S.jobs.find(x => String(x.id) === id);
   if (!j) return `<div class="narrow card empty">Job not found. <a href="#/tasks">Back</a></div>`;
-  const me = S.me.id, lead = j.lead_id === me, myOk = lead ? j.lead_ok : j.helper_ok, t = todayISO();
+  const me = ME().id, lead = j.lead_id === me, myOk = lead ? j.lead_ok : j.helper_ok, t = todayISO();
   if (['assigned','accepted'].includes(j.status) && !myOk) return `<div class="narrow"><p><a href="#/tasks">‹ Tasks</a></p>${offerCard(j)}</div>`;
   const unlocked = !['new','assigned'].includes(j.status) || myOk;
   const mate = lead ? j.helper_name : j.lead_name;
@@ -772,7 +863,7 @@ function viewTask(id){
   </div>`;
 }
 function viewEarnings(){
-  const me = S.me.id, t = todayISO();
+  const me = ME().id, t = todayISO();
   const done = S.jobs.filter(j => (j.lead_id === me || j.helper_id === me) && j.status === 'done');
   const monday = (() => { const d = new Date(t + 'T00:00:00Z'); const k = (d.getUTCDay() + 6) % 7; return addDays(t, -k); })();
   const sum = arr => arr.reduce((s, j) => s + myShare(j), 0);
@@ -796,7 +887,7 @@ function viewEarnings(){
 
 /* ───────────── Profile ───────────── */
 function viewProfile(){
-  const m = S.me, areas = S.settings.areas || [];
+  const m = ME(), areas = S.settings.areas || [];
   return `<div class="narrow"><h1 style="margin-bottom:14px">${role() === 'enterprise' ? 'Account' : 'Profile'}</h1>
     <div class="card">
       <div class="row" style="margin-bottom:14px"><div class="av" style="width:48px;height:48px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900">${esc(initials(m.full_name || m.email))}</div>
@@ -871,6 +962,7 @@ function viewUsers(){
         <td>${self ? `<span class="chip ink">${esc(ROLE_LABEL[p.role])}</span>` : `<select data-f="role" style="width:auto">${roles.map(r => `<option value="${r}" ${p.role === r ? 'selected' : ''}>${ROLE_LABEL[r]}</option>`).join('')}</select>`}</td>
         <td>${self ? '' : `<input data-f="active" type="checkbox" ${p.active ? 'checked' : ''} style="width:auto">`}</td>
         <td>${self ? '<span class="tiny muted">You</span>' : `<button class="btn small" data-act="saveuser" data-id="${esc(p.id)}">Save</button>
+          <button class="btn ghost small" data-act="pvperson" data-id="${esc(p.id)}">Preview</button>
           ${p.requested_role && p.role === 'customer' ? ` <button class="btn green small" data-act="approve" data-id="${esc(p.id)}">Approve as ${esc(ROLE_LABEL[p.requested_role])}</button>` : ''}`}</td></tr>`; }).join('')}</table>`
       : `<div class="empty">No users here.</div>`}</div>
     <p class="tiny muted">New people sign up themselves on the login page. The very first account became Admin. Change a role here to make someone an Assembler, Dispatcher, Enterprise or Admin.</p>`;
@@ -920,11 +1012,291 @@ function sigPad(c){
   c.onpointerup = c.onpointercancel = () => { down = false; };
 }
 
+
+/* ───────────── What's new ───────────── */
+// Newest first. Add an entry for every change people will notice.
+// for: roles that see the line (customer, enterprise, assembler, dispatcher, admin) or 'all'.
+// where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
+const WHATSNEW = [
+  { v: '1.1', d: '2026-10-17', where: 'staging', title: "What's new, test checklists and Preview", changes: [
+    { k: 'New', t: "This What's new page. A red dot shows when there's an update you haven't read.", for: ['all'] },
+    { k: 'New', t: "On staging, the 🧪 Tests button (bottom right) shows one test at a time: follow the steps, then tap It worked or Something's wrong and say what you saw. Everyone testing sees the same results.", for: ['all'] },
+    { k: 'New', t: 'Copy results for Claude puts every problem and note on the clipboard, ready to paste into the chat with Claude.', for: ['admin'] },
+    { k: 'New', t: 'Preview the app as a role or a person: account menu → Preview the app as…, or Preview next to a person in Users. Look-only: nothing is saved while previewing.', for: ['admin'] }
+  ] },
+  { v: '1.0', d: '2026-10-16', where: 'staging', title: 'First release: one system for every role', changes: [
+    { k: 'New', t: 'One sign-in for everyone. Customers sign up themselves; assemblers and businesses ask for access and Admin approves them in Users.', for: ['all'] },
+    { k: 'New', t: 'Book from the catalogue: every item has a fixed assembly fee, the cart totals it live and shows when the job needs 2 assemblers. Pay after the job is signed off.', for: ['customer', 'enterprise', 'dispatcher', 'admin'] },
+    { k: 'New', t: 'My bookings: follow the job from booked to completed, with the assembler names, photos and the signature.', for: ['customer', 'enterprise'] },
+    { k: 'New', t: 'Dispatch: jobs grouped by Needs assembler, Waiting to accept, Confirmed, In progress and Completed. Pick a lead and an extra assembler; the fee split is shown.', for: ['dispatcher', 'admin'] },
+    { k: 'New', t: 'Assembler app: offers with your pay → Accept → Start travelling → I\'ve arrived → photos → timer → the customer signs on your phone → Complete. Earnings shows every job.', for: ['assembler'] },
+    { k: 'New', t: 'Admin: Payments (mark the customer paid), Catalogue (prices, crew, minutes), Users (roles and approvals) and Settings (commission, lead share, time slots, areas).', for: ['admin'] }
+  ] }
+];
+// Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
+const WN_TESTS = {
+  '1.1': [
+    ['W1', 'Everyone', "Red dot for new updates", ["Sign in. Look for a red dot on your initials (top right) and next to What's new.", "Open What's new."], 'The dot disappears after you open the page and stays gone after a refresh.'],
+    ['W2', 'Everyone', 'Test one step at a time', ['Tap 🧪 Tests at the bottom right. Read Before you start and tap Start testing.', 'Do the first test, then tap It worked or Something\'s wrong.'], 'The next test appears by itself. The number on the Tests button goes down.'],
+    ['W3', 'Everyone', 'Tests in a new tab', ['In the testing panel tap New tab ↗.'], 'A new tab opens with only the tests, and you are still signed in there.'],
+    ['W4', 'Admin', 'Copy results for Claude', ["Open What's new and tap Copy results for Claude.", 'Paste it into the chat with Claude.'], 'The pasted text lists every problem with its note, then the counts.'],
+    ['V1', 'Admin', 'Preview a role', ['Tap your initials (top right) → Preview the app as… → tap Assembler.'], 'A yellow bar says Previewing as Assembler. The menu shows Tasks, Earnings and Profile.'],
+    ['V2', 'Admin', 'Nothing is saved in preview', ['While previewing as Customer, add an item, open the quote and tap Confirm booking.'], 'A message says Preview is look-only and nothing was saved. After Exit preview there is no new job in Dispatch.'],
+    ['V3', 'Admin', 'Preview a person', ['Users → tap Preview next to an assembler who has jobs.'], 'The yellow bar shows their name. Tasks shows their offers and jobs, exactly as they see them.'],
+    ['V4', 'Admin', 'Switch and exit', ['In the yellow bar pick another role from the list, then tap Exit preview.'], 'The menu changes to that role. After Exit preview the bar disappears and all your Admin pages are back.']
+  ],
+  '1.0': [
+    ['C1', 'Customer', 'Create a customer account', ['Open the staging app (link from Dennis) and tap Create account.', 'Choose "I need furniture assembled", fill in your name, mobile, email and a password, tap Create account.'], 'The catalogue opens ("What needs building?") with your initials at the top right.'],
+    ['C2', 'Customer', 'Book a job', ['Tap Add on PAX Wardrobe (2-door) and on one more item.', 'Tap View quote & book. Pick today, a time, type an address and choose the area.', 'Tap Confirm booking.'], 'You see "Booking received" with a reference like TD-2610-0001. My bookings shows it as "Booked – finding your assembler".'],
+    ['C3', 'Customer', 'Cancel a booking', ['Book one more small item. Open it in My bookings and tap Cancel booking, then OK.'], 'The booking shows Cancelled and moves to Past.'],
+    ['A1', 'Assembler', 'Sign up as an assembler', ['On your phone open the staging app, tap Create account and choose "I want to work as an assembler". Fill in the form.'], 'A yellow note says your assembler account is waiting for approval.'],
+    ['U1', 'Admin', 'Approve an assembler', ['Users → Waiting for approval → tap Approve as Assembler next to the person.'], 'Their role changes to Assembler. When they refresh, they see Tasks, Earnings and Profile.'],
+    ['U2', 'Admin', 'Make a dispatcher', ['Users → change someone\'s Role to Dispatcher → Save.'], 'When they refresh, they see the Dispatch page.'],
+    ['D1', 'Dispatcher', 'Assign a job', ['Dispatch → Refresh → Needs assembler → tap the PAX job from C2.', 'Choose a Lead and an Extra assembler → Save assignment.'], 'The job moves to Waiting to accept. History shows Assigned with both names.'],
+    ['A2', 'Assembler', 'Accept the offer', ['Tasks → Refresh. Look at the New offer card, then tap Accept job. (Both assemblers do this.)'], 'The card shows your pay after the Taskadoo fee. After both accept, the job says Confirmed and the customer sees both first names.'],
+    ['A3', 'Assembler', 'Decline an offer', ['Ask the dispatcher to assign you another job. Tap Decline, then OK.'], 'The offer disappears. In Dispatch the job is back under Needs assembler.'],
+    ['A4', 'Assembler', 'Do the job (lead)', ['Open the confirmed job. Tap Start travelling, then I\'ve arrived.', 'Tap Add photos and take a photo. Tap Start assembly, wait a minute, tap Finish assembly.'], 'Each tap moves to the next step. The timer counts while assembling. The customer\'s booking shows On the way, Arrived, then Assembly in progress.'],
+    ['A5', 'Assembler', 'Customer sign-off (lead)', ['Sign in the white box with your finger, check the name, tap Complete job.'], '"Job complete" with your payout. Earnings shows the job.'],
+    ['C4', 'Customer', 'See the proof', ['My bookings → open the completed job.'], 'It says Completed, with the photos and "Signed by …".'],
+    ['P1', 'Admin', 'Mark the customer paid', ['Payments → tap Mark customer paid on the job.'], 'It shows Paid with the time. The customer\'s booking says "Paid – thank you!".'],
+    ['K1', 'Admin', 'Change a price', ['Catalogue → change the fee of one item → Save. Then book that item as a customer.'], 'The new booking uses the new fee. Older bookings keep their old price.'],
+    ['K2', 'Admin', 'Change the commission', ['Settings → Taskadoo commission % → 20 → Save settings. Book a new job and assign it.'], 'The new offer says "after 20% Taskadoo fee". Older jobs keep 22%.'],
+    ['E1', 'Enterprise', 'Business booking', ['Create an account and choose "I book for a business". Admin approves it in Users.', 'Refresh, add an item, and book for an end customer.'], 'The booking appears under Bookings with the end customer\'s name. In Dispatch it shows the company name.'],
+    ['G1', 'Assembler', 'Add to Home Screen', ['iPhone: Safari → Share → Add to Home Screen. Android: Chrome ⋮ → Add to Home screen.'], 'A Taskadoo icon appears on the home screen and opens the app full screen, still signed in.']
+  ]
+};
+// Preparation a test needs
+const WN_SETUP = {
+  U1: 'Admin only. Someone must have signed up as an assembler first (test A1).', U2: 'Admin only.', D1: 'Needs the booking from C2 and two approved assemblers.',
+  A2: 'Needs the assignment from D1.', A3: 'Ask a dispatcher (or Admin) to assign you a second job first.', A4: 'Do it on the job\'s date. You must be the lead.',
+  A5: 'Do this right after A4.', C4: 'Do this after A5.', P1: 'Admin only. Needs a completed job (A5).', K1: 'Admin only.', K2: 'Admin only.',
+  E1: 'Admin approves the business account.', W4: 'Admin only.', V1: 'Admin only.', V2: 'Admin only.', V3: 'Admin only. Needs an assembler with jobs.', V4: 'Admin only.'
+};
+// Tests fixed after a reported problem: id → ISO time of the fix. They come back first as "please test again".
+const WN_FIXED = {};
+
+const wnKey = () => 'tk_wn_seen_' + (S.me ? S.me.id : '');
+const wnLatest = () => WHATSNEW.reduce((m, x) => (x.d + x.v > m ? x.d + x.v : m), '');
+const wnFor = c => c.for.includes('all') || c.for.includes(role()) || (role() === 'admin');
+function wnVisible(){ return WHATSNEW.map(r => Object.assign({}, r, { changes: r.changes.filter(wnFor) })).filter(r => r.changes.length); }
+function wnUnseen(){ if (!S.me || !wnVisible().length) return false; try { return (localStorage.getItem(wnKey()) || '') < wnLatest(); } catch (e) { return false; } }
+const longDate = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' });
+
+/* test results (staging): table test_results, shared by everyone testing */
+const TR = { map: {}, loaded: false, loading: false, err: '' };
+const TG = { i: null, open: false, note: null, typing: false };
+const isTestSite = () => !!CFG.STAGING;
+const tsAll = () => Object.entries(WN_TESTS).flatMap(([v, L]) => L.map(t => ({ v, t })));
+const titleOf = v => (WHATSNEW.find(r => r.v === v) || {}).title || v;
+async function tsLoad(){
+  if (TR.loading) return; TR.loading = true;
+  try { const d = await api.testResults(); TR.map = {}; (d || []).forEach(r => TR.map[r.id] = r); TR.err = ''; }
+  catch (e) { TR.err = /relation|does not exist|schema cache|permission denied/i.test(errMsg(e)) ? 'setup' : 'load'; console.warn(e); }
+  TR.loading = false; TR.loaded = true;
+  if (route().name === 'whatsnew' || route().name === 'tests') render(); else tgPaint();
+}
+async function tsSave(id, patch, quiet){
+  const cur = TR.map[id] || { status: '', note: '' };
+  const row = Object.assign({ id, status: cur.status || '', note: cur.note || '' }, patch, { by: S.me.id, by_name: S.me.full_name || S.me.email, at: new Date().toISOString() });
+  TR.map[id] = row;
+  if (!quiet) { if (route().name === 'whatsnew') render(); else tgPaint(); }
+  try { await api.saveTest(row); } catch (e) { toast(TR.err === 'setup' || /relation|does not exist|schema cache/i.test(errMsg(e)) ? 'Results can\'t be saved yet: run the test-results SQL in Supabase first.' : 'Couldn\'t save: ' + errMsg(e), true); await tsLoad(); }
+}
+const TG_ROLE = { customer: 'customer', assembler: 'assembler', dispatcher: 'dispatcher', enterprise: 'enterprise', admin: 'admin' };
+function tsMine(t){
+  const who = t[1].toLowerCase();
+  if (S.me.role === 'admin' && !inPreview()) return true;
+  if (/everyone/.test(who)) return true;
+  return Object.entries(TG_ROLE).some(([w, r]) => who.includes(w) && role() === r);
+}
+const tsMineId = id => { const x = tsAll().find(({ t }) => t[0] === id); return !!x && tsMine(x.t); };
+const tgRetest = id => { const f = WN_FIXED[id], r = TR.map[id]; return !!f && !!r && r.status === 'fail' && r.at < f; };
+function tgList(){ const L = tsAll().filter(({ t }) => tsMine(t)).sort((x, y) => parseFloat(x.v) - parseFloat(y.v)); // oldest release first: accounts and a booking come before newer features return [...L.filter(x => tgRetest(x.t[0])), ...L.filter(x => !tgRetest(x.t[0]))]; }
+const tgOpenTest = x => !(TR.map[x.t[0]] || {}).status || tgRetest(x.t[0]);
+const tgLeft = () => tgList().filter(tgOpenTest).length;
+function tgStart(){ const L = tgList(), k = L.findIndex(tgOpenTest); TG.i = k < 0 ? L.length : k; }
+function tsCounts(list){ const c = { pass: 0, fail: 0, skip: 0, left: 0 }; (list || tsAll()).forEach(({ t }) => { const s = (TR.map[t[0]] || {}).status; c[s || 'left']++; }); return c; }
+const STLABEL = { pass: 'Worked', fail: 'Problem', skip: 'Skipped' };
+function tsMeta(r){ return r && r.at && (r.status || r.note) ? `${r.status ? STLABEL[r.status] : 'Note'} · ${esc(r.by_name || 'Someone')} · ${esc(fmtTime(r.at))}` : ''; }
+function tsShow(id){ const f = S.wnF || 'all', s = (TR.map[id] || {}).status || ''; return f === 'all' || (f === 'mine' && tsMineId(id)) || (f === 'left' && !s) || (f === 'fail' && s === 'fail'); }
+function tsRow(t){
+  const [id, who, title, steps, exp] = t, r = TR.map[id] || {}, s = r.status || '';
+  return `<div class="ts ${s ? 'is-' + s : ''}"><div style="min-width:0"><h4><span class="tid">${esc(id)}</span>${esc(title)}<span class="who">${esc(who)}</span></h4>
+    ${WN_SETUP[id] ? `<div class="tiny" style="color:var(--orange);font-weight:800">Before you start: ${esc(WN_SETUP[id])}</div>` : ''}
+    <ol>${steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol><p class="exp"><b>Should happen:</b> ${esc(exp)}</p></div>
+    <div><div class="seg">${[['pass', 'Worked'], ['fail', 'Problem'], ['skip', 'Skip']].map(([k, l]) => `<button data-act="tsset" data-id="${esc(id)}" data-v="${k}" aria-pressed="${s === k}">${l}</button>`).join('')}</div>
+    <textarea id="ts-note-${esc(id)}" data-tsnote="${esc(id)}" placeholder="What did you see? (optional)">${esc(r.note || '')}</textarea>
+    <div class="meta">${tsMeta(r)}</div></div></div>`;
+}
+function tsBlock(v){
+  const L = WN_TESTS[v]; if (!L || !isTestSite()) return '';
+  const vis = L.filter(t => tsShow(t[0])); if ((S.wnF || 'all') !== 'all' && !vis.length) return '';
+  const done = L.filter(t => (TR.map[t[0]] || {}).status).length, fail = L.filter(t => (TR.map[t[0]] || {}).status === 'fail').length;
+  const open = (S.wnF || 'all') !== 'all' || (S.wnOpen || {})[v];
+  return `<details class="wn-tests" data-wn="${esc(v)}" ${open ? 'open' : ''}><summary>Test this <span class="small muted">${done} of ${L.length} done${fail ? ` · <span style="color:var(--red)">${fail} with a problem</span>` : ''}</span></summary>${vis.map(tsRow).join('')}</details>`;
+}
+function tsSummary(){
+  if (!isTestSite()) return '';
+  if (!TR.loaded && !TR.loading) tsLoad();
+  if (TR.err === 'setup') return `<div class="notice warn" style="margin-bottom:14px"><b>Test results aren't set up yet.</b> An Admin needs to run <code>supabase/sql/2026-10-17_test_results.sql</code> in the staging Supabase SQL editor. You can still read the tests below.</div>`;
+  if (!S.wnF) S.wnF = S.me.role === 'admin' && !inPreview() ? 'all' : 'mine';
+  const c = tsCounts(), f = S.wnF, chip = (k, l) => `<button class="pill ${f === k ? 'on' : ''}" data-act="tsfilter" data-v="${k}">${l}</button>`;
+  return `<div class="card" style="margin-bottom:16px"><div class="wn-sum"><div class="c p"><b>${c.pass}</b><span>Worked</span></div><div class="c f"><b>${c.fail}</b><span>Problems</span></div>
+      <div class="c"><b>${c.skip}</b><span>Skipped</span></div><div class="c"><b>${c.left}</b><span>Not tested</span></div></div>
+    <div class="row" style="margin-bottom:10px"><button class="btn" data-act="tgopen">🧪 Start testing</button><button class="btn ghost small" data-act="tgtab">Open in new tab ↗</button>
+      ${S.me.role === 'admin' ? `<button class="btn ghost small" data-act="tscopy">Copy results for Claude</button><button class="btn ghost small" data-act="tsdl">Download</button>` : ''}
+      <button class="btn ghost small" data-act="tsreload">↻ Refresh</button></div>
+    <div class="pills">${chip('mine', 'My tests')}${chip('all', 'All tests')}${chip('left', 'Not tested yet')}${chip('fail', 'Problems')}</div></div>`;
+}
+function tsReport(){
+  const c = tsCounts(), A = tsAll();
+  const line = ({ v, t }) => { const r = TR.map[t[0]] || {}; return `- ${t[0]} ${t[2]} (v${v} ${titleOf(v)}; ${t[1]})${r.note ? ': ' + r.note.replace(/\s+/g, ' ') : ''}${r.by_name ? ` [${r.by_name}, ${fmtTime(r.at)}]` : ''}`; };
+  const by = s => A.filter(x => ((TR.map[x.t[0]] || {}).status || '') === s);
+  const list = arr => (arr.length ? arr.map(line) : ['- none']);
+  return [`Taskadoo test results (staging), ${new Date().toLocaleString('en-PH')}`, `Worked ${c.pass}, Problems ${c.fail}, Skipped ${c.skip}, Not tested ${c.left} (of ${A.length})`, '',
+    'PROBLEMS:', ...list(by('fail')), '', 'SKIPPED:', ...list(by('skip')), '',
+    'WORKED: ' + (by('pass').map(x => x.t[0]).join(', ') || 'none'), 'NOT TESTED: ' + (by('').map(x => x.t[0]).join(', ') || 'none'), '',
+    'Notes on tests that worked:', ...list(by('pass').filter(x => (TR.map[x.t[0]] || {}).note))].join('\n');
+}
+function saveFile(name, text){ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+
+function viewWhatsNew(){
+  try { localStorage.setItem(wnKey(), wnLatest()); } catch (e) {}
+  const rel = wnVisible();
+  return `<div class="narrow" style="max-width:820px">
+    <h1>What's new</h1>
+    <p class="muted" style="margin-top:4px">New features, improvements and fixes, newest first. You see the changes for the screens you use.${isTestSite() ? ' "Staging" items are only on the test site for now. Open <b>Test this</b> under an update to try it and record what happened.' : ''}</p>
+    ${tsSummary()}
+    ${rel.length ? rel.map(r => `<section class="wn-rel">
+      <div class="row" style="align-items:baseline"><span class="wn-v">v${esc(r.v)}</span><h2 class="grow">${esc(r.title)}</h2>
+        ${r.where === 'staging' && isTestSite() ? '<span class="chip orange">Staging</span>' : ''}<span class="tiny muted">${esc(longDate(r.d))}</span></div>
+      <div style="margin-top:8px">${r.changes.map(c => `<div class="wn-ch"><span class="kind ${esc(c.k)}">${esc(c.k)}</span><span>${esc(c.t)}</span></div>`).join('')}</div>
+      ${tsBlock(r.v)}</section>`).join('') : '<div class="card empty">No updates yet.</div>'}
+  </div>`;
+}
+
+/* guided testing: one test at a time, big plain buttons */
+function tgIntroSeen(){ try { return !!localStorage.getItem('tk_tg_intro'); } catch (e) { return true; } }
+function tgHtml(){
+  if (TR.err === 'setup') return `<div class="tg-setup"><b>Testing isn't set up yet.</b> An Admin needs to run the test-results SQL in Supabase first.</div>`;
+  if (!TR.loaded) return `<div class="muted">Loading tests…</div>`;
+  const L = tgList();
+  if (!tgIntroSeen()) return `<div class="tg-card"><h2>Before you start</h2>
+    <ul><li><b>You need:</b> your phone 📱, a computer 💻 if you have one, and your login for the staging site.</li>
+    <li>We show you <b>one test at a time</b>. Follow the steps, then tap <b>It worked</b> or <b>Something's wrong</b>.</li>
+    <li>If something's wrong, write what you saw in your own words. That's all we need.</li>
+    <li>You only get the tests for the account you're signed in with (${esc(ROLE_LABEL[role()])}). Tests for other roles need an account with that role.</li>
+    <li>This is a practice site with practice data. Nobody real is booked or paid, so you can't break anything.</li></ul>
+    <div class="tg-btns"><button class="ok" data-act="tgintro">Start testing</button></div></div>`;
+  if (TG.i == null) tgStart();
+  const done = L.filter(x => !tgOpenTest(x)).length, pct = L.length ? Math.round(done / L.length * 100) : 100;
+  const prog = `<div class="small muted">${done} of ${L.length} done</div><div class="tg-prog"><i style="width:${pct}%"></i></div>`;
+  if (TG.i >= L.length) { const c = tsCounts(L), left = tgLeft();
+    return `${prog}<div class="tg-card"><h2>${left ? 'You\'ve reached the end' : 'All done. Thank you!'}</h2>
+      <p style="margin:0">${left ? `${left} test${left > 1 ? 's are' : ' is'} still open. Tap Back to the first open test to finish them.` : 'Every test for you has a result. Tell Dennis you\'re finished.'}</p>
+      <div class="tg-exp">Worked ${c.pass} · Problems ${c.fail} · Skipped ${c.skip}</div>
+      <div class="tg-btns">${left ? '<button class="ok" data-act="tgfirst">Back to the first open test</button>' : ''}<button data-act="tgprev">‹ Go back one test</button>
+      ${S.me.role === 'admin' ? '<button data-act="tscopy">Copy results for Claude</button>' : ''}</div></div>`; }
+  const { v, t } = L[TG.i], [id, who, title, steps, exp] = t, r = TR.map[id] || {}, st = tgRetest(id) ? '' : (r.status || ''), setup = WN_SETUP[id];
+  const where = /assembler/i.test(who) ? '📱 On your phone' : /customer|everyone/i.test(who) ? '📱 Phone or 💻 computer' : '💻 On the computer (a phone works too)';
+  return `${prog}<div class="tg-card" data-id="${esc(id)}">
+    <div class="tg-upd">Test ${TG.i + 1} of ${L.length} · v${esc(v)} ${esc(titleOf(v))} · ${esc(id)} · ${esc(who)}</div>
+    ${tgRetest(id) ? '<div class="tg-fixed">We fixed this. Please try it again.</div>' : ''}
+    <h2>${esc(title)}</h2>
+    <span class="tg-where">${where}</span>
+    ${setup ? `<div class="tg-setup"><b>Before you start:</b> ${esc(setup)}</div>` : ''}
+    <ol class="tg-steps">${steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+    <div class="tg-exp"><b>What should happen:</b><br>${esc(exp)}</div>
+    <div class="tg-btns"><button class="ok" data-act="tgset" data-v="pass" aria-pressed="${st === 'pass'}">✓ It worked</button>
+      <button class="bad" data-act="tgset" data-v="fail" aria-pressed="${st === 'fail'}">✕ Something's wrong</button>
+      <button data-act="tgset" data-v="skip" aria-pressed="${st === 'skip'}">Skip: I can't do this now</button></div>
+    ${st === 'fail' || TG.note === id ? `<label for="ts-note-tg-${esc(id)}" class="b">What happened? Write what you saw, in your own words.</label>
+      <textarea id="ts-note-tg-${esc(id)}" data-tsnote="${esc(id)}" placeholder="Example: I tapped Accept job but nothing happened.">${esc(r.note || '')}</textarea>
+      <div class="tg-btns"><button class="ok" data-act="tgnext">Save and go to the next test</button></div>`
+      : '<button class="linkbtn" data-act="tgaddnote" style="justify-self:start">Add a note</button>'}
+    <div class="tg-saved">${tsMeta(r)}</div>
+    <div class="tg-nav"><button class="btn ghost" data-act="tgprev" ${TG.i ? '' : 'disabled'}>‹ Previous</button><button class="btn ghost" data-act="tgnext">Next ›</button></div></div>`;
+}
+function tgPaint(){
+  let fab = document.getElementById('tg-fab'), pn = document.getElementById('tg-panel');
+  if (!fab) { fab = document.createElement('button'); fab.id = 'tg-fab'; fab.className = 'tg-fab'; fab.dataset.act = 'tgopen'; document.body.appendChild(fab); }
+  if (!pn) { pn = document.createElement('div'); pn.id = 'tg-panel'; pn.className = 'tg-panel'; document.body.appendChild(pn); }
+  const on = isTestSite() && !!S.me && S.me.active && route().name !== 'tests' && !S.recovery;
+  if (!on) { fab.hidden = true; pn.hidden = true; return; }
+  if (!TR.loaded && !TR.loading) tsLoad();
+  const left = TR.loaded ? tgLeft() : 0;
+  fab.innerHTML = `🧪 Tests${left ? ` <span class="rdy">${left}</span>` : ''}`; fab.hidden = TG.open;
+  if (TG.open) {
+    pn.hidden = false;
+    const a = document.activeElement; if (a && pn.contains(a) && a.tagName === 'TEXTAREA' && TG.typing) return;
+    pn.innerHTML = `<div class="tg-head"><b>Testing</b><button class="tg-x" data-act="tgtab">New tab ↗</button><button class="tg-x" data-act="tgclose" aria-label="Close testing panel">✕</button></div><div class="tg-body">${tgHtml()}</div>`;
+  } else pn.hidden = true;
+}
+function viewTestsSolo(){
+  if (!TR.loaded && !TR.loading) tsLoad();
+  return `<div class="tg-solo"><div class="row" style="margin-bottom:12px"><b class="grow" style="font-size:18px;color:var(--ink)">Taskadoo testing</b>
+    <a class="small" href="#/whatsnew">Open the full site</a></div>${tgHtml()}</div>`;
+}
+const tgRepaint = () => { if (route().name === 'tests') render(); else tgPaint(); };
+function tgAfterMove(){ TG.note = null; tgRepaint(); const b = document.querySelector('.tg-body'); if (b) b.scrollTop = 0; if (route().name === 'tests') window.scrollTo(0, 0); }
+
+/* ───────────── Preview the app as (Admin) ───────────── */
+const PV_ROLES = [['customer', 'Customer', 'Books from the catalogue and follows their bookings'], ['enterprise', 'Business (Enterprise)', 'Books for end customers under a company name'],
+  ['assembler', 'Assembler', 'Offers, jobs, photos, sign-off and earnings – on a phone'], ['dispatcher', 'Dispatcher', 'Assigns assemblers to jobs']];
+function pvStart(p){ S.preview = p; S.menu = false; S.wnF = null; TG.i = null; history.replaceState(null, '', '#/' + NAV[p.p.role][0][0]); render(); window.scrollTo(0, 0); }
+function pvRole(r){ const x = PV_ROLES.find(y => y[0] === r); pvStart({ key: 'r:' + r, label: x ? x[1] : r, p: Object.assign({}, S.me, { id: 'preview-' + r, role: r, requested_role: '', company: r === 'enterprise' ? 'Sample company' : '' }) }); }
+function pvPerson(id){ const p = S.profiles.find(x => x.id === id); if (!p) return; if (p.role === 'admin') return toast('That person is an Admin – they see what you see.'); pvStart({ key: 'p:' + id, label: p.full_name || p.email, person: true, p }); }
+function pvBar(){
+  if (!inPreview()) return '';
+  const cur = S.preview.key, people = S.profiles.filter(p => p.role !== 'admin' && p.active);
+  return `<div class="pvbar"><span>👁</span><span class="grow">Previewing as <b>${esc(S.preview.label)}</b>${S.preview.person ? ` (${esc(ROLE_LABEL[S.preview.p.role])})` : ''}. Look-only: nothing you do is saved.</span>
+    <select data-change="pvswitch" aria-label="Switch preview">${PV_ROLES.map(r => `<option value="r:${r[0]}" ${cur === 'r:' + r[0] ? 'selected' : ''}>Role: ${esc(r[1])}</option>`).join('')}
+      ${people.map(p => `<option value="p:${esc(p.id)}" ${cur === 'p:' + p.id ? 'selected' : ''}>${esc(p.full_name || p.email)} · ${esc(ROLE_LABEL[p.role])}</option>`).join('')}</select>
+    <button class="btn ink small" data-act="pvexit" style="background:var(--ink)">Exit preview</button></div>`;
+}
+function viewPreview(){
+  const s = (S.pvSearch || '').toLowerCase();
+  const people = S.profiles.filter(p => p.role !== 'admin' && (!s || (p.full_name + ' ' + p.email + ' ' + p.company).toLowerCase().includes(s)));
+  return `<div class="narrow" style="max-width:820px"><h1>Preview the app as…</h1>
+    <p class="muted" style="margin-top:4px">See exactly what someone else sees. Preview is look-only: nothing you do is saved. A yellow bar shows while you preview, with Exit preview.</p>
+    <div class="card"><h3 style="margin-bottom:10px">A role</h3><div class="roles4">${PV_ROLES.map(r => `<button data-act="pvrole" data-v="${r[0]}">${esc(r[1])}<small>${esc(r[2])}</small></button>`).join('')}</div>
+      <div class="tiny muted" style="margin-top:8px">A role shows that role's screens with no personal data (empty lists). Pick a person to see their real bookings or jobs.</div></div>
+    <div class="card"><div class="row" style="margin-bottom:10px"><h3 class="grow">A person</h3><div style="flex:0 1 260px"><input placeholder="Search name or email" value="${esc(S.pvSearch || '')}" data-in="pvSearch"></div></div>
+      ${people.length ? `<div class="list">${people.map(p => `<div class="li" style="cursor:default"><div class="row"><div class="grow"><div class="b">${esc(p.full_name || p.email)}</div>
+        <div class="tiny muted">${esc(p.email)}${p.company ? ' · ' + esc(p.company) : ''}</div></div><span class="chip">${esc(ROLE_LABEL[p.role])}</span>
+        <button class="btn soft small" data-act="pvperson" data-id="${esc(p.id)}">Preview</button></div></div>`).join('')}</div>` : '<div class="empty">No one to preview yet.</div>'}</div></div>`;
+}
+
 /* ───────────── Actions ───────────── */
 async function reloadJob(id){ const j = await api.job(id); const k = S.jobs.findIndex(x => x.id === id); if (j) { if (k >= 0) S.jobs[k] = j; else S.jobs.unshift(j); } else if (k >= 0) S.jobs.splice(k, 1); }
 const ACT = {
   menu(){ S.menu = !S.menu; render(); },
-  async logout(){ S.menu = false; await api.signOut(); S.session = null; S.me = null; S.jobs = []; render(); },
+  tsfilter(b){ S.wnF = b.dataset.v; render(); },
+  async tsreload(b){ await busy(b, async () => { await tsLoad(); toast('Results refreshed'); }); },
+  tsset(b){ const id = b.dataset.id, cur = (TR.map[id] || {}).status, ta = document.getElementById('ts-note-' + id);
+    tsSave(id, { status: cur === b.dataset.v ? '' : b.dataset.v, note: ta ? ta.value.slice(0, 2000) : ((TR.map[id] || {}).note || '') }); },
+  async tscopy(){ await tsLoad(); const t = tsReport();
+    try { await navigator.clipboard.writeText(t); toast('Copied. Paste it into the chat with Claude.'); }
+    catch (e) { saveFile('taskadoo-test-results-' + todayISO() + '.txt', t); toast('Couldn\'t copy here, so the results were downloaded as a file instead.'); } },
+  async tsdl(){ await tsLoad(); saveFile('taskadoo-test-results-' + todayISO() + '.txt', tsReport()); toast('Downloaded'); },
+  tgopen(){ TG.open = true; TG.i = null; S.menu = false; tgPaint(); },
+  tgclose(){ TG.open = false; tgPaint(); },
+  tgtab(){ const w = window.open(location.pathname + '#/tests', '_blank'); if (!w) toast('Your browser blocked the new tab. Allow pop-ups for this site and try again.', true); },
+  tgintro(){ try { localStorage.setItem('tk_tg_intro', '1'); } catch (e) {} TG.i = null; tgRepaint(); },
+  tgaddnote(b){ TG.note = b.closest('.tg-card').dataset.id; tgRepaint(); setTimeout(() => { const t = document.getElementById('ts-note-tg-' + TG.note); if (t) t.focus(); }, 50); },
+  tgprev(){ TG.i = Math.max(0, (TG.i || 0) - 1); tgAfterMove(); },
+  tgfirst(){ tgStart(); tgAfterMove(); },
+  async tgnext(b){ const card = b.closest('.tg-card'), ta = card && card.querySelector('textarea');
+    if (ta) { const id = card.dataset.id, v = ta.value.slice(0, 2000); clearTimeout(noteT[id]); TG.typing = false; if (v !== ((TR.map[id] || {}).note || '')) await tsSave(id, { note: v }, true); }
+    TG.i = Math.min(tgList().length, (TG.i || 0) + 1); tgAfterMove(); },
+  async tgset(b){ const card = b.closest('.tg-card'), id = card.dataset.id, v = b.dataset.v, ta = card.querySelector('textarea');
+    await tsSave(id, { status: v, note: ta ? ta.value.slice(0, 2000) : ((TR.map[id] || {}).note || '') }, true);
+    if (v === 'fail') { TG.note = id; tgRepaint(); setTimeout(() => { const t = document.getElementById('ts-note-tg-' + id); if (t) t.focus(); }, 50); return; }
+    TG.i = Math.min(tgList().length, (TG.i || 0) + 1); tgAfterMove(); },
+  pvrole(b){ pvRole(b.dataset.v); },
+  pvperson(b){ pvPerson(b.dataset.id); },
+  pvexit(){ S.preview = null; S.wnF = null; TG.i = null; history.replaceState(null, '', '#/preview'); render(); },
+  async logout(){ S.menu = false; S.preview = null; await api.signOut(); S.session = null; S.me = null; S.jobs = []; render(); },
   authtab(b, e){ e.preventDefault(); S.authTab = b.dataset.tab; render(); },
   want(b){ const keep = { a_name: val('a_name'), a_mobile: val('a_mobile'), a_email: val('a_email'), a_pw: (document.getElementById('a_pw') || {}).value || '' };
     S.want = b.dataset.v; render(); Object.entries(keep).forEach(([k, v]) => { const el = document.getElementById(k); if (el) el.value = v; }); },
@@ -1023,6 +1395,7 @@ const ACT = {
     await api.saveSettings(v); S.settings = v; toast('Settings saved'); render(); }); }
 };
 const CHANGE = {
+  pvswitch(el){ const v = el.value; if (v.startsWith('r:')) pvRole(v.slice(2)); else pvPerson(v.slice(2)); },
   async photos(el){
     const id = Number(el.dataset.id), files = [...el.files]; if (!files.length) return;
     const label = el.closest('label'); if (label) { label.style.opacity = .6; label.firstChild.textContent = 'Uploading… '; }
@@ -1046,9 +1419,17 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => {
   const k = e.target.dataset && e.target.dataset.in; if (!k) return;
   S[k] = e.target.value;
-  if (k === 'search' || k === 'uSearch') { const pos = e.target.selectionStart; render(); const el = document.querySelector('[data-in="' + k + '"]'); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (x) {} } }
+  if (k === 'search' || k === 'uSearch' || k === 'pvSearch') { const pos = e.target.selectionStart; render(); const el = document.querySelector('[data-in="' + k + '"]'); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (x) {} } }
   if (k === 'dDate') render();
 });
+const noteT = {};
+document.addEventListener('input', e => {
+  const t = e.target, id = t.dataset && t.dataset.tsnote; if (id == null) return;
+  clearTimeout(noteT[id]); TG.typing = true;
+  noteT[id] = setTimeout(() => { TG.typing = false; const v = t.value.slice(0, 2000);
+    if (v !== ((TR.map[id] || {}).note || '')) tsSave(id, { note: v }, true).then(() => { const m = t.closest('.ts,.tg-card'); const el = m && m.querySelector('.meta,.tg-saved'); if (el) el.textContent = 'Note saved · ' + fmtTime(new Date().toISOString()); }); }, 900);
+});
+document.addEventListener('toggle', e => { const d = e.target; if (d.matches && d.matches('details.wn-tests') && (S.wnF || 'all') === 'all') S.wnOpen = Object.assign(S.wnOpen || {}, { [d.dataset.wn]: d.open }); }, true);
 document.addEventListener('change', e => { const k = e.target.dataset && e.target.dataset.change; if (k && CHANGE[k]) CHANGE[k](e.target); });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest('.auth') && e.target.tagName === 'INPUT') { const b = document.querySelector('.auth .btn[data-act]'); if (b) b.click(); } });
 window.addEventListener('hashchange', async () => {

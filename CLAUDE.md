@@ -2,7 +2,7 @@
 
 ## What this is
 Taskadoo: on-demand flat-pack furniture assembly (Philippines) – customer site, assembler app, dispatcher,
-enterprise portal, admin. Right now the pages are **clickable design prototypes** (no backend, no real data).
+enterprise portal, admin. The real system is at `staging/app/` (Supabase); the landing page and `staging/demo/` are design prototypes.
 Owner: Dennis (non-technical). Explain changes in plain language, one step at a time, confirm before big changes.
 
 ## Live setup
@@ -31,8 +31,23 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 - Storage bucket `jobs` (private): photos and signature at `<jobId>/<file>`; upload only by the job's assemblers once arrived.
 - Payment in Phase 1: customer pays after sign-off (cash/GCash/bank); Admin marks it paid.
 
+## Before shipping any change
+1. Check the JS (page loads with no console errors) and try every role's screens on a phone width and a computer width
+   (no "undefined", "NaN" or "Invalid Date" on screen).
+2. SQL changes: a new dated, idempotent file in `supabase/sql/`; tell Dennis exactly what to paste.
+3. Add an entry at the top of `WHATSNEW` in `staging/app/index.html` (version, date, plain-English title, `changes` with
+   kind New / Improved / Fixed and `for` = roles that see it, `where:'staging'` until it is copied to production, then `'live'`).
+   Add its tests to `WN_TESTS[version]` ([id, who, title, steps, should happen]); "who" names the role(s) that can do it.
+   Testers are non-technical: plain words, preparation in `WN_SETUP[id]`. After fixing a reported problem add
+   `WN_FIXED[id]="<ISO time>"` so the test comes back first as "please test again".
+   Results live in table `test_results` (staging); Dennis pastes them back with "Copy results for Claude".
+4. Admin "Preview the app as" (`S.preview`, `inPreview()`, `ME()` = the person whose screens are shown): look-only –
+   `updateProfile`, `saveSettings`, `saveItem`, `rpc` (except `assembler_list`) and `upload` are refused while previewing.
+   Views must use `ME()` / `role()`, not `S.me`, for whose data they show.
+
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
+  v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
 - Phase 2: assembler registration + evaluation booking, enterprise portal (CSV upload, billing, self-dispatch), earnings payouts.
 - Phase 3: receipt upload + pricing desk, auto-matching/offer cascade, Thailand (THB, Thai), native app if push/background location needed.
 
