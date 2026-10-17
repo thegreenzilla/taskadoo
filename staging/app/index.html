@@ -272,6 +272,8 @@ const api = window.__MOCK_API || {
   job: id => q(sb.from('jobs').select('*').eq('id', id).maybeSingle()),
   rpc: (fn, args) => q(sb.rpc(fn, args)),
   async upload(path, blob, type, bucket){ await q(sb.storage.from(bucket || 'jobs').upload(path, blob, { contentType: type, upsert: false })); },
+  payouts: () => q(sb.from('payouts').select('*').order('created_at', { ascending: false }).limit(1000)),
+  payoutLines: () => q(sb.from('payout_lines').select('*').limit(10000)),
   insertSlots: rows => q(sb.from('eval_slots').insert(rows)),
   updateSlot: (id, f) => q(sb.from('eval_slots').update(f).eq('id', id)),
   deleteSlot: id => q(sb.from('eval_slots').delete().eq('id', id)),
@@ -290,7 +292,7 @@ if (!api.testResults) {
 const PV_MSG = 'Preview is look-only – nothing was saved.';
 ['updateProfile', 'saveSettings', 'saveItem', 'upsertItems', 'rpc', 'upload', 'insertSlots', 'updateSlot', 'deleteSlot'].forEach(k => {
   const f = api[k];
-  api[k] = (...a) => (inPreview() && !(k === 'rpc' && ['assembler_list', 'cancel_fee', 'eval_slot_list', 'app_list', 'app_me'].includes(a[0]))) ? Promise.reject(new Error(PV_MSG)) : f.apply(api, a);
+  api[k] = (...a) => (inPreview() && !(k === 'rpc' && ['assembler_list', 'cancel_fee', 'eval_slot_list', 'app_list', 'app_me', 'payout_ready'].includes(a[0]))) ? Promise.reject(new Error(PV_MSG)) : f.apply(api, a);
 });
 
 /* ───────────── Helpers ───────────── */
@@ -300,6 +302,7 @@ const val = id => { const el = document.getElementById(id); return el ? el.value
 const num = v => { const n = Number(v); return isFinite(n) ? n : 0; };
 const cur = () => (S.settings.currency === 'THB' ? '฿' : '₱');
 const money = v => cur() + Math.round(num(v)).toLocaleString('en-PH');
+const money2 = v => cur() + num(v).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); // exact, for payouts
 const todayISO = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // Asia/Manila
 const addDays = (iso, n) => new Date(Date.parse(iso + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
 const fmtDate = iso => iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00').toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
@@ -335,12 +338,15 @@ function split(j){
 const myShare = j => { const s = split(j); return j.lead_id === ME().id ? s.lead : j.helper_id === ME().id ? s.helper : 0; };
 const windowEnd = j => (j.completed_at ? Date.parse(j.completed_at) + num(j.dispute_hours || 24) * 3600e3 : 0);
 // Where the assemblers' money stands for a closed job
-function payoutState(j){
+function payoutState(j, who){
+  const asm = who || (role() === 'assembler' ? ME().id : j.lead_id), po = (S.lineMap || {})[j.id + ':' + asm];
+  if (po && po.status === 'sent') return ['green', 'Paid out ' + fmtDate(new Date(Date.parse(po.sent_at) + 8 * 3600e3).toISOString().slice(0, 10)) + ' · ref ' + po.reference];
+  if (po && po.status === 'pending') return ['blue', 'In the payout list for Monday'];
   if (j.dispute === 'open') return ['orange', 'On hold – customer reported a problem'];
   if (j.status === 'issue') return ['orange', 'On hold – Taskadoo is checking with the customer'];
   if (!['done','failed_visit'].includes(j.status)) return ['', ''];
   if (Date.now() < windowEnd(j)) return ['blue', 'Held until ' + fmtTime(new Date(windowEnd(j)).toISOString())];
-  return j.paid ? ['green', 'Ready for payout'] : ['', 'Waiting for customer payment'];
+  return j.paid || j.source === 'enterprise' ? ['green', 'Ready for payout'] : ['', 'Waiting for customer payment'];
 }
 
 const STATUS = {
@@ -422,6 +428,11 @@ async function loadAssemblers(date){ S.assemblers = (await api.rpc('assembler_li
 async function refreshMe(){ S.me = await api.me(S.session.user.id); }
 async function loadApp(){ try { S.app = await api.rpc('app_me', {}); } catch (e) { console.warn(e); S.app = null; } }
 async function loadApps(){ try { S.apps = (await api.rpc('app_list', {})) || []; } catch (e) { console.warn(e); S.apps = []; } }
+async function loadPayouts(){
+  try { S.payouts = (await api.payouts()) || []; S.lines = (await api.payoutLines()) || []; } catch (e) { console.warn(e); S.payouts = []; S.lines = []; }
+  const byId = {}; S.payouts.forEach(x => byId[x.id] = x);
+  S.lineMap = {}; S.lines.forEach(l => { const po = byId[l.payout_id]; if (po && po.status !== 'cancelled') S.lineMap[l.job_id + ':' + l.assembler_id] = po; });
+}
 async function loadSlots(){ S.slots = (await api.rpc('eval_slot_list', {})) || []; S.slotsAt = Date.now(); }
 
 async function boot(){
@@ -459,6 +470,7 @@ async function afterLogin(){
     const r = route();
     if (isApplicant() || role() === 'customer') await loadApp();
     if (['admin', 'evaluator'].includes(role())) await loadApps();
+    if (['admin', 'assembler'].includes(role())) await loadPayouts();
     if (!r.name || !allowed(r.name)) { history.replaceState(null, '', '#/' + tabsFor()[0][0]); }
     render();
   } catch (e) { console.error(e); toast(errMsg(e), true); render(); }
@@ -982,16 +994,22 @@ function viewEarnings(){
   const sum = arr => arr.reduce((s, j) => s + myShare(j), 0);
   const st = j => payoutState(j)[1];
   const ready = done.filter(j => st(j) === 'Ready for payout'), held = done.filter(j => /^Held|On hold/.test(st(j))), waiting = done.filter(j => st(j) === 'Waiting for customer payment');
+  const inList = done.filter(j => /^In the payout list/.test(st(j))), paidOut = done.filter(j => /^Paid out/.test(st(j)));
+  const mine = (S.payouts || []).filter(x => x.assembler_id === me && x.status !== 'cancelled');
   return `<div class="narrow">
     <h1 style="margin-bottom:14px">Earnings</h1>
     <div class="grid2" style="grid-template-columns:repeat(3,1fr)">
-      ${[['Ready for payout', sum(ready), 'green'], ['Held / on hold', sum(held), 'blue'], ['All time', sum(done), '']].map(k => `<div class="card" style="padding:14px"><div class="tiny muted b">${k[0]}</div><div class="money" style="font-size:20px;${k[2] === 'blue' ? 'color:var(--blue)' : k[2] === '' ? 'color:var(--ink)' : ''}">${money(k[1])}</div></div>`).join('')}
+      ${[['Ready for Monday', sum(ready) + sum(inList), 'green'], ['Held / on hold', sum(held), 'blue'], ['Paid out', sum(paidOut), '']].map(k => `<div class="card" style="padding:14px"><div class="tiny muted b">${k[0]}</div><div class="money" style="font-size:20px;${k[2] === 'blue' ? 'color:var(--blue)' : k[2] === '' ? 'color:var(--ink)' : ''}">${money(k[1])}</div></div>`).join('')}
     </div>
     ${waiting.length ? `<div class="notice small" style="margin-top:12px">${money(sum(waiting))} is waiting for the customer to pay.</div>` : ''}
     <div class="card" style="margin-top:14px"><h3 style="margin-bottom:8px">How a job pays out</h3>
       <div class="small">Customer's job fee − Taskadoo commission (${num(S.settings.commission)}%) = crew pool. On team jobs the lead gets ${num(S.settings.lead_pct)}% of the pool because they own sign-off, photos and issue reporting; the extra assembler gets ${100 - num(S.settings.lead_pct)}%.</div>
       <div class="small" style="margin-top:6px">Your share is <b>held for ${num(S.settings.dispute_hours || 24)} hours</b> after the job, in case the customer reports a problem. If they do, it stays on hold until Taskadoo decides. Nobody home? You get your share of the failed-visit fee.</div>
-      <div class="tiny muted" style="margin-top:6px">Payouts are arranged by Taskadoo. Weekly automatic payouts come in the next phase.</div></div>
+      <div class="small" style="margin-top:6px"><b>Paid every Monday by GCash</b>${ME().gcash_number ? ' to ' + esc(ME().gcash_number) : ''} for jobs that are ready by Sunday night. Taskadoo pays any transfer fee. <a href="#/profile">Change GCash</a></div>
+      ${!ME().gcash_number ? '<div class="notice warn small" style="margin-top:8px">Add your GCash number in Profile so we can pay you.</div>' : ''}</div>
+    ${mine.length ? `<h3 style="margin:18px 0 10px">Payouts</h3><div class="list">${mine.map(x => `<div class="li" style="cursor:default"><div class="row"><div class="grow">
+      <div class="b">${money2(x.amount)}</div><div class="tiny muted">Jobs ready by ${esc(fmtDate(x.period_end))} · ${(S.lines || []).filter(l => l.payout_id === x.id).length} job(s) · GCash ${esc(x.gcash_number || '—')}</div></div>
+      ${x.status === 'sent' ? `<span class="chip green">Sent ${esc(fmtTime(x.sent_at))} · ref ${esc(x.reference)}</span>` : '<span class="chip blue">Being sent</span>'}</div></div>`).join('')}</div>` : ''}
     <h3 style="margin:18px 0 10px">Your jobs</h3>
     ${done.length ? `<div class="list">${done.map(j => { const ps = payoutState(j); return `<a class="li" href="#/task/${j.id}"><div class="row"><div class="grow"><div class="b">${esc(itemsSummary(j))}</div>
       <div class="tiny muted">${esc(j.code)} · ${esc(fmtTime(j.completed_at || j.finished_at))} · ${j.lead_id === me ? 'Lead' : 'Extra'}${j.status === 'failed_visit' ? ' · failed-visit fee' : ''}</div></div>
@@ -1012,6 +1030,8 @@ function viewProfile(){
       <label class="f"><span>Mobile</span><input id="p_mobile" type="tel" value="${esc(m.mobile)}"></label>
       ${['enterprise','customer'].includes(m.role) && (m.role === 'enterprise' || m.requested_role === 'enterprise') ? `<label class="f"><span>Company</span><input id="p_company" value="${esc(m.company)}"></label>` : ''}
       <label class="f"><span>${m.role === 'assembler' ? 'Base area' : 'City / area'}</span><select id="p_area"><option value="">—</option>${areas.map(a => `<option ${m.area === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></label>
+      ${m.role === 'assembler' ? `<div class="grid2"><label class="f"><span>Name on GCash</span><input id="p_gname" value="${esc(m.gcash_name || '')}"></label>
+        <label class="f"><span>GCash number (for payouts)</span><input id="p_gnum" type="tel" value="${esc(m.gcash_number || '')}"></label></div>` : ''}
       <button class="btn" data-act="saveprofile">Save</button>
     </div>
     ${m.role === 'assembler' ? `<div class="card"><h3>Add Taskadoo to your home screen</h3><p class="small muted" style="margin-bottom:0">
@@ -1028,7 +1048,8 @@ function viewPayments(){
   const tot = rows.reduce((a, j) => { const s = split(j); a.g += s.total; a.c += s.cut; a.p += s.pool; if (!j.paid) a.u += due(j); a.r += num(j.refund); return a; }, { g: 0, c: 0, p: 0, u: 0, r: 0 });
   const kind = j => j.status === 'failed_visit' ? 'Failed-visit fee' : j.status === 'cancelled' ? 'Late cancellation fee' : j.status === 'issue' ? 'Waiting for decision' : 'Job';
   const open = S.jobs.filter(attention).length;
-  return `<div class="row" style="margin-bottom:14px"><h1 class="grow">Payments</h1><button class="btn ghost small" data-act="reload">↻ Refresh</button></div>
+  if (S.payTab === 'payouts') return payTabs() + viewPayouts();
+  return `${payTabs()}
     ${open ? `<div class="notice warn" style="margin-bottom:14px">⚠ ${open} job${open > 1 ? 's need' : ' needs'} a decision before the money moves. <a href="#/dispatch" data-act="gotoattention">Open Needs attention</a></div>` : ''}
     <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:14px">
       ${[['Billed (after refunds)', tot.g], ['Taskadoo commission', tot.c], ['Assemblers\' share', tot.p], ['Refunds given', tot.r], ['Not yet paid by customers', tot.u]].map(k =>
@@ -1040,6 +1061,44 @@ function viewPayments(){
         <td style="text-align:right" class="b">${money(due(j))}</td><td>${payBtn(j) || '<span class="tiny muted">—</span>'}</td>
         <td>${ps[1] ? `<span class="chip ${ps[0]}">${esc(ps[1])}</span>` : ''}</td></tr>`; }).join('')}</table>`
       : `<div class="empty">Nothing to collect yet.</div>`}</div>`;
+}
+
+const payTabs = () => `<div class="row" style="margin-bottom:14px"><h1 class="grow">Payments</h1>
+  <div class="tabs2" style="margin:0;width:auto"><button class="${S.payTab !== 'payouts' ? 'on' : ''}" data-act="paytab" data-v="in">From customers</button><button class="${S.payTab === 'payouts' ? 'on' : ''}" data-act="paytab" data-v="payouts">To assemblers</button></div>
+  <button class="btn ghost small" data-act="payreload">↻ Refresh</button></div>`;
+const lastSunday = () => { const t = todayISO(), dow = new Date(t + 'T00:00:00Z').getUTCDay(); return addDays(t, -dow); };
+function viewPayouts(){
+  const end = S.poEnd || lastSunday();
+  if (!S.ready || S.readyEnd !== end) { if (!S.readyLoading) { S.readyLoading = true; api.rpc('payout_ready', { p_end: end }).then(r => { S.ready = r || []; S.readyEnd = end; })
+      .catch(e => { S.ready = []; S.readyEnd = end; toast(errMsg(e), true); }).finally(() => { S.readyLoading = false; render(); }); } }
+  const groups = {}; (S.ready || []).forEach(r => { const g = groups[r.assembler_id] = groups[r.assembler_id] || { name: r.assembler_name, gn: r.gcash_name, gnum: r.gcash_number, lines: [], total: 0 }; g.lines.push(r); g.total += num(r.amount); });
+  const G = Object.values(groups), total = G.reduce((t, g) => t + g.total, 0), noG = G.filter(g => !g.gnum).length;
+  const pend = (S.payouts || []).filter(x => x.status === 'pending'), sent = (S.payouts || []).filter(x => x.status === 'sent').slice(0, 60);
+  const linesOf = id => (S.lines || []).filter(l => l.payout_id === id);
+  const jobCode = id => (S.jobs.find(j => j.id === id) || {}).code || '#' + id;
+  return `<div class="card"><div class="row" style="align-items:flex-end"><div class="grow"><h3>This week's payout run</h3>
+      <div class="small muted">Every Monday: each assembler's share of jobs that were ready by Sunday night – past the ${num(S.settings.dispute_hours || 24)}-hour problem window, no open problem, and paid by the customer (business bookings don't wait for their monthly bill). Taskadoo pays any transfer fee.</div></div>
+      <label class="f" style="margin:0;min-width:170px"><span>Jobs ready by</span><input type="date" value="${esc(end)}" max="${todayISO()}" data-in="poEnd"></label></div>
+    ${S.readyEnd !== end ? '<div class="muted" style="margin-top:10px">Adding up…</div>' : G.length ? `<table class="tbl" style="margin-top:12px"><tr><th>Assembler</th><th>GCash</th><th>Jobs</th><th style="text-align:right">Amount</th></tr>
+      ${G.map(g => `<tr><td class="b">${esc(g.name)}</td><td class="small">${g.gnum ? esc(g.gn) + '<br>' + esc(g.gnum) : '<span class="chip red">No GCash number</span>'}</td>
+        <td class="small">${g.lines.map(l => esc(l.code) + (l.share_role === 'helper' ? ' (extra)' : '')).join(', ')}</td><td style="text-align:right" class="b">${money2(g.total)}</td></tr>`).join('')}
+      <tr><td colspan="3" class="b">Total</td><td style="text-align:right" class="b">${money2(total)}</td></tr></table>
+      ${noG ? `<div class="notice warn small" style="margin-top:8px">${noG} assembler${noG > 1 ? 's have' : ' has'} no GCash number yet. Ask them to add it in Profile – you can still create the list and send it another way.</div>` : ''}
+      <button class="btn green" style="margin-top:12px" data-act="pocreate">Create payout list · ${G.length} assembler${G.length > 1 ? 's' : ''} · ${money2(total)}</button>`
+      : '<div class="empty" style="padding:18px">Nothing ready to pay for this week.</div>'}</div>
+    <div class="card"><div class="row" style="margin-bottom:8px"><h3 class="grow">Waiting to be sent ${pend.length ? '<span class="tiny muted">' + money2(pend.reduce((t, x) => t + num(x.amount), 0)) + '</span>' : ''}</h3>
+      ${pend.length ? '<button class="btn ghost small" data-act="podl">⬇ Download for GCash</button>' : ''}</div>
+      ${pend.length ? `<div class="scroll"><table class="tbl"><tr><th>Assembler</th><th>GCash</th><th style="text-align:right">Amount</th><th>Jobs</th><th>GCash reference</th><th></th></tr>
+      ${pend.map(x => `<tr><td class="b">${esc(x.assembler_name)}<div class="tiny muted">ready by ${esc(fmtDate(x.period_end))}</div></td>
+        <td class="small">${esc(x.gcash_name || '—')}<br><b>${esc(x.gcash_number || 'no number')}</b> ${x.gcash_number ? `<button class="linkbtn" data-act="copy" data-v="${esc(x.gcash_number)}">copy</button>` : ''}</td>
+        <td style="text-align:right" class="b">${money2(x.amount)}</td><td class="tiny">${linesOf(x.id).map(l => esc(jobCode(l.job_id)) + ' ' + money2(l.amount)).join('<br>')}</td>
+        <td><input id="po_ref_${x.id}" placeholder="e.g. 1234 567 890" style="min-width:140px"></td>
+        <td><button class="btn green small" data-act="posent" data-id="${x.id}">Mark sent</button> <button class="btn ghost small" data-act="pocancel" data-id="${x.id}">Cancel</button></td></tr>`).join('')}</table></div>
+      <div class="tiny muted" style="margin-top:8px">Send each amount in the GCash app (or upload the downloaded file to GCash for Business), then type the reference number and tap Mark sent. The assembler sees it in Earnings.</div>`
+      : '<div class="empty" style="padding:18px">No payouts waiting.</div>'}</div>
+    <div class="card"><h3 style="margin-bottom:8px">Sent</h3>${sent.length ? `<div class="scroll"><table class="tbl"><tr><th>Assembler</th><th>Ready by</th><th style="text-align:right">Amount</th><th>Reference</th><th>Sent</th></tr>
+      ${sent.map(x => `<tr><td>${esc(x.assembler_name)}</td><td class="small">${esc(fmtDate(x.period_end))}</td><td style="text-align:right" class="b">${money2(x.amount)}</td>
+        <td class="small">${esc(x.reference)}</td><td class="small">${esc(fmtTime(x.sent_at))} · ${esc(x.sent_by_name)}</td></tr>`).join('')}</table></div>` : '<div class="empty" style="padding:18px">Nothing sent yet.</div>'}</div>`;
 }
 
 /* ───────────── Admin: catalogue ───────────── */
@@ -1280,6 +1339,12 @@ function sigPad(c){
 // for: roles that see the line (customer, enterprise, assembler, dispatcher, admin) or 'all'.
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
+  { v: '1.5', d: '2026-10-17', where: 'staging', title: 'Weekly payouts to assemblers', changes: [
+    { k: 'New', t: 'Payments → To assemblers: every Monday the system adds up each assembler\'s share of jobs ready by Sunday night (past the problem window, no open problem, paid by the customer). Create the payout list, send by GCash, type the reference number and tap Mark sent. A job is never paid twice.', for: ['admin'] },
+    { k: 'New', t: 'Download for GCash: one file with every name, GCash number and amount, for sending in bulk.', for: ['admin'] },
+    { k: 'New', t: 'Earnings shows "In the payout list for Monday" and "Paid out … · ref …" for each job, and your payout history. Taskadoo pays any GCash transfer fee.', for: ['assembler'] },
+    { k: 'New', t: 'Add or change your GCash name and number in Profile. It is copied from your application when you pass the evaluation.', for: ['assembler'] }
+  ] },
   { v: '1.4', d: '2026-10-17', where: 'staging', title: 'Assembler sign-up and evaluation', changes: [
     { k: 'New', t: 'Become an assembler in 4 steps: about you (21 or older), documents (valid ID, NBI clearance, medical certificate – Mober employees only need the medical certificate), where & what (base, brands, skills, GCash), then book an evaluation time at the hub. You can move it once.', for: ['customer'] },
     { k: 'New', t: 'Evaluator role. Evaluations → Applicants: check each document photo (OK / Not OK with a reason), confirm Mober employee IDs, score the interview and build test 1–5, then Pass, Fail or Didn\'t come. Pass makes them an assembler straight away.', for: ['admin'] },
@@ -1318,6 +1383,14 @@ const WHATSNEW = [
 ];
 // Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
 const WN_TESTS = {
+  '1.5': [
+    ['Q1', 'Assembler', 'GCash in Profile', ['Profile → check Name on GCash and GCash number, change the number, Save.'], 'It saves. Earnings says "Paid every Monday by GCash to" your new number.'],
+    ['Q2', 'Admin', 'See what is ready to pay', ['Payments → To assemblers. Look at "This week\'s payout run".'], 'Each assembler with ready jobs is listed with GCash, job codes and the amount. Jobs still in the 24-hour window, with a problem reported, or not paid by the customer are not included.'],
+    ['Q3', 'Admin', 'Create the payout list', ['Tap Create payout list, then OK.'], 'The amounts move to "Waiting to be sent". The run above now says nothing is ready. The assembler\'s Earnings shows "In the payout list for Monday".'],
+    ['Q4', 'Admin', 'Mark a payout sent', ['Type a GCash reference number on one row and tap Mark sent.'], 'It moves to Sent with the reference and time. The assembler sees "Paid out … · ref …" on those jobs and in Payouts.'],
+    ['Q5', 'Admin', 'Cancel a payout', ['On another waiting row tap Cancel, then OK.'], 'The row disappears and its jobs appear again in "This week\'s payout run".'],
+    ['Q6', 'Admin', 'Download for GCash', ['With payouts waiting, tap ⬇ Download for GCash and open the file.'], 'One row per assembler with name, GCash number, amount and a note.']
+  ],
   '1.4': [
     ['J1', 'Admin', 'Set up the hub and times', ['Settings → Hubs: type the Pasay Hub address, Save settings.', 'Evaluations → Calendar: pick tomorrow, keep 9:00 AM and 1:00 PM, seats 2, tap Create.'], 'Tomorrow shows two times with "0 of 2 booked".'],
     ['J2', 'Customer', 'Sign up as an assembler', ['Create a new account and choose "I want to work as an assembler".'], 'The app opens on "Become a Taskadoo assembler" with 4 steps.'],
@@ -1390,6 +1463,7 @@ const WN_TESTS = {
 };
 // Preparation a test needs
 const WN_SETUP = {
+  Q2: 'Admin only. Needs jobs completed more than 24 hours ago and marked paid in Payments → From customers.', Q3: 'Do Q2 first.', Q4: 'Do Q3 first.', Q5: 'Needs two waiting payouts.', Q6: 'Admin only.',
   J1: 'Admin only.', J2: 'Use a new email (e.g. yourname+asm1@gmail.com).', J3: 'Do J2 first.', J4: 'Do J3 first. A phone camera is easiest.', J5: 'Do J4 first.',
   J6: 'Needs the two times from J1.', J7: 'Another new email.', J8: 'Admin (or an Evaluator). Needs a booked applicant (J6).', J9: 'Do J8 first.', J10: 'Do J9 first.',
   J11: 'Do J10 first.', J12: 'Admin (or Evaluator). Needs two more booked applicants.', J13: 'Admin only.', J14: 'Admin only.',
@@ -1816,6 +1890,19 @@ function viewEvalCalendar(){
 async function reloadJob(id){ const j = await api.job(id); const k = S.jobs.findIndex(x => x.id === id); if (j) { if (k >= 0) S.jobs[k] = j; else S.jobs.unshift(j); } else if (k >= 0) S.jobs.splice(k, 1); }
 const ACT = {
   menu(){ S.menu = !S.menu; render(); },
+  paytab(b){ S.payTab = b.dataset.v; render(); },
+  async payreload(b){ await busy(b, async () => { await loadJobs(); await loadPayouts(); S.ready = null; render(); toast('Updated'); }); },
+  async pocreate(b){ const end = S.poEnd || lastSunday();
+    if (!confirm('Create the payout list for jobs ready by ' + fmtDate(end) + '?')) return;
+    await busy(b, async () => { const n = await api.rpc('payout_create', { p_end: end }); await loadPayouts(); S.ready = null; toast(n + ' payout' + (n === 1 ? '' : 's') + ' ready to send'); render(); }); },
+  async posent(b){ await busy(b, async () => { await api.rpc('payout_mark_sent', { p_id: Number(b.dataset.id), p_reference: val('po_ref_' + b.dataset.id) }); await loadPayouts(); toast('Marked sent'); render(); }); },
+  async pocancel(b){ if (!confirm('Cancel this payout? Its jobs go back to "ready" and can be paid in the next list.')) return;
+    await busy(b, async () => { await api.rpc('payout_cancel', { p_id: Number(b.dataset.id) }); await loadPayouts(); S.ready = null; render(); }); },
+  podl(){ const pend = (S.payouts || []).filter(x => x.status === 'pending');
+    const lines = [['name', 'gcash_number', 'amount', 'note'].join(',')].concat(pend.map(x => [x.gcash_name || x.assembler_name, x.gcash_number, num(x.amount).toFixed(2), 'Taskadoo payout – jobs ready by ' + x.period_end].map(csvCell).join(',')));
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'taskadoo-payouts-' + todayISO() + '.csv'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); },
+  async copy(b){ try { await navigator.clipboard.writeText(b.dataset.v); toast('Copied ' + b.dataset.v); } catch (e) { toast(b.dataset.v); } },
   // application (applicant)
   astep(b){ S.aStep = Number(b.dataset.v); S.aSel = null; render(); window.scrollTo(0, 0); },
   async apsave1(b){ await busy(b, async () => {
@@ -1979,6 +2066,8 @@ const ACT = {
   async saveprofile(b){ await busy(b, async () => {
     const f = { full_name: val('p_name'), mobile: val('p_mobile'), area: val('p_area') };
     if (document.getElementById('p_company')) f.company = val('p_company');
+    if (document.getElementById('p_gnum')) { f.gcash_name = val('p_gname'); f.gcash_number = val('p_gnum').replace(/[^0-9+]/g, '');
+      if (f.gcash_number && f.gcash_number.replace(/\D/g, '').length < 10) throw new Error('Please check the GCash number.'); }
     S.me = await api.updateProfile(S.me.id, f) || S.me; toast('Saved'); render(); }); },
   async reloadusers(b){ await busy(b, async () => { await loadProfiles(); render(); }); },
   ufilter(b){ S.uFilter = b.dataset.v; render(); },
@@ -2106,7 +2195,7 @@ document.addEventListener('input', e => {
   const k = e.target.dataset && e.target.dataset.in; if (!k) return;
   S[k] = e.target.value;
   if (k === 'search' || k === 'uSearch' || k === 'pvSearch' || k === 'cSearch') { const pos = e.target.selectionStart; render(); const el = document.querySelector('[data-in="' + k + '"]'); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (x) {} } }
-  if (k === 'dDate') render();
+  if (k === 'dDate' || k === 'poEnd') render();
 });
 document.addEventListener('input', e => {
   const t = e.target; if (!t.dataset || !S.sd) return;

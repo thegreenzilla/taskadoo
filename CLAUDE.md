@@ -38,6 +38,11 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   `app_cancel`, `app_list`, `app_doc_review`, `app_emp_verify`, `app_decide` (passed → role assembler). Private bucket `apps/<user id>/…`.
   Settings: hubs [{id,name,address}], joining_fee (0 = free), min_age 21, eval_minutes, skills, eval_items [{id,sec,label}] scored 1–5.
   An applicant = customer with requested_role 'assembler' (nav `applicant`: My application first).
+- v1.5 payouts (every Monday, GCash, Taskadoo pays transfer fees): `payouts` (one per assembler per run: pending/sent/cancelled,
+  GCash snapshot, reference) + `payout_lines` (unique job_id+assembler_id – never paid twice). `job_shares(job)` = the same split as
+  the app. RPCs `payout_ready(p_end)` (closed, past dispute_hours, no open dispute, paid or enterprise, not yet in a payout),
+  `payout_create`, `payout_mark_sent`, `payout_cancel` (Admin). GCash on `profiles.gcash_name/gcash_number` (copied on pass).
+  Payout amounts are shown exact (`money2`). UI: Payments → "To assemblers"; assembler Earnings shows payout status/history.
 - All times on screen use `TZ = 'Asia/Manila'`.
 - Rules in settings `main`: dispute_hours 24, cancel_free_hours 24, cancel_fee 300, fail_pct 30, fail_max 500, nobody_wait_min 15.
 - Storage bucket `jobs` (private): photos and signature at `<jobId>/<file>`; upload only by the job's assemblers once arrived.
@@ -63,9 +68,10 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
+  v1.5: weekly assembler payouts (manual GCash, reference numbers).
   v1.4: assembler sign-up + evaluation (Evaluator role, calendar, document checks, scorecard). v1.3: catalogue CSV import/export.
   v1.2: problems after the job, missed visits, late-cancel fee, payout holds, unpaid block, Settings + Catalogue redesign.
-- Phase 2: (done: assembler registration + evaluation) enterprise portal (CSV upload, billing, self-dispatch), earnings payouts.
+- Phase 2: (done: assembler registration + evaluation) enterprise portal (CSV upload, billing, self-dispatch). Payouts done manually (v1.5); automatic via provider later.
 - Phase 3: receipt upload + pricing desk, auto-matching/offer cascade, Thailand (THB, Thai), native app if push/background location needed.
 
 ## Files
