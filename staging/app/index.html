@@ -1111,7 +1111,8 @@ function tsMine(t){
 }
 const tsMineId = id => { const x = tsAll().find(({ t }) => t[0] === id); return !!x && tsMine(x.t); };
 const tgRetest = id => { const f = WN_FIXED[id], r = TR.map[id]; return !!f && !!r && r.status === 'fail' && r.at < f; };
-function tgList(){ const L = tsAll().filter(({ t }) => tsMine(t)).sort((x, y) => parseFloat(x.v) - parseFloat(y.v)); // oldest release first: accounts and a booking come before newer features return [...L.filter(x => tgRetest(x.t[0])), ...L.filter(x => !tgRetest(x.t[0]))]; }
+// oldest release first: accounts and a booking come before newer features
+function tgList(){ const L = tsAll().filter(({ t }) => tsMine(t)).sort((x, y) => parseFloat(x.v) - parseFloat(y.v)); return [...L.filter(x => tgRetest(x.t[0])), ...L.filter(x => !tgRetest(x.t[0]))]; }
 const tgOpenTest = x => !(TR.map[x.t[0]] || {}).status || tgRetest(x.t[0]);
 const tgLeft = () => tgList().filter(tgOpenTest).length;
 function tgStart(){ const L = tgList(), k = L.findIndex(tgOpenTest); TG.i = k < 0 ? L.length : k; }
