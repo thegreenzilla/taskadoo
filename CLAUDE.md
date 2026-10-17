@@ -25,11 +25,19 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 - Tables: `profiles` (role: customer, assembler, dispatcher, enterprise, admin; `requested_role` from sign-up waits for Admin approval;
   the first account ever becomes admin), `settings` (key `main`: commission, lead_pct, currency, slots, areas, categories, payment_note –
   readable by the public), `catalog` (fixed fee per item, crew size, minutes), `jobs` (one booking = one job; items/prices snapshotted;
-  status new → assigned → accepted → travelling → arrived → in_progress → finished → done | cancelled).
+  status new → assigned → accepted → travelling → arrived → in_progress → finished → done | cancelled;
+  v1.2 adds `issue` (customer won't sign – staff decide) and `failed_visit` (nobody home – fee kept)).
 - Jobs are only created/changed through RPCs: `create_booking` (prices computed in SQL), `cancel_booking`, `assign_job`, `job_action`
-  (accept/decline/travel/arrive/start/finish/photo/complete – lead only for steps), `mark_paid` (Admin), `assembler_list`.
+  (accept/decline/travel/arrive/start/finish/photo/complete/no_sign/nobody_home – lead only for steps), `mark_paid` (Admin), `assembler_list`,
+  `report_problem` (customer, within `dispute_hours` of completion), `resolve_job` (staff: accepted/revisit/partial/full/rejected; revisit
+  creates a ₱0 job with `revisit_of`), `cancel_fee` (what cancelling now costs). Trigger `block_unpaid`: customers with an unpaid job/fee
+  older than the problem window can't book. `job_due()` = what the customer owes (total − refund, or the kept fee).
+- Rules in settings `main`: dispute_hours 24, cancel_free_hours 24, cancel_fee 300, fail_pct 30, fail_max 500, nobody_wait_min 15.
 - Storage bucket `jobs` (private): photos and signature at `<jobId>/<file>`; upload only by the job's assemblers once arrived.
-- Payment in Phase 1: customer pays after sign-off (cash/GCash/bank); Admin marks it paid.
+- Payment in Phase 1: customer pays after sign-off (cash/GCash/bank); Admin marks it paid. Assembler payouts are "held" for the
+  problem window, "on hold" during a dispute/issue, then "ready" once the customer has paid.
+- Payment plan agreed with Dennis: Step 2 = pay the full amount at booking via a provider (PayMongo/Xendit – none yet), held until
+  sign-off + 24 h, refunds from the decision screen; Step 3 = weekly assembler payouts. Say "Payment held by Taskadoo", not "escrow".
 
 ## Before shipping any change
 1. Check the JS (page loads with no console errors) and try every role's screens on a phone width and a computer width
@@ -48,6 +56,7 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
+  v1.2: problems after the job, missed visits, late-cancel fee, payout holds, unpaid block, Settings + Catalogue redesign.
 - Phase 2: assembler registration + evaluation booking, enterprise portal (CSV upload, billing, self-dispatch), earnings payouts.
 - Phase 3: receipt upload + pricing desk, auto-matching/offer cascade, Thailand (THB, Thai), native app if push/background location needed.
 

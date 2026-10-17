@@ -322,7 +322,7 @@ begin
   if public.my_role() <> 'assembler' then raise exception 'Only assemblers can do this.'; end if;
   select * into j from public.jobs where id = p_job for update;
   if not found then raise exception 'Job not found.'; end if;
-  is_lead := j.lead_id = me; is_helper := j.helper_id = me;
+  is_lead := coalesce(j.lead_id = me, false); is_helper := coalesce(j.helper_id = me, false);
   if not (is_lead or is_helper) then raise exception 'This job is not assigned to you.'; end if;
   p := coalesce(p, '{}'::jsonb);
 
