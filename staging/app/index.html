@@ -13,7 +13,9 @@
 <meta name="apple-mobile-web-app-title" content="Taskadoo">
 <script>
   // Assembler app link (staging/assembler/ → ?app=asm): its own home-screen icon and name
-  window.ASM_APP = /[?&]app=asm\b/.test(location.search);
+  window.APP_MODE = (/[?&]app=(asm|staff)\b/.exec(location.search) || [])[1] || 'cust';   // asm = assembler app · staff = Admin/Dispatcher/Evaluator · cust = customer site
+  window.ASM_APP = window.APP_MODE === 'asm';
+  if (window.APP_MODE === 'staff') document.title = 'Taskadoo staff';
   if (window.ASM_APP) {
     document.querySelector('link[rel=manifest]').href = 'manifest-assembler.webmanifest';
     document.querySelector('meta[name=apple-mobile-web-app-title]').content = 'Assembler';
@@ -419,7 +421,7 @@ details.wn-tests>summary{cursor:pointer;font-weight:700;color:var(--ink)}
 'use strict';
 /* ───────────── Data access (all Supabase calls live here) ───────────── */
 const CFG = window.TASKADOO_CONFIG || {};
-const sb = window.__MOCK_API || !window.supabase ? null : window.supabase.createClient(CFG.url, CFG.key); // boot() explains if the library didn't load
+const sb = window.__MOCK_API || !window.supabase ? null : window.supabase.createClient(CFG.url, CFG.key, { auth: { storageKey: 'tk-auth-' + window.APP_MODE } }); // boot() explains if the library didn't load
 async function q(p){ const { data, error } = await p; if (error) throw error; return data; }
 const here = () => location.origin + location.pathname;
 const api = window.__MOCK_API || {
@@ -575,7 +577,11 @@ const NAV = {
 };
 const SUB = { booking: 'bookings', job: 'dispatch', task: 'tasks', eval: 'evals' };
 // customers who asked to become assemblers see their application first
-const isApplicant = () => role() === 'customer' && ME().requested_role === 'assembler';
+const isApplicant = () => window.APP_MODE !== 'cust' && role() === 'customer' && ME().requested_role === 'assembler';
+// which app a signed-in person belongs in
+const APP_URL = { asm: '../assembler/', staff: '../staff/', cust: './#/book' };
+const APP_NAME = { asm: 'assembler app', staff: 'staff portal', cust: 'customer site' };
+const homeApp = p => ['admin', 'dispatcher', 'evaluator'].includes(p.role) ? 'staff' : p.role === 'assembler' || (p.role === 'customer' && p.requested_role === 'assembler') ? 'asm' : 'cust';
 const tabsFor = () => NAV[isApplicant() ? 'applicant' : role()] || [];
 function route(){ const h = location.hash.replace(/^#\/?/, '').split('?')[0].split('/'); return { name: h[0] || '', arg: decodeURIComponent(h[1] || '') }; }
 const SITE = '../';   // the landing page
@@ -669,10 +675,14 @@ function render(){
   if (S.recovery && S.session) { app.innerHTML = viewNewPassword(); return; }
   if (!S.session) {
     const g = route();
-    if (GUEST_ROUTES.includes(g.name)) { renderSite(g); return; }
+    if (window.APP_MODE === 'cust' && g.name === 'signup' && g.arg === 'assembler') { location.replace('../assembler/#/signup/assembler'); return; }
+    if (window.APP_MODE !== 'cust' && g.name !== 'login' && g.name !== 'signup') { history.replaceState(null, '', location.pathname + location.search + '#/login'); }
+    else if (GUEST_ROUTES.includes(g.name)) { renderSite(g); return; }
     if (g.name === 'signup') { S.authTab = 'up'; S.want = ['assembler', 'enterprise'].includes(g.arg) ? g.arg : ''; }
     if (g.name === 'login' && S.authTab === 'up' && !S.authTouched && !S.next) S.authTab = 'in';
-    if (window.ASM_APP && !S.wantTouched) S.want = 'assembler';   // assembler link: sign-up starts as an assembler
+    if (window.ASM_APP) S.want = 'assembler';                     // assembler app: every sign-up is an assembler
+    else if (S.want === 'assembler') S.want = '';
+    if (window.APP_MODE === 'staff') S.authTab = S.authTab === 'forgot' ? 'forgot' : 'in';
     document.body.classList.remove('is-site');
     app.innerHTML = viewAuth(); badge(); tgPaint(); return;
   }
@@ -685,6 +695,7 @@ function render(){
   if (r.name === 'receipt' && allowed('receipt')) { toast(RECEIPT_MSG); history.replaceState(null, '', '#/book'); r = { name: 'book', arg: '' }; }
   if (!r.name || !allowed(r.name)) r = { name: tabsFor()[0][0], arg: '' };
   if (window.ASM_APP && role() !== 'assembler' && !isApplicant()) { renderAsmGate(); return; }
+  if (!window.ASM_APP && !inPreview() && homeApp(S.me) !== window.APP_MODE && !(window.APP_MODE === 'cust' && homeApp(S.me) === 'asm' && S.me.role === 'customer')) { renderWrongApp(); return; }
   if (siteRole()) { renderSite(r); return; }
   document.body.classList.remove('is-site');
   const V = { book: viewBook, bookings: viewBookings, booking: viewBooking, dispatch: viewDispatch, job: viewDispatch,
@@ -770,10 +781,22 @@ function renderAsmGate(){
         ${asms.length ? `<label class="f" style="margin-top:10px"><span>…or as a real assembler</span><select data-change="pvasm"><option value="">Choose a person</option>${asms.map(p => `<option value="${esc(p.id)}">${esc(p.full_name || p.email)}</option>`).join('')}</select></label>` : ''}` : ''}
       ${role() === 'customer' ? `<a class="btn block" href="./?app=asm#/apply" style="margin-top:12px">Become an assembler</a>` : ''}
       <button class="btn ghost block" data-act="logout" style="margin-top:10px">Sign out and sign in as an assembler</button>
-      ${role() !== 'customer' ? `<a class="btn ghost block" href="./#/${esc(tabsFor()[0][0])}" style="margin-top:10px">Open my ${esc(ROLE_LABEL[role()] || '')} pages</a>` : ''}
+      ${role() !== 'customer' ? `<a class="btn ghost block" href="${APP_URL[homeApp(S.me)]}" style="margin-top:10px">Open the ${esc(APP_NAME[homeApp(S.me)])}</a>` : ''}
     </div></main></div>`;
   document.body.classList.add('is-asm'); document.body.classList.remove('is-site');
   document.body.classList.toggle('has-pv', inPreview()); badge(); tgPaint();
+}
+function renderWrongApp(){
+  const home = homeApp(S.me);
+  document.body.classList.remove('is-site', 'is-asm');
+  $('#app').innerHTML = `<div class="auth"><div class="card">
+    <div style="text-align:center;margin:4px 0 14px"><img src="img/logo.png" alt="Taskadoo" style="height:34px"></div>
+    <h2 style="margin-bottom:6px">This is the ${esc(APP_NAME[window.APP_MODE])}</h2>
+    <p class="small muted" style="margin-top:0">You're signed in as <b>${esc(S.me.full_name || S.me.email)}</b> (${esc(ROLE_LABEL[S.me.role] || S.me.role)}). Your account belongs in the ${esc(APP_NAME[home])}.</p>
+    <a class="btn block" href="${APP_URL[home]}">Open the ${esc(APP_NAME[home])}</a>
+    <button class="btn ghost block" data-act="logout" style="margin-top:10px">Sign out</button>
+  </div></div>`;
+  badge(); tgPaint();
 }
 function acctMenu(tabs, unseen){
   if (!S.menu || !S.me) return '';
@@ -807,10 +830,10 @@ function renderSite(r){
     <footer class="sfoot"><div class="sfoot-in"><div class="sfoot-grid">
       <div><img src="img/logo-white.png" alt="Taskadoo" style="height:28px;width:auto;display:block;margin-bottom:16px">
         <p style="color:#9E97B5;font-weight:500;font-size:14.5px;line-height:1.6;max-width:280px;margin:0">Vetted, insured furniture assembly — booked in minutes, built the same day.</p></div>
-      <div><h4>Company</h4><a href="${SITE}">About us</a><a href="${SITE}">Careers</a><a href="${SITE}">Press</a><a href="#/signup/assembler">Become an assembler</a></div>
+      <div><h4>Company</h4><a href="${SITE}">About us</a><a href="${SITE}">Careers</a><a href="${SITE}">Press</a><a href="../assembler/#/signup/assembler">Become an assembler</a></div>
       <div><h4>Services</h4><a href="#/book">Furniture assembly</a><a href="#/shop/tv">TV mounting</a><a href="#/receipt">Receipt quotation</a><a href="#/signup/enterprise">Taskadoo for Business</a></div>
       <div><h4>Support</h4><a href="${SITE}#faq">Help center</a><a href="${SITE}">Happiness Guarantee</a><a href="${SITE}">Trust &amp; safety</a><a href="${SITE}">Contact</a></div>
-    </div><div class="sfoot-bot"><span>© 2026 Taskadoo. All rights reserved.</span><span><a href="${SITE}">Privacy</a><a href="${SITE}">Terms</a><a href="${SITE}#faq">Help</a></span></div></div></footer>`;
+    </div><div class="sfoot-bot"><a href="../staff/" style="color:inherit;text-decoration:none;cursor:text">© 2026 Taskadoo. All rights reserved.</a><span><a href="${SITE}">Privacy</a><a href="${SITE}">Terms</a><a href="${SITE}#faq">Help</a></span></div></div></footer>`;
   document.body.classList.add('is-site');
   document.body.classList.toggle('has-bottom', false);
   document.body.classList.toggle('has-pv', inPreview());
@@ -870,20 +893,20 @@ function viewAuth(){
   const want = S.want;
   return `<div class="auth"><div class="card">
     <div style="text-align:center;margin:4px 0 18px"><a href="${SITE}"><img src="img/logo.png" alt="Taskadoo" style="height:34px"></a>
-      ${window.ASM_APP ? '<div class="tiny b" style="letter-spacing:.1em;color:var(--blue);margin-top:8px">FOR ASSEMBLERS</div>' : ''}</div>
+      ${window.ASM_APP ? '<div class="tiny b" style="letter-spacing:.1em;color:var(--blue);margin-top:8px">FOR ASSEMBLERS</div>' : window.APP_MODE === 'staff' ? '<div class="tiny b" style="letter-spacing:.1em;color:var(--blue);margin-top:8px">STAFF PORTAL</div>' : ''}</div>
     ${S.next ? '<div class="authnote">Sign in or create a free account to confirm your booking. Your cart and details are saved.</div>' : ''}
     ${fg ? `<h2 style="margin-bottom:6px">Reset your password</h2><p class="muted small">We'll email you a link to set a new password.</p>
       <label class="f"><span>Email</span><input id="a_email" type="email" autocomplete="email"></label>
       <button class="btn block" data-act="forgot">Send reset link</button>
       <p class="small" style="text-align:center"><a href="#" data-act="authtab" data-tab="in">Back to sign in</a></p>` : `
-    <div class="tabs2"><button class="${!up ? 'on' : ''}" data-act="authtab" data-tab="in">Sign in</button>
-      <button class="${up ? 'on' : ''}" data-act="authtab" data-tab="up">Create account</button></div>
+    ${window.APP_MODE === 'staff' ? '<p class="small muted" style="text-align:center;margin-top:0">For Taskadoo staff. Accounts are set up by Admin.</p>' : `<div class="tabs2"><button class="${!up ? 'on' : ''}" data-act="authtab" data-tab="in">Sign in</button>
+      <button class="${up ? 'on' : ''}" data-act="authtab" data-tab="up">Create account</button></div>`}
     ${up ? `
-      <div class="choice">
+      ${window.ASM_APP ? '<div class="authnote">🧰 Sign up to work as an assembler: 4 short steps, then a short evaluation at our hub.</div>' : `<div class="choice">
         <button class="${want === '' ? 'on' : ''}" data-act="want" data-v="">🛠️ I need furniture assembled<small>Book an assembler for your home or office</small></button>
-        <button class="${want === 'assembler' ? 'on' : ''}" data-act="want" data-v="assembler">🧰 I want to work as an assembler<small>Sign up in 4 steps, then come to a short evaluation</small></button>
         <button class="${want === 'enterprise' ? 'on' : ''}" data-act="want" data-v="enterprise">🏢 I book for a business<small>Retailers, TSPs and 3PLs – reviewed in 1–2 business days</small></button>
       </div>
+      <p class="small" style="margin:-4px 0 12px">Want to work as an assembler? <a href="../assembler/#/signup/assembler">Sign up in the assembler app</a></p>`}
       <label class="f"><span>Full name</span><input id="a_name" autocomplete="name"></label>
       ${want === 'enterprise' ? `<label class="f"><span>Company name</span><input id="a_company" autocomplete="organization"></label>` : ''}
       <label class="f"><span>Mobile</span><input id="a_mobile" type="tel" autocomplete="tel" placeholder="09XX XXX XXXX"></label>` : ''}
@@ -891,7 +914,7 @@ function viewAuth(){
     <label class="f"><span>Password</span><input id="a_pw" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'At least 8 characters' : ''}"></label>
     <button class="btn block" data-act="${up ? 'signup' : 'signin'}">${up ? 'Create account' : 'Sign in'}</button>
     ${!up ? `<p class="small" style="text-align:center;margin-bottom:0"><a href="#" data-act="authtab" data-tab="forgot">Forgot password?</a></p>` : ''}`}
-    <p class="small" style="text-align:center;margin:14px 0 0"><a href="#/book">‹ Browse the catalogue</a></p>
+    ${window.APP_MODE === 'cust' ? '<p class="small" style="text-align:center;margin:14px 0 0"><a href="#/book">‹ Browse the catalogue</a></p>' : ''}
   </div></div>`;
 }
 function viewNewPassword(){
@@ -1539,7 +1562,7 @@ function viewProfile(){
       Open <b>${esc(location.origin + location.pathname.replace(/app\/(index\.html)?$/, 'assembler/'))}</b> on your phone.<br>
       iPhone (Safari): tap Share ⬆ → "Add to Home Screen" → Add.<br>Android (Chrome): tap ⋮ → "Add to Home screen" or "Install app".<br>It then opens like an app, already signed in.</p></div>` : ''}
     ${m.role === 'customer' && m.requested_role !== 'assembler' ? `<div class="card"><div class="row"><div class="grow"><h3>Work with Taskadoo</h3>
-      <div class="small muted">Assemble furniture on your own schedule. Sign up in 4 steps and book a short evaluation.</div></div><a class="btn soft" href="#/apply">Become an assembler</a></div></div>` : ''}
+      <div class="small muted">Assemble furniture on your own schedule. Sign up in 4 steps and book a short evaluation.</div></div><a class="btn soft" href="../assembler/#/signup/assembler">Become an assembler</a></div></div>` : ''}
     <div class="card"><button class="btn ghost" data-act="logout">Sign out</button></div></div>`;
 }
 
@@ -1856,6 +1879,7 @@ const WHATSNEW = [
   { v: '1.7', d: '2026-10-18', where: 'staging', title: 'Assembler app: online switch, calendar, add-ons and ratings', changes: [
     { k: 'New', t: 'Online / Offline switch on Tasks for same-day jobs (it counts for today only). Tasks now shows jobs left today, jobs waiting for your teammate and your booked earnings, with All / Today / Upcoming and each job\'s teammate status.', for: ['assembler'] },
     { k: 'New', t: 'Calendar: set your weekly hours, tap a day to take it off, and see your booked days. Mober employees can mark their Mober shift days – no offers come on those days.', for: ['assembler'] },
+    { k: 'New', t: 'Three separate apps, each with its own sign-in: the customer site (website and booking), the assembler app (staging/assembler/) and the staff portal for Admin, Dispatcher and Evaluator (staging/staff/ – also opened by tapping "© 2026 Taskadoo" at the bottom of the website). Signing in to the wrong one shows a button to the right app. You can be signed in to all three in the same browser.', for: ['all'] },
     { k: 'New', t: 'Assembler app link: staging/assembler/ opens the app in the phone layout from the design (dark header with today\'s pay and the Online switch, tabs at the bottom). Add it to your home screen: iPhone Safari → Share → Add to Home Screen; Android Chrome → ⋮ → Add to Home screen.', for: ['assembler', 'admin'] },
     { k: 'Improved', t: 'The assembler app works like a phone app: the header and the tabs stay in place and only the middle scrolls, pull down to refresh, a back arrow on job pages, no zooming when you type, and on iPhone the top bar blends into the dark header.', for: ['assembler'] },
     { k: 'Improved', t: 'Job steps: a "Before you set off" list, 4 box checks to tick before Start assembly, Pause / Resume on the timer (paused time doesn\'t count), "within / over the estimate", and guided photos (Before, After – front, After – wide, Area left clean; at least 2).', for: ['assembler'] },
@@ -1917,6 +1941,9 @@ const WHATSNEW = [
 // Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
 const WN_TESTS = {
   '1.7': [
+    ['S1', 'Admin', 'Staff portal and the hidden link', ['Open the staging website. Scroll to the very bottom and tap "© 2026 Taskadoo. All rights reserved."', 'Sign in with your Admin account.'], 'The staff portal opens (it says STAFF PORTAL, with no Create account). After signing in you see Dispatch and the other Admin pages.'],
+    ['S2', 'Everyone', 'Wrong app', ['Sign in to the customer site with an assembler or staff account.'], 'A message says "This is the customer site" with a button that opens the right app.'],
+    ['S3', 'Everyone', 'Signed in to two apps at once', ['In one browser, sign in to the staff portal as Admin. In another tab, open staging/assembler/ and sign in as an assembler.', 'Go back to the first tab and reload.'], 'Both stay signed in: Admin in the staff portal, the assembler in the assembler app.'],
     ['M0', 'Assembler', 'Assembler app on your home screen', ['On your phone open thegreenzilla.github.io/taskadoo/staging/assembler/ and sign in.', 'iPhone (Safari): Share → Add to Home Screen → Add. Android (Chrome): ⋮ → Add to Home screen / Install app.', 'Open it from the home screen icon.'], 'It opens full screen with the dark header (greeting, today\'s pay, Online switch) and Tasks · Calendar · Earnings · Profile at the bottom, still signed in.'],
     ['M0b', 'Assembler', 'Feels like an app', ['Open the app from the home screen icon. Scroll down on Tasks, then open a job and scroll.', 'At the top of Tasks, pull the list down and let go.', 'Tap into a text box (e.g. Profile → Full name).'], 'The header and the bottom tabs stay put while the middle scrolls. Pulling down shows "Release to refresh" and reloads. The screen does not zoom in when you type. Job pages have a ‹ back arrow at the top.'],
     ['M1', 'Assembler', 'Online switch', ['Open Tasks. Tap the Offline switch.', 'Tap it again.'], 'It turns green and says "Online — taking jobs today", then back to Offline. A message confirms each change.'],
@@ -2558,7 +2585,7 @@ const ACT = {
   pvrole(b){ pvRole(b.dataset.v); },
   pvperson(b){ pvPerson(b.dataset.id); },
   pvexit(){ S.preview = null; S.wnF = null; TG.i = null; history.replaceState(null, '', '#/preview'); render(); },
-  async logout(){ S.menu = false; S.preview = null; await api.signOut(); S.session = null; S.me = null; S.jobs = []; history.replaceState(null, '', window.ASM_APP ? '#/login' : '#/book'); render(); },
+  async logout(){ S.menu = false; S.preview = null; await api.signOut(); S.session = null; S.me = null; S.jobs = []; history.replaceState(null, '', window.APP_MODE === 'cust' ? '#/book' : '#/login'); render(); },
   authtab(b, e){ e.preventDefault(); S.authTab = b.dataset.tab; S.authTouched = true; render(); },
   want(b){ S.wantTouched = true; const keep = { a_name: val('a_name'), a_mobile: val('a_mobile'), a_email: val('a_email'), a_pw: (document.getElementById('a_pw') || {}).value || '' };
     S.want = b.dataset.v; render(); Object.entries(keep).forEach(([k, v]) => { const el = document.getElementById(k); if (el) el.value = v; }); },

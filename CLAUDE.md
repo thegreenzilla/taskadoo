@@ -17,6 +17,9 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
     (staging Supabase URL + publishable key, `STAGING:true`), `manifest.webmanifest`, `img/`
   - `staging/assembler/` – the assembler app link: redirects to `app/?app=asm#/tasks` (`window.ASM_APP`: own manifest
     `manifest-assembler.webmanifest`, sign-up starts as assembler). Assemblers always get the phone layout `renderAsm()` (design Apps-2).
+  - `staging/staff/` – staff portal (Admin, Dispatcher, Evaluator): redirects to `app/?app=staff`; sign-in only. Hidden link = the
+    "© 2026 Taskadoo" line in the website footer (landing-links.js + renderSite). `window.APP_MODE` asm|staff|cust; each app has its own
+    Supabase session (`storageKey tk-auth-<mode>`); `homeApp(profile)` + `renderWrongApp()` send people to the right app.
   - `staging/demo/index.html` – the original clickable apps design, kept as the reference for later phases
   - Staging pages carry `noindex` and a red STAGING badge.
 - **Production**: repo root → https://thegreenzilla.github.io/taskadoo/ – "Coming soon" placeholder for now.
