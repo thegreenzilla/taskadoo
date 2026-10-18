@@ -11,6 +11,17 @@
 <link rel="apple-touch-icon" href="img/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Taskadoo">
+<script>
+  // Assembler app link (staging/assembler/ → ?app=asm): its own home-screen icon and name
+  window.ASM_APP = /[?&]app=asm\b/.test(location.search);
+  if (window.ASM_APP) {
+    document.querySelector('link[rel=manifest]').href = 'manifest-assembler.webmanifest';
+    document.querySelector('meta[name=apple-mobile-web-app-title]').content = 'Assembler';
+    document.title = 'Taskadoo for assemblers';
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#262261; --blue:#0E77BA; --blue-soft:#E2F0FA; --bg:#ECE9E2; --card:#fff; --soft:#FAF8F3;
@@ -137,6 +148,37 @@ label.f>span{display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em
 .stagebadge{position:fixed;left:10px;bottom:10px;z-index:70;background:#d32f2f;color:#fff;font:800 11px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.08em;padding:5px 10px;border-radius:999px;pointer-events:none}
 .offer{border:2px solid var(--orange);border-radius:18px;background:#fff;padding:16px}
 .timer{font-size:40px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+/* assembler app – phone layout from the design (Apps-2 · Assembler app) */
+body.is-asm{background:#E4E0D7;font-family:Nunito,GothamRounded,'Segoe UI',system-ui,sans-serif}
+.asm{max-width:440px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;overflow:clip}
+@media(min-width:620px){.asm{margin:24px auto;min-height:calc(100vh - 48px);border:8px solid #262261;border-radius:40px;box-shadow:0 30px 80px rgba(38,34,97,.22)}}
+.asm-top{background:#262261;color:#fff;padding:calc(16px + env(safe-area-inset-top)) 22px 18px}
+.asm-top .hi{display:flex;align-items:center;justify-content:space-between}
+.asm-top .hi small{display:block;font-size:12px;font-weight:600;color:#8F88AE}.asm-top .hi b{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.asm-top .hi .r{text-align:right}.asm-top .hi .r b{color:#FF8C3E}
+.asm-top .onbtn{margin-top:14px;padding:14px}
+.asm-main{flex:1;padding:18px 20px 24px}
+.asm-tabs{position:sticky;bottom:0;z-index:30;background:#fff;border-top:1px solid #E8E3DA;padding:9px 12px calc(14px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.asm-tabs a{padding:10px 4px;border-radius:11px;text-align:center;font-weight:700;font-size:12px;color:#A39EAC;text-decoration:none;position:relative}
+.asm-tabs a.on{background:#E2F0FA;color:#0E77BA}.asm-tabs .dot{position:absolute;top:6px;right:14px;width:7px;height:7px;border-radius:50%;background:var(--red)}
+.asm .narrow{max-width:none}
+.asm .card{border-radius:20px;padding:17px;margin-bottom:14px;box-shadow:none}
+.asm h1{font-size:20px}.asm h2{font-size:17px}
+.asm .kpis{margin:0 0 16px}.asm .kpis>div{text-align:center;padding:12px 10px;border-radius:15px;border-color:#EFEBE3}
+.asm .kpis b{font-size:19px;letter-spacing:-.02em}.asm .kpis span{font-size:10.5px;line-height:1.3;display:block;margin-top:3px}
+.asm .pills{gap:7px;margin-bottom:6px}.asm .pills .pill{flex:1;text-align:center;border-radius:11px;padding:9px;font-size:12.5px;background:#fff;color:#8E8896}
+.asm .pills .pill.on{background:#EAF4FB;color:#0E77BA}
+.asm .grp{margin:16px 0 9px}.asm .grp h3{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A39EAC}
+.asm .list>.li{border-radius:18px;padding:15px 16px;border-color:#EFEBE3;border-left:4px solid #BCDCF1}
+.asm .list>.li+.li{margin-top:9px}.asm .list>.li.done{border-left-color:#BFE3D2}.asm .list>.li.wait{border-left-color:#F0C98A}
+.asm .offer{border:2px solid #FF8C3E;border-radius:20px;padding:18px;box-shadow:0 14px 34px rgba(255,140,62,.18);margin-bottom:16px}
+.asm .src{font-size:11px;font-weight:700;letter-spacing:.06em;color:#0E77BA;text-transform:uppercase}
+.asm .code{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#A39EAC}
+.stepline{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.stepline b{font-size:11px;font-weight:700;letter-spacing:.08em;color:#0E77BA}
+.stepbar{height:5px;background:#F1EFE8;border-radius:5px;overflow:hidden;margin-bottom:16px}.stepbar i{display:block;height:100%;background:#0E77BA;border-radius:5px}
+.acts3{display:flex;gap:9px;margin-top:13px}.acts3 a{flex:1;border:1px solid #E0DBD1;background:#FAF8F3;color:#262261;font-weight:700;font-size:13px;padding:11px 6px;border-radius:12px;text-align:center;text-decoration:none}
+.asm .btn.block{padding:15px;border-radius:14px;font-size:15px}
+.asm .btn.block:not(.ghost):not(.soft):not(.red):not(.green){box-shadow:0 10px 22px rgba(14,119,186,.26)}
 /* assembler app */
 .onbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;padding:13px;margin-top:14px;border-radius:14px;border:0;cursor:pointer;font:inherit;font-weight:700;font-size:14.5px;background:rgba(255,255,255,.08);color:#B7B1CC}
 .onbtn i{width:9px;height:9px;border-radius:50%;background:#8F88AE}
@@ -345,6 +387,7 @@ details.wn-tests>summary{cursor:pointer;font-weight:700;color:var(--ink)}
   .backsm{display:inline-block!important}
   .hide-sm{display:none}
 }
+.is-asm .stagebadge{top:auto;right:auto;left:10px;bottom:calc(80px + env(safe-area-inset-bottom))}
 </style>
 </head>
 <body>
@@ -608,6 +651,7 @@ function render(){
     if (GUEST_ROUTES.includes(g.name)) { renderSite(g); return; }
     if (g.name === 'signup') { S.authTab = 'up'; S.want = ['assembler', 'enterprise'].includes(g.arg) ? g.arg : ''; }
     if (g.name === 'login' && S.authTab === 'up' && !S.authTouched && !S.next) S.authTab = 'in';
+    if (window.ASM_APP && !S.wantTouched) S.want = 'assembler';   // assembler link: sign-up starts as an assembler
     document.body.classList.remove('is-site');
     app.innerHTML = viewAuth(); badge(); tgPaint(); return;
   }
@@ -631,6 +675,8 @@ function render(){
   let body = '';
   try { body = V[r.name](r.arg); } catch (e) { console.error(e); body = `<div class="notice bad">${esc(errMsg(e))}</div>`; }
   const unseen = wnUnseen();
+  if (role() === 'assembler') { renderAsm(active, tabs, body, unseen); return; }
+  document.body.classList.remove('is-asm');
   app.innerHTML = `${pvBar()}
   <header class="top"><div class="top-in">
     <a href="#/${tabs[0][0]}"><img class="logo" src="img/logo.png" alt="Taskadoo"></a>
@@ -648,6 +694,25 @@ function render(){
   document.body.classList.toggle('has-sd', !!document.querySelector('#sdbar:not([hidden])'));
   badge(); tgPaint();
   after(r);
+}
+// Assembler app: dark header (greeting, today's pay, online switch) + bottom tabs, like the design
+function renderAsm(active, tabs, body, unseen){
+  const me = ME().id, t = todayISO(), h = new Date(Date.now() + 8 * 3600e3).getUTCHours();
+  const today = S.jobs.filter(j => (j.lead_id === me || j.helper_id === me) && ['done','failed_visit'].includes(j.status) && j.completed_at && manilaDay(j.completed_at) === t).reduce((s, j) => s + myShare(j), 0);
+  const on = isOnline(ME());
+  $('#app').innerHTML = `${pvBar()}<div class="asm">
+    <header class="asm-top">
+      <div class="hi"><div><small>${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}</small><b>${esc(ME().full_name || ME().email)}</b></div>
+        <div class="r"><small>Today</small><b>${money(today)}</b></div></div>
+      <button class="onbtn ${on ? 'on' : ''}" data-act="online"><i></i>${on ? 'Online — taking jobs' : 'Offline — no same-day offers'}</button>
+    </header>
+    <main class="asm-main">${body}</main>
+    <nav class="asm-tabs">${tabs.map(x => `<a href="#/${x[0]}" class="${x[0] === active ? 'on' : ''}">${esc(x[1])}${x[0] === 'profile' && unseen ? '<span class="dot"></span>' : ''}</a>`).join('')}</nav>
+  </div>`;
+  document.body.classList.add('is-asm'); document.body.classList.remove('is-site');
+  document.body.classList.toggle('has-bottom', false);
+  document.body.classList.toggle('has-pv', inPreview());
+  badge(); tgPaint(); after(route());
 }
 function acctMenu(tabs, unseen){
   if (!S.menu || !S.me) return '';
@@ -727,6 +792,7 @@ function availOn(p, iso, slot){
   return 'ok';
 }
 const AVAIL_LABEL = { ok: 'Available', time_off: 'Day off', shift: 'Mober shift', day_off: 'Not working that day', outside: 'Outside their hours' };
+const srcLabel = j => (j.company ? j.company + ' · via Taskadoo' : 'Taskadoo customer');
 const estMin = j => (j.items || []).reduce((s, i) => s + num(i.minutes) * num(i.qty || 1), 0);
 // assembly time worked, without paused minutes
 const workSecs = j => !j.started_at ? 0 : Math.max(0, ((j.finished_at ? Date.parse(j.finished_at) : j.paused_at ? Date.parse(j.paused_at) : Date.now()) - Date.parse(j.started_at)) / 1000 - num(j.paused_secs));
@@ -740,7 +806,8 @@ function viewAuth(){
   const up = S.authTab === 'up', fg = S.authTab === 'forgot';
   const want = S.want;
   return `<div class="auth"><div class="card">
-    <div style="text-align:center;margin:4px 0 18px"><a href="${SITE}"><img src="img/logo.png" alt="Taskadoo" style="height:34px"></a></div>
+    <div style="text-align:center;margin:4px 0 18px"><a href="${SITE}"><img src="img/logo.png" alt="Taskadoo" style="height:34px"></a>
+      ${window.ASM_APP ? '<div class="tiny b" style="letter-spacing:.1em;color:var(--blue);margin-top:8px">FOR ASSEMBLERS</div>' : ''}</div>
     ${S.next ? '<div class="authnote">Sign in or create a free account to confirm your booking. Your cart and details are saved.</div>' : ''}
     ${fg ? `<h2 style="margin-bottom:6px">Reset your password</h2><p class="muted small">We'll email you a link to set a new password.</p>
       <label class="f"><span>Email</span><input id="a_email" type="email" autocomplete="email"></label>
@@ -1123,40 +1190,36 @@ function viewTasks(){
     return mateOk(j) ? `<div class="crew ok">✓ ${who} confirmed · ${esc(mate)}</div>`
       : `<div class="crew wait">? ${mate ? esc(mate) + " hasn't accepted yet" : who + ' not matched yet'} · dispatch is on it</div>`;
   };
-  const card = (j, crew) => `<a class="li" href="#/task/${j.id}" ${j.id === nextId && crew ? 'style="border-left:4px solid var(--blue)"' : ''}><div class="row"><div class="grow">
-      <div class="tiny muted b">${esc(j.code)} · ${esc(j.lead_id === me ? 'You are lead' : 'Extra assembler')}${j.company ? ' · ' + esc(j.company) : ''}</div>
+  const card = (j, crew) => `<a class="li ${CLOSED.includes(j.status) ? 'done' : team(j) && !mateOk(j) ? 'wait' : ''}" href="#/task/${j.id}"><div class="row"><div class="grow">
+      <div><span class="src" style="font-size:9.5px">${esc(srcLabel(j))}</span> <span class="code" style="font-size:9.5px">${esc(j.code)}</span></div>
       <div class="b">${esc(itemsSummary(j))}</div><div class="tiny muted">${esc(j.job_date === t ? 'Today' : j.job_date === tm ? 'Tomorrow' : fmtDate(j.job_date))}, ${esc(j.slot)} · ${esc(j.area || j.address)} · ~${esc(mins(estMin(j)))}</div></div>
-      <div style="text-align:right">${statusChip(j)}<div class="money" style="margin-top:4px">${money(myShare(j))}</div></div></div>${crew ? crewLine(j) : ''}</a>`;
+      <div style="text-align:right">${statusChip(j)}<div class="money" style="margin-top:4px">${money(myShare(j))}</div></div></div>${crew ? crewLine(j) : ''}
+      ${crew && j.id === nextId ? '<span class="btn block" style="margin-top:10px;padding:12px;font-size:13.5px">Open job →</span>' : ''}</a>`;
   const groups = [['today', 'Today · ' + fmtDate(t), j => j.job_date <= t], ['tomorrow', 'Tomorrow · ' + fmtDate(tm), j => j.job_date === tm], ['later', 'Later', j => j.job_date > tm]]
     .filter(g => f === 'all' || (f === 'today' ? g[0] === 'today' : g[0] !== 'today'))
     .map(g => [g[1], active.filter(g[2])]).filter(g => g[1].length);
   return `<div class="narrow">
-    <div class="card" style="background:var(--ink);color:#fff;border:0">
-      <div class="row"><div class="grow"><div class="tiny" style="opacity:.7">Hello</div><div class="b" style="color:#fff;font-size:18px">${esc(ME().full_name || ME().email)}</div></div>
-        <div style="text-align:right"><div class="tiny" style="opacity:.7">Earned today</div><div style="font-weight:700;font-size:20px;color:#FFB27A">${money(todayEarn)}</div></div></div>
-      <button class="onbtn ${on ? 'on' : ''}" data-act="online"><i></i>${on ? 'Online — taking jobs today' : 'Offline — no same-day offers'}</button>
-      <div class="tiny" style="opacity:.6;margin-top:8px;text-align:center">The switch is for today only. Jobs booked for later follow your <a href="#/calendar" style="color:#fff">calendar</a>.</div>
-    </div>
+    ${offers.length ? offers.map(offerCard).join('') : ''}
     <div class="kpis">
       <div><b style="color:var(--blue)">${active.filter(j => j.job_date <= t).length}</b><span>Left today</span></div>
-      <div><b style="color:#B67A12">${active.filter(j => team(j) && !mateOk(j)).length}</b><span>Waiting for teammate</span></div>
+      <div><b style="color:#B67A12">${active.filter(j => team(j) && !mateOk(j)).length}</b><span>Awaiting extra assembler</span></div>
       <div><b style="color:var(--green)">${money(active.reduce((s, j) => s + myShare(j), 0))}</b><span>Booked earnings</span></div>
     </div>
-    <div class="row" style="margin:18px 0 10px"><h2 class="grow">New offers</h2><button class="btn ghost small" data-act="reload">↻ Refresh</button></div>
-    ${offers.length ? offers.map(offerCard).join('<div style="height:10px"></div>') : `<div class="card empty" style="padding:20px">${on || active.length ? 'No new offers right now.' : 'You are offline. Turn on the switch above to get same-day offers.'}</div>`}
-    <div class="row" style="margin:22px 0 4px"><h2 class="grow">My jobs</h2></div>
+    ${offers.length ? '' : `<div class="card empty" style="padding:16px;margin-bottom:16px">${on ? 'No new offers right now.' : 'You are offline. Turn on the switch above for same-day offers.'}</div>`}
     <div class="pills">${[['all', 'All'], ['today', 'Today'], ['upcoming', 'Upcoming']].map(x => `<button class="pill ${f === x[0] ? 'on' : ''}" data-act="tfilter" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>
     ${groups.length ? groups.map(g => `<div class="grp"><h3>${esc(g[0])}</h3><span class="tiny muted b">${g[1].length} job${g[1].length > 1 ? 's' : ''} · ${money(g[1].reduce((s, j) => s + myShare(j), 0))}</span></div>
       <div class="list">${g[1].map(j => card(j, true)).join('')}</div>`).join('') : `<div class="card empty" style="padding:20px;margin-top:10px">${f === 'today' ? 'No jobs left today.' : 'No upcoming jobs.'}</div>`}
-    ${done.length && f === 'all' ? `<h2 style="margin:22px 0 10px">Recently completed</h2><div class="list">${done.map(j => card(j, false)).join('')}</div>` : ''}
+    ${done.length && f === 'all' ? `<div class="grp"><h3>Recently completed</h3></div><div class="list">${done.map(j => card(j, false)).join('')}</div>` : ''}
+    <div class="row" style="justify-content:center;margin-top:16px"><button class="btn ghost small" data-act="reload">↻ Refresh</button></div>
   </div>`;
 }
 function offerCard(j){
   const me = ME().id, lead = j.lead_id === me, sp = split(j);
   const mate = lead ? j.helper_name : j.lead_name;
   return `<div class="offer">
-    <div class="row"><span class="chip orange">● NEW OFFER</span><span class="grow"></span><span class="tiny muted b">${esc(j.code)}</span></div>
-    <h3 style="margin-top:10px">${esc(itemsSummary(j))}</h3>
+    <div class="row"><span class="tiny b" style="letter-spacing:.1em;color:#D85C1B">● NEW OFFER</span><span class="grow"></span><span class="code">${esc(j.code)}</span></div>
+    <div class="src" style="margin-top:12px">${esc(srcLabel(j))}</div>
+    <h3 style="margin-top:3px;font-size:18px">${esc(itemsSummary(j))}</h3>
     <div class="small muted">${esc(j.area || '')} · ${esc(fmtDate(j.job_date))}, ${esc(j.slot)} · ~${esc(mins(estMin(j)))}${j.company ? ' · ' + esc(j.company) : ''}</div>
     <div class="card" style="background:var(--green-soft);border:0;box-shadow:none;margin-top:10px;padding:14px">
       <div class="tiny b" style="color:var(--green)">${sp.two ? (lead ? 'TEAM JOB · YOU ARE LEAD' : 'TEAM JOB · EXTRA ASSEMBLER') : 'SOLO JOB'}</div>
@@ -1272,21 +1335,23 @@ function viewTask(id){
   } else if (j.status === 'cancelled') {
     step = `<div class="notice bad">This job was cancelled.</div>`;
   }
+  const STEP = { accepted: [1, 'Accepted'], travelling: [2, 'On the way'], arrived: [3, 'On site'], in_progress: [4, 'Assembling'], finished: [5, 'Proof photos & sign-off'], issue: [6, 'Waiting for Taskadoo'], done: [6, 'Completed'] }[j.status];
   return `<div class="narrow">
-    <p><a href="#/tasks">‹ Tasks</a></p>
+    <p style="margin:0 0 10px"><a href="#/tasks">‹ Tasks</a></p>
+    ${STEP ? `<div class="stepline"><b>${j.status === 'done' ? 'COMPLETED' : 'STEP ' + STEP[0] + ' OF 6 · ' + esc(STEP[1].toUpperCase())}</b><span class="code">${esc(j.code)}</span></div>
+      <div class="stepbar"><i style="width:${j.status === 'done' ? 100 : Math.round(STEP[0] / 6 * 100)}%"></i></div>` : ''}
     <div class="card">
-      <div class="row"><div class="grow"><div class="tiny muted b">${esc(j.code)} · ${lead ? 'You are lead' : 'Extra assembler'}</div><h2>${esc(itemsSummary(j))}</h2></div>${statusChip(j)}</div>
-      ${stepsBar(j)}
-      ${unlocked ? `<dl class="kv" style="margin-top:12px">
+      <div class="row"><div class="grow"><div class="src">${esc(srcLabel(j))}</div><h2 style="font-size:18px">${esc(itemsSummary(j))}</h2>
+        <div class="small">${unlocked ? esc(j.customer_name) + ' · ' + esc(j.address) + (j.area ? ', ' + esc(j.area) : '') : esc(j.area || '')}</div></div>${statusChip(j)}</div>
+      ${STEP ? '' : stepsBar(j)}
+      ${unlocked ? `${!CLOSED.includes(j.status) ? `<div class="acts3"><a href="${telHref(j.mobile)}">📞 Call</a><a href="sms:${esc(String(j.mobile || '').replace(/[^\d+]/g, ''))}">💬 Text</a>
+        <a href="${mapHref(j.address + ' ' + j.area)}" target="_blank" rel="noopener">🧭 Navigate</a></div>` : ''}
+      <dl class="kv" style="margin-top:12px">
         <dt>When</dt><dd>${esc(j.job_date === t ? 'Today' : fmtDate(j.job_date))}, ${esc(j.slot)}</dd>
-        <dt>Customer</dt><dd>${esc(j.customer_name)}${j.company ? ' · ' + esc(j.company) : ''}</dd>
-        <dt>Address</dt><dd>${esc(j.address)}${j.area ? ', ' + esc(j.area) : ''}</dd>
         ${j.notes ? `<dt>Notes</dt><dd>${esc(j.notes)}</dd>` : ''}
         ${num(j.crew) > 1 || mate ? `<dt>${lead ? 'Extra' : 'Lead'}</dt><dd>${esc(mate || 'Being matched')}</dd>` : ''}
         <dt>Your payout</dt><dd class="money">${money(myShare(j))}</dd>
-      </dl>
-      ${!CLOSED.includes(j.status) ? `<div class="grid2" style="grid-template-columns:repeat(2,1fr);margin-top:12px">
-        <a class="btn ghost" href="${telHref(j.mobile)}">📞 Call</a><a class="btn ghost" href="${mapHref(j.address + ' ' + j.area)}" target="_blank" rel="noopener">🧭 Navigate</a></div>` : ''}` : ''}
+      </dl>` : ''}
     </div>
     <div class="card">${step}</div>
     <div class="card">${itemsTable(j)}</div>
@@ -1407,8 +1472,10 @@ function viewProfile(){
       <div class="f"><span>What I can build</span><div>${[...new Set([...(S.settings.skills || []), ...(m.skills || [])])].map(k => `<label class="ck"><input type="checkbox" data-skill value="${esc(k)}" ${(m.skills || []).includes(k) ? 'checked' : ''}>${esc(k)}</label>`).join('')}</div></div>` : ''}
       <button class="btn" data-act="saveprofile">Save</button>
     </div>
-    ${m.role === 'assembler' ? `<div class="card"><h3>Add Taskadoo to your home screen</h3><p class="small muted" style="margin-bottom:0">
-      iPhone: tap Share ⬆ then "Add to Home Screen". Android: tap ⋮ then "Add to Home screen" / "Install app". It then opens like an app.</p></div>` : ''}
+    ${m.role === 'assembler' ? `<a class="card row" href="#/whatsnew" style="text-decoration:none;color:inherit"><span class="grow b">✨ What's new</span>${wnUnseen() ? '<span class="chip red">New</span>' : ''}<span class="muted">›</span></a>
+      <div class="card"><h3>Put the app on your home screen</h3><p class="small muted" style="margin:6px 0 0">
+      Open <b>${esc(location.origin + location.pathname.replace(/app\/(index\.html)?$/, 'assembler/'))}</b> on your phone.<br>
+      iPhone (Safari): tap Share ⬆ → "Add to Home Screen" → Add.<br>Android (Chrome): tap ⋮ → "Add to Home screen" or "Install app".<br>It then opens like an app, already signed in.</p></div>` : ''}
     ${m.role === 'customer' && m.requested_role !== 'assembler' ? `<div class="card"><div class="row"><div class="grow"><h3>Work with Taskadoo</h3>
       <div class="small muted">Assemble furniture on your own schedule. Sign up in 4 steps and book a short evaluation.</div></div><a class="btn soft" href="#/apply">Become an assembler</a></div></div>` : ''}
     <div class="card"><button class="btn ghost" data-act="logout">Sign out</button></div></div>`;
@@ -1727,6 +1794,7 @@ const WHATSNEW = [
   { v: '1.7', d: '2026-10-18', where: 'staging', title: 'Assembler app: online switch, calendar, add-ons and ratings', changes: [
     { k: 'New', t: 'Online / Offline switch on Tasks for same-day jobs (it counts for today only). Tasks now shows jobs left today, jobs waiting for your teammate and your booked earnings, with All / Today / Upcoming and each job\'s teammate status.', for: ['assembler'] },
     { k: 'New', t: 'Calendar: set your weekly hours, tap a day to take it off, and see your booked days. Mober employees can mark their Mober shift days – no offers come on those days.', for: ['assembler'] },
+    { k: 'New', t: 'Assembler app link: staging/assembler/ opens the app in the phone layout from the design (dark header with today\'s pay and the Online switch, tabs at the bottom). Add it to your home screen: iPhone Safari → Share → Add to Home Screen; Android Chrome → ⋮ → Add to Home screen.', for: ['assembler', 'admin'] },
     { k: 'Improved', t: 'Job steps: a "Before you set off" list, 4 box checks to tick before Start assembly, Pause / Resume on the timer (paused time doesn\'t count), "within / over the estimate", and guided photos (Before, After – front, After – wide, Area left clean; at least 2).', for: ['assembler'] },
     { k: 'New', t: 'Add-on services on site (wall anchoring, haul-away, cable management, extra cleanup). The customer sees them on the bill before signing; your share follows the same split.', for: ['assembler', 'customer', 'enterprise'] },
     { k: 'New', t: 'Rate your assembler (1–5 stars and a comment) after the job. Only Taskadoo and the assembler see it.', for: ['customer', 'enterprise'] },
@@ -1786,6 +1854,7 @@ const WHATSNEW = [
 // Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
 const WN_TESTS = {
   '1.7': [
+    ['M0', 'Assembler', 'Assembler app on your home screen', ['On your phone open thegreenzilla.github.io/taskadoo/staging/assembler/ and sign in.', 'iPhone (Safari): Share → Add to Home Screen → Add. Android (Chrome): ⋮ → Add to Home screen / Install app.', 'Open it from the home screen icon.'], 'It opens full screen with the dark header (greeting, today\'s pay, Online switch) and Tasks · Calendar · Earnings · Profile at the bottom, still signed in.'],
     ['M1', 'Assembler', 'Online switch', ['Open Tasks. Tap the Offline switch.', 'Tap it again.'], 'It turns green and says "Online — taking jobs today", then back to Offline. A message confirms each change.'],
     ['M2', 'Dispatcher', 'See who is online', ['Open a job for today in Dispatch. Open the Lead list.'], 'The assembler from M1 (if online) has a 🟢 in front of the name. Ratings show as ★ where there are any.'],
     ['M3', 'Assembler', 'Take a day off', ['Open Calendar. Tap a free day next week.', 'Tap the same day again.'], 'The day turns red with "off", then goes back to green. Days with jobs are blue and can\'t be tapped.'],
@@ -2427,7 +2496,7 @@ const ACT = {
   pvexit(){ S.preview = null; S.wnF = null; TG.i = null; history.replaceState(null, '', '#/preview'); render(); },
   async logout(){ S.menu = false; S.preview = null; await api.signOut(); S.session = null; S.me = null; S.jobs = []; history.replaceState(null, '', '#/book'); render(); },
   authtab(b, e){ e.preventDefault(); S.authTab = b.dataset.tab; S.authTouched = true; render(); },
-  want(b){ const keep = { a_name: val('a_name'), a_mobile: val('a_mobile'), a_email: val('a_email'), a_pw: (document.getElementById('a_pw') || {}).value || '' };
+  want(b){ S.wantTouched = true; const keep = { a_name: val('a_name'), a_mobile: val('a_mobile'), a_email: val('a_email'), a_pw: (document.getElementById('a_pw') || {}).value || '' };
     S.want = b.dataset.v; render(); Object.entries(keep).forEach(([k, v]) => { const el = document.getElementById(k); if (el) el.value = v; }); },
   async signin(b){ await busy(b, async () => {
     const email = val('a_email'), pw = (document.getElementById('a_pw') || {}).value || '';

@@ -15,6 +15,8 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
     For business → `#/signup/enterprise`, Become an assembler → `#/signup/assembler`, receipt buttons → `#/receipt`).
   - `staging/app/` – **the real system** (Phase 1): `index.html` (vanilla JS, no build step), `config.js`
     (staging Supabase URL + publishable key, `STAGING:true`), `manifest.webmanifest`, `img/`
+  - `staging/assembler/` – the assembler app link: redirects to `app/?app=asm#/tasks` (`window.ASM_APP`: own manifest
+    `manifest-assembler.webmanifest`, sign-up starts as assembler). Assemblers always get the phone layout `renderAsm()` (design Apps-2).
   - `staging/demo/index.html` – the original clickable apps design, kept as the reference for later phases
   - Staging pages carry `noindex` and a red STAGING badge.
 - **Production**: repo root → https://thegreenzilla.github.io/taskadoo/ – "Coming soon" placeholder for now.
