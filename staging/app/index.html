@@ -18,6 +18,7 @@
     document.querySelector('link[rel=manifest]').href = 'manifest-assembler.webmanifest';
     document.querySelector('meta[name=apple-mobile-web-app-title]').content = 'Assembler';
     document.title = 'Taskadoo for assemblers';
+    const sb = document.createElement('meta'); sb.name = 'apple-mobile-web-app-status-bar-style'; sb.content = 'black-translucent'; document.head.appendChild(sb);
   }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -150,15 +151,35 @@ label.f>span{display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em
 .timer{font-size:40px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 /* assembler app – phone layout from the design (Apps-2 · Assembler app) */
 body.is-asm{background:#E4E0D7;font-family:Nunito,GothamRounded,'Segoe UI',system-ui,sans-serif}
-.asm{max-width:440px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;overflow:clip}
-@media(min-width:620px){.asm{margin:24px auto;min-height:calc(100vh - 48px);border:8px solid #262261;border-radius:40px;box-shadow:0 30px 80px rgba(38,34,97,.22)}}
+.asm{max-width:440px;margin:0 auto;height:100vh;height:100dvh;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.has-pv .asm{height:calc(100dvh - 58px)}
+@media(min-width:620px){.asm{margin:24px auto;height:calc(100dvh - 48px);border:8px solid #262261;border-radius:40px;box-shadow:0 30px 80px rgba(38,34,97,.22)}.has-pv .asm{height:calc(100dvh - 110px)}}
+body.is-asm{overscroll-behavior:none;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+.is-asm a,.is-asm button,.is-asm label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.asm-top,.asm-tabs,.asm .btn,.asm .pill,.asm .acts3{-webkit-user-select:none;user-select:none}
+.asm input,.asm select,.asm textarea{font-size:16px}
+.asm .btn:active,.asm .pill:active,.asm .li:active,.asm .acts3 a:active,.asm .addon:active,.asm-tabs a:active{transform:scale(.98);opacity:.85}
+.asm-top{flex:none}.asm-tabs{flex:none}
+.asm-main{-webkit-overflow-scrolling:touch;overflow-y:auto;overscroll-behavior:contain}
+.asm-main.fade{animation:asmin .18s ease both}@keyframes asmin{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+.asm-bar{display:flex;align-items:center;gap:10px;min-height:44px}
+.asm-bar .ttl{flex:1;font-size:17px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.asm-bar .back{color:#fff;text-decoration:none;font-size:26px;line-height:1;padding:4px 10px 4px 0;font-weight:600}
+.asm-bar .sub{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#8F88AE}
+.onpill{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:8px 12px;font:inherit;font-weight:700;font-size:12.5px;cursor:pointer;background:rgba(255,255,255,.08);color:#B7B1CC}
+.onpill i{width:8px;height:8px;border-radius:50%;background:#8F88AE}.onpill.on{background:rgba(78,227,155,.16);color:#4EE39B}.onpill.on i{background:#4EE39B}
+.asm .narrow>h1:first-child{display:none}
+.ptr{text-align:center;font-size:12px;font-weight:700;color:var(--muted);height:0;overflow:hidden;transition:height .15s}
+.is-asm .tg-fab{bottom:calc(86px + env(safe-area-inset-bottom));padding:9px 13px;font-size:13px}
+.is-asm .toast{bottom:calc(96px + env(safe-area-inset-bottom))}
 .asm-top{background:#262261;color:#fff;padding:calc(16px + env(safe-area-inset-top)) 22px 18px}
+.asm-top.slim{padding:calc(8px + env(safe-area-inset-top)) 16px 10px 20px}
 .asm-top .hi{display:flex;align-items:center;justify-content:space-between}
 .asm-top .hi small{display:block;font-size:12px;font-weight:600;color:#8F88AE}.asm-top .hi b{font-size:18px;font-weight:700;letter-spacing:-.01em}
 .asm-top .hi .r{text-align:right}.asm-top .hi .r b{color:#FF8C3E}
 .asm-top .onbtn{margin-top:14px;padding:14px}
 .asm-main{flex:1;padding:18px 20px 24px}
-.asm-tabs{position:sticky;bottom:0;z-index:30;background:#fff;border-top:1px solid #E8E3DA;padding:9px 12px calc(14px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.asm-tabs{position:relative;z-index:30;background:#fff;border-top:1px solid #E8E3DA;padding:9px 12px calc(14px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .asm-tabs a{padding:10px 4px;border-radius:11px;text-align:center;font-weight:700;font-size:12px;color:#A39EAC;text-decoration:none;position:relative}
 .asm-tabs a.on{background:#E2F0FA;color:#0E77BA}.asm-tabs .dot{position:absolute;top:6px;right:14px;width:7px;height:7px;border-radius:50%;background:var(--red)}
 .asm .narrow{max-width:none}
@@ -176,7 +197,7 @@ body.is-asm{background:#E4E0D7;font-family:Nunito,GothamRounded,'Segoe UI',syste
 .asm .code{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#A39EAC}
 .stepline{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.stepline b{font-size:11px;font-weight:700;letter-spacing:.08em;color:#0E77BA}
 .stepbar{height:5px;background:#F1EFE8;border-radius:5px;overflow:hidden;margin-bottom:16px}.stepbar i{display:block;height:100%;background:#0E77BA;border-radius:5px}
-.acts3{display:flex;gap:9px;margin-top:13px}.acts3 a{flex:1;border:1px solid #E0DBD1;background:#FAF8F3;color:#262261;font-weight:700;font-size:13px;padding:11px 6px;border-radius:12px;text-align:center;text-decoration:none}
+.acts3{display:flex;gap:8px;margin-top:13px}.acts3 a{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;border:1px solid #E0DBD1;background:#FAF8F3;color:#262261;font-weight:700;font-size:13px;padding:11px 4px;border-radius:12px;text-decoration:none}
 .asm .btn.block{padding:15px;border-radius:14px;font-size:15px}
 .asm .btn.block:not(.ghost):not(.soft):not(.red):not(.green){box-shadow:0 10px 22px rgba(14,119,186,.26)}
 /* assembler app */
@@ -387,7 +408,7 @@ details.wn-tests>summary{cursor:pointer;font-weight:700;color:var(--ink)}
   .backsm{display:inline-block!important}
   .hide-sm{display:none}
 }
-.is-asm .stagebadge{top:auto;right:auto;left:10px;bottom:calc(80px + env(safe-area-inset-bottom))}
+.is-asm .stagebadge{top:calc(2px + env(safe-area-inset-top));bottom:auto;left:50%;right:auto;transform:translateX(-50%);font-size:9px;padding:3px 8px;opacity:.9}
 </style>
 </head>
 <body>
@@ -700,20 +721,41 @@ function render(){
 function renderAsm(active, tabs, body, unseen){
   const me = ME().id, t = todayISO(), h = new Date(Date.now() + 8 * 3600e3).getUTCHours();
   const today = S.jobs.filter(j => (j.lead_id === me || j.helper_id === me) && ['done','failed_visit'].includes(j.status) && j.completed_at && manilaDay(j.completed_at) === t).reduce((s, j) => s + myShare(j), 0);
-  const on = isOnline(ME());
-  $('#app').innerHTML = `${pvBar()}<div class="asm">
-    <header class="asm-top">
+  const on = isOnline(ME()), r = route(), key = location.hash;
+  const old = document.querySelector('.asm-main'), keep = old && S.asmKey === key ? old.scrollTop : 0;
+  const job = r.name === 'task' && S.jobs.find(x => String(x.id) === r.arg);
+  const TITLE = { calendar: 'Calendar', earnings: 'Earnings', profile: 'Profile', whatsnew: "What's new", tests: 'Tests', task: job ? itemsSummary(job) : 'Job' };
+  const back = r.name === 'task' ? '#/tasks' : ['whatsnew', 'tests'].includes(r.name) ? '#/profile' : '';
+  const head = r.name === 'tasks' ? `<header class="asm-top">
       <div class="hi"><div><small>${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}</small><b>${esc(ME().full_name || ME().email)}</b></div>
         <div class="r"><small>Today</small><b>${money(today)}</b></div></div>
       <button class="onbtn ${on ? 'on' : ''}" data-act="online"><i></i>${on ? 'Online — taking jobs' : 'Offline — no same-day offers'}</button>
-    </header>
-    <main class="asm-main">${body}</main>
+    </header>` : `<header class="asm-top slim"><div class="asm-bar">${back ? `<a class="back" href="${back}" aria-label="Back">‹</a>` : ''}
+      <div class="ttl">${esc(TITLE[r.name] || '')}${job ? `<div class="sub">${esc(job.code)}</div>` : ''}</div>
+      <button class="onpill ${on ? 'on' : ''}" data-act="online" aria-label="${on ? 'Online – tap to go offline' : 'Offline – tap to go online'}"><i></i>${on ? 'Online' : 'Offline'}</button></div></header>`;
+  $('#app').innerHTML = `${pvBar()}<div class="asm">
+    ${head}
+    <main class="asm-main ${S.asmKey === key ? '' : 'fade'}"><div class="ptr" id="ptr"></div>${body}</main>
     <nav class="asm-tabs">${tabs.map(x => `<a href="#/${x[0]}" class="${x[0] === active ? 'on' : ''}">${esc(x[1])}${x[0] === 'profile' && unseen ? '<span class="dot"></span>' : ''}</a>`).join('')}</nav>
   </div>`;
   document.body.classList.add('is-asm'); document.body.classList.remove('is-site');
   document.body.classList.toggle('has-bottom', false);
   document.body.classList.toggle('has-pv', inPreview());
+  const main = document.querySelector('.asm-main'); main.scrollTop = keep; S.asmKey = key; pullToRefresh(main);
   badge(); tgPaint(); after(route());
+}
+// pull down at the top of the list to refresh, like a phone app
+function pullToRefresh(main){
+  let y0 = null, dy = 0; const ind = document.getElementById('ptr');
+  main.addEventListener('touchstart', e => { y0 = main.scrollTop <= 0 ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
+  main.addEventListener('touchmove', e => { if (y0 == null) return; dy = e.touches[0].clientY - y0; if (dy > 0 && ind) { ind.style.height = Math.min(dy / 2.5, 40) + 'px'; ind.textContent = dy > 90 ? '↻ Release to refresh' : '↓ Pull to refresh'; } }, { passive: true });
+  main.addEventListener('touchend', async () => {
+    if (y0 == null) return; const go = dy > 90; y0 = null; if (!ind) return;
+    if (!go) { ind.style.height = '0'; return; }
+    ind.textContent = 'Refreshing…';
+    try { await loadJobs(); if (role() === 'assembler') await loadPayouts(); S.statsFor = null; } catch (e) { toast(errMsg(e), true); }
+    render();
+  });
 }
 // Assembler link opened by someone who isn't an assembler (e.g. Admin): explain and offer the way in
 function renderAsmGate(){
@@ -818,6 +860,8 @@ const workSecs = j => !j.started_at ? 0 : Math.max(0, ((j.finished_at ? Date.par
 const stars = n => '★★★★★'.slice(0, Math.round(num(n))) + '☆☆☆☆☆'.slice(0, 5 - Math.round(num(n)));
 const PHOTO_SHOTS = [['Before', 'Boxes as found'], ['After – front', 'Finished piece'], ['After – wide', 'Piece in the room'], ['Area left clean', 'Packaging removed']];
 const ARRIVE_CHECKS = ['All boxes are here and sealed', 'No crush damage or water marks', 'Fittings bag is included', 'Space cleared and floor protected'];
+// scroll to the top (the assembler app scrolls inside its own middle area)
+const toTop = () => { window.scrollTo(0, 0); const m = document.querySelector('.asm-main'); if (m) m.scrollTop = 0; };
 const clock = sec => { sec = Math.max(0, Math.floor(sec)); const p = n => String(n).padStart(2, '0'); return p(Math.floor(sec / 3600)) + ':' + p(Math.floor(sec % 3600 / 60)) + ':' + p(sec % 60); };
 
 /* ───────────── Auth screens ───────────── */
@@ -1356,8 +1400,7 @@ function viewTask(id){
   }
   const STEP = { accepted: [1, 'Accepted'], travelling: [2, 'On the way'], arrived: [3, 'On site'], in_progress: [4, 'Assembling'], finished: [5, 'Proof photos & sign-off'], issue: [6, 'Waiting for Taskadoo'], done: [6, 'Completed'] }[j.status];
   return `<div class="narrow">
-    <p style="margin:0 0 10px"><a href="#/tasks">‹ Tasks</a></p>
-    ${STEP ? `<div class="stepline"><b>${j.status === 'done' ? 'COMPLETED' : 'STEP ' + STEP[0] + ' OF 6 · ' + esc(STEP[1].toUpperCase())}</b><span class="code">${esc(j.code)}</span></div>
+    ${STEP ? `<div class="stepline"><b>${j.status === 'done' ? 'COMPLETED' : 'STEP ' + STEP[0] + ' OF 6 · ' + esc(STEP[1].toUpperCase())}</b></div>
       <div class="stepbar"><i style="width:${j.status === 'done' ? 100 : Math.round(STEP[0] / 6 * 100)}%"></i></div>` : ''}
     <div class="card">
       <div class="row"><div class="grow"><div class="src">${esc(srcLabel(j))}</div><h2 style="font-size:18px">${esc(itemsSummary(j))}</h2>
@@ -1398,7 +1441,7 @@ function viewCalendar(){
         ${emp ? '<span><i style="background:var(--orange-soft);border:1px solid #B67A12"></i>Mober shift</span>' : ''}<span><i style="background:var(--soft);border:1px solid var(--line)"></i>Not working</span><span><i style="background:var(--red-soft);border:1px solid var(--red)"></i>Day off</span></div>
       ${upcomingOff.length ? `<div class="small" style="margin-top:10px"><span class="b">Days off:</span> ${upcomingOff.map(d => esc(fmtDate(d))).join(', ')}</div>` : ''}
     </div>
-    ${emp ? `<div class="notice warn small" style="margin-top:14px">🔒 <b>Rest-day guard:</b> you're a Mober employee. Days you mark as <b>Mober shift</b> get no offers, even if you're online.</div>` : ''}
+    ${emp ? `<div class="notice warn small" style="margin:14px 0">🔒 <b>Rest-day guard:</b> you're a Mober employee. Days you mark as <b>Mober shift</b> get no offers, even if you're online.</div>` : ''}
     <div class="card"><h3 style="margin-bottom:10px">Weekly pattern</h3>
       <div class="wk">${DAYS.map(k => { const d = wk[k], md = mode(d); return `<div class="b small">${DAY_NAME[k]}</div><div class="tm">
         <select data-wk="${k}" data-f="mode" style="width:auto">${[['all', 'All day'], ['set', 'Set hours'], ['off', 'Not working'], ...(emp || md === 'shift' ? [['shift', 'Mober shift']] : [])].map(o => `<option value="${o[0]}" ${md === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select>
@@ -1814,6 +1857,7 @@ const WHATSNEW = [
     { k: 'New', t: 'Online / Offline switch on Tasks for same-day jobs (it counts for today only). Tasks now shows jobs left today, jobs waiting for your teammate and your booked earnings, with All / Today / Upcoming and each job\'s teammate status.', for: ['assembler'] },
     { k: 'New', t: 'Calendar: set your weekly hours, tap a day to take it off, and see your booked days. Mober employees can mark their Mober shift days – no offers come on those days.', for: ['assembler'] },
     { k: 'New', t: 'Assembler app link: staging/assembler/ opens the app in the phone layout from the design (dark header with today\'s pay and the Online switch, tabs at the bottom). Add it to your home screen: iPhone Safari → Share → Add to Home Screen; Android Chrome → ⋮ → Add to Home screen.', for: ['assembler', 'admin'] },
+    { k: 'Improved', t: 'The assembler app works like a phone app: the header and the tabs stay in place and only the middle scrolls, pull down to refresh, a back arrow on job pages, no zooming when you type, and on iPhone the top bar blends into the dark header.', for: ['assembler'] },
     { k: 'Improved', t: 'Job steps: a "Before you set off" list, 4 box checks to tick before Start assembly, Pause / Resume on the timer (paused time doesn\'t count), "within / over the estimate", and guided photos (Before, After – front, After – wide, Area left clean; at least 2).', for: ['assembler'] },
     { k: 'New', t: 'Add-on services on site (wall anchoring, haul-away, cable management, extra cleanup). The customer sees them on the bill before signing; your share follows the same split.', for: ['assembler', 'customer', 'enterprise'] },
     { k: 'New', t: 'Rate your assembler (1–5 stars and a comment) after the job. Only Taskadoo and the assembler see it.', for: ['customer', 'enterprise'] },
@@ -1874,6 +1918,7 @@ const WHATSNEW = [
 const WN_TESTS = {
   '1.7': [
     ['M0', 'Assembler', 'Assembler app on your home screen', ['On your phone open thegreenzilla.github.io/taskadoo/staging/assembler/ and sign in.', 'iPhone (Safari): Share → Add to Home Screen → Add. Android (Chrome): ⋮ → Add to Home screen / Install app.', 'Open it from the home screen icon.'], 'It opens full screen with the dark header (greeting, today\'s pay, Online switch) and Tasks · Calendar · Earnings · Profile at the bottom, still signed in.'],
+    ['M0b', 'Assembler', 'Feels like an app', ['Open the app from the home screen icon. Scroll down on Tasks, then open a job and scroll.', 'At the top of Tasks, pull the list down and let go.', 'Tap into a text box (e.g. Profile → Full name).'], 'The header and the bottom tabs stay put while the middle scrolls. Pulling down shows "Release to refresh" and reloads. The screen does not zoom in when you type. Job pages have a ‹ back arrow at the top.'],
     ['M1', 'Assembler', 'Online switch', ['Open Tasks. Tap the Offline switch.', 'Tap it again.'], 'It turns green and says "Online — taking jobs today", then back to Offline. A message confirms each change.'],
     ['M2', 'Dispatcher', 'See who is online', ['Open a job for today in Dispatch. Open the Lead list.'], 'The assembler from M1 (if online) has a 🟢 in front of the name. Ratings show as ★ where there are any.'],
     ['M3', 'Assembler', 'Take a day off', ['Open Calendar. Tap a free day next week.', 'Tap the same day again.'], 'The day turns red with "off", then goes back to green. Days with jobs are blue and can\'t be tapped.'],
@@ -2163,13 +2208,13 @@ function viewTestsSolo(){
     <a class="small" href="#/whatsnew">Open the full site</a></div>${tgHtml()}</div>`;
 }
 const tgRepaint = () => { if (route().name === 'tests') render(); else tgPaint(); };
-function tgAfterMove(){ TG.note = null; tgRepaint(); const b = document.querySelector('.tg-body'); if (b) b.scrollTop = 0; if (route().name === 'tests') window.scrollTo(0, 0); }
+function tgAfterMove(){ TG.note = null; tgRepaint(); const b = document.querySelector('.tg-body'); if (b) b.scrollTop = 0; if (route().name === 'tests') toTop(); }
 
 /* ───────────── Preview the app as (Admin) ───────────── */
 const PV_ROLES = [['customer', 'Customer', 'Books from the catalogue and follows their bookings'], ['enterprise', 'Business (Enterprise)', 'Books for end customers under a company name'],
   ['assembler', 'Assembler', 'Offers, jobs, photos, sign-off and earnings – on a phone'], ['dispatcher', 'Dispatcher', 'Assigns assemblers to jobs'],
   ['applicant', 'Assembler applicant', 'Signs up in 4 steps and books an evaluation'], ['evaluator', 'Evaluator', 'Evaluation calendar, documents and scorecards']];
-function pvStart(p){ S.preview = p; S.menu = false; S.wnF = null; TG.i = null; history.replaceState(null, '', '#/' + (NAV[p.p.role === 'customer' && p.p.requested_role === 'assembler' ? 'applicant' : p.p.role] || NAV.customer)[0][0]); render(); window.scrollTo(0, 0); }
+function pvStart(p){ S.preview = p; S.menu = false; S.wnF = null; TG.i = null; history.replaceState(null, '', '#/' + (NAV[p.p.role === 'customer' && p.p.requested_role === 'assembler' ? 'applicant' : p.p.role] || NAV.customer)[0][0]); render(); toTop(); }
 function pvRole(r){ const x = PV_ROLES.find(y => y[0] === r); pvStart({ key: 'r:' + r, label: x ? x[1] : r, p: Object.assign({}, S.me, { id: 'preview-' + r, role: r === 'applicant' ? 'customer' : r, requested_role: r === 'applicant' ? 'assembler' : '', company: r === 'enterprise' ? 'Sample company' : '' }) }); }
 function pvPerson(id){ const p = S.profiles.find(x => x.id === id); if (!p) return; if (p.role === 'admin') return toast('That person is an Admin – they see what you see.'); pvStart({ key: 'p:' + id, label: p.full_name || p.email, person: true, p }); }
 function pvBar(){
@@ -2423,13 +2468,13 @@ const ACT = {
     a.download = 'taskadoo-payouts-' + todayISO() + '.csv'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); },
   async copy(b){ try { await navigator.clipboard.writeText(b.dataset.v); toast('Copied ' + b.dataset.v); } catch (e) { toast(b.dataset.v); } },
   // application (applicant)
-  astep(b){ S.aStep = Number(b.dataset.v); S.aSel = null; render(); window.scrollTo(0, 0); },
+  astep(b){ S.aStep = Number(b.dataset.v); S.aSel = null; render(); toTop(); },
   async apsave1(b){ await busy(b, async () => {
     if (val('ap_name').length < 2) throw new Error('Please enter your full name.');
     if (val('ap_mobile').replace(/\D/g, '').length < 10) throw new Error('Please enter a valid mobile number.');
     if (!val('ap_bd')) throw new Error('Please enter your birth date.');
     S.app = await api.rpc('app_save', { p: { full_name: val('ap_name'), mobile: val('ap_mobile'), birth_date: val('ap_bd') } });
-    await refreshMe(); S.aStep = 2; render(); window.scrollTo(0, 0); }); },
+    await refreshMe(); S.aStep = 2; render(); toTop(); }); },
   async apmober(b){ await busy(b, async () => { S.app = await api.rpc('app_save', { p: { mober: b.dataset.v === '1' } }); render(); }); },
   async apsave2(b){ await busy(b, async () => {
     const a = S.app || {}, d = a.data || {};
@@ -2437,7 +2482,7 @@ const ACT = {
     if (d.mober) { if (val('ap_emp').length < 3) throw new Error('Enter your Mober employee ID.'); S.app = await api.rpc('app_save', { p: { employee_id: val('ap_emp') } }); }
     const miss = needDocs(S.app).filter(k => !(S.app.docs || {})[k]);
     if (miss.length) throw new Error('Please add a photo of your ' + miss.map(k => DOCS[k]).join(' and ') + '.');
-    S.aStep = 3; S.aSel = null; render(); window.scrollTo(0, 0); }); },
+    S.aStep = 3; S.aSel = null; render(); toTop(); }); },
   aptog(b){ const k = b.dataset.k, v = b.dataset.v, l = S.aSel[k]; const i = l.indexOf(v); if (i >= 0) l.splice(i, 1); else l.push(v); b.classList.toggle('on'); },
   apcommit(b){ S.aSel.commitment = b.dataset.v; document.querySelectorAll('[data-act=apcommit]').forEach(x => x.classList.toggle('on', x === b)); },
   async apsave3(b){ await busy(b, async () => {
@@ -2448,11 +2493,11 @@ const ACT = {
     if (val('ap_gnum').replace(/\D/g, '').length < 10) throw new Error('Enter your GCash number.');
     S.app = await api.rpc('app_save', { p: { base_area: val('ap_area'), travel_km: Number(val('ap_km')), years: val('ap_years'), brands: sel.brands, skills: sel.skills,
       commitment: sel.commitment, gcash_name: val('ap_gname'), gcash_number: val('ap_gnum') } });
-    S.aStep = 4; S.aSel = null; S.slots = null; render(); window.scrollTo(0, 0); }); },
+    S.aStep = 4; S.aSel = null; S.slots = null; render(); toTop(); }); },
   pickslot(b){ S.pickSlot = Number(b.dataset.id); render(); },
   async apbook(b){ await busy(b, async () => {
     S.app = await api.rpc('app_book', { p_slot: S.pickSlot }); const moved = S.moving;
-    S.pickSlot = null; S.moving = false; S.aStep = null; S.slots = null; await refreshMe(); toast(moved ? 'Evaluation moved' : 'Booked! See you at the evaluation.'); render(); window.scrollTo(0, 0); }); },
+    S.pickSlot = null; S.moving = false; S.aStep = null; S.slots = null; await refreshMe(); toast(moved ? 'Evaluation moved' : 'Booked! See you at the evaluation.'); render(); toTop(); }); },
   appmove(){ S.moving = true; S.pickSlot = null; S.slots = null; render(); },
   appmovex(){ S.moving = false; S.pickSlot = null; render(); },
   async appcancel(b){ if (!confirm('Cancel your evaluation? You can book a new time later.')) return;
@@ -2578,7 +2623,7 @@ const ACT = {
     await busy(b, async () => { const id = Number(b.dataset.id); await api.rpc('job_action', { p_job: id, p_action: 'decline', p: {} });
       await reloadJob(id); go('tasks'); render(); }); },
   async step(b){ await busy(b, async () => { const id = Number(b.dataset.id); await api.rpc('job_action', { p_job: id, p_action: b.dataset.a, p: {} });
-    await reloadJob(id); render(); window.scrollTo(0, 0); }); },
+    await reloadJob(id); render(); toTop(); }); },
   async online(b){ await busy(b, async () => {
     const on = !isOnline(S.me);
     S.me = await api.updateProfile(S.me.id, on ? { online: true, online_at: new Date().toISOString() } : { online: false }) || S.me;
@@ -2589,7 +2634,7 @@ const ACT = {
     if (ck.length < ARRIVE_CHECKS.length) return toast('Tick all 4 boxes first.', true);
     const note = val('ck_note');
     await busy(b, async () => { await api.rpc('job_action', { p_job: id, p_action: 'start', p: { checks: ARRIVE_CHECKS.concat(note ? ['Note: ' + note] : []) } });
-      S.ckNote = ''; await reloadJob(id); render(); window.scrollTo(0, 0); }); },
+      S.ckNote = ''; await reloadJob(id); render(); toTop(); }); },
   async addon(b){ await busy(b, async () => {
     const id = Number(b.dataset.id), j = S.jobs.find(x => x.id === id), cur0 = (j.addons || []).map(a => a.id), v = b.dataset.v;
     const ids = cur0.includes(v) ? cur0.filter(x => x !== v) : cur0.concat(v);
@@ -2620,7 +2665,7 @@ const ACT = {
     const path = id + '/sig_' + rid() + '.png';
     await api.upload(path, blob, 'image/png');
     await api.rpc('job_action', { p_job: id, p_action: 'complete', p: { signature: path, signed_name: name } });
-    await reloadJob(id); toast('Job complete 🎉'); render(); window.scrollTo(0, 0);
+    await reloadJob(id); toast('Job complete 🎉'); render(); toTop();
   }); },
   async saveprofile(b){ await busy(b, async () => {
     const f = { full_name: val('p_name'), mobile: val('p_mobile'), area: val('p_area') };
@@ -2707,10 +2752,10 @@ const ACT = {
   nosignopen(b){ S.noSign = Number(b.dataset.id); render(); setTimeout(() => { const t = document.getElementById('ns_note'); if (t) t.focus(); }, 50); },
   nosignx(){ S.noSign = null; render(); },
   async nosign(b){ await busy(b, async () => { const id = Number(b.dataset.id);
-    await api.rpc('job_action', { p_job: id, p_action: 'no_sign', p: { note: val('ns_note') } }); S.noSign = null; await reloadJob(id); toast('Sent to Taskadoo'); render(); window.scrollTo(0, 0); }); },
+    await api.rpc('job_action', { p_job: id, p_action: 'no_sign', p: { note: val('ns_note') } }); S.noSign = null; await reloadJob(id); toast('Sent to Taskadoo'); render(); toTop(); }); },
   async nobody(b){ if (!confirm('End this visit because nobody is home? The customer will be charged the failed-visit fee.')) return;
     await busy(b, async () => { const id = Number(b.dataset.id);
-      await api.rpc('job_action', { p_job: id, p_action: 'nobody_home', p: { note: val('nh_note') } }); S.nhNote = ''; await reloadJob(id); toast('Visit ended – nobody home'); render(); window.scrollTo(0, 0); }); },
+      await api.rpc('job_action', { p_job: id, p_action: 'nobody_home', p: { note: val('nh_note') } }); S.nhNote = ''; await reloadJob(id); toast('Visit ended – nobody home'); render(); toTop(); }); },
   resopt(b){ const keep = val('res_note'), amt0 = val('res_amt'); S.resOpt = b.dataset.v; render();
     const t = document.getElementById('res_note'); if (t) t.value = keep; const a = document.getElementById('res_amt'); if (a && amt0) a.value = amt0; },
   async resolve(b){ await busy(b, async () => { const id = Number(b.dataset.id);
@@ -2807,7 +2852,7 @@ window.addEventListener('hashchange', async () => {
   if (route().name === 'users' && S.me && S.me.role === 'admin') { try { await loadProfiles(); } catch (e) { console.warn(e); } }   // new sign-ups show straight away
   const r = route();
   if (S.me && isStaff() && r.name === 'job') { const j = S.jobs.find(x => String(x.id) === r.arg); try { await loadAssemblers(j ? j.job_date : null, j ? j.slot : null); } catch (e) { console.warn(e); } }
-  render(); if (!['job'].includes(r.name)) window.scrollTo(0, 0);
+  render(); if (!['job'].includes(r.name)) { toTop(); }
 });
 /* light auto-refresh for lists (skipped while typing) */
 setInterval(async () => {
