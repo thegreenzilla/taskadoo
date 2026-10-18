@@ -2804,6 +2804,7 @@ window.addEventListener('hashchange', async () => {
   S.menu = false; S.resOpt = null; S.report = null; S.noSign = null; S.editItem = null; S.csv = null; S.wk = null;
   if (route().name === 'eval') S.eTab = 'apps';
   if (route().name === 'profile') S.statsFor = null;   // fresh scores each time Profile opens
+  if (route().name === 'users' && S.me && S.me.role === 'admin') { try { await loadProfiles(); } catch (e) { console.warn(e); } }   // new sign-ups show straight away
   const r = route();
   if (S.me && isStaff() && r.name === 'job') { const j = S.jobs.find(x => String(x.id) === r.arg); try { await loadAssemblers(j ? j.job_date : null, j ? j.slot : null); } catch (e) { console.warn(e); } }
   render(); if (!['job'].includes(r.name)) window.scrollTo(0, 0);
