@@ -46,6 +46,12 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   the app. RPCs `payout_ready(p_end)` (closed, past dispute_hours, no open dispute, paid or enterprise, not yet in a payout),
   `payout_create`, `payout_mark_sent`, `payout_cancel` (Admin). GCash on `profiles.gcash_name/gcash_number` (copied on pass).
   Payout amounts are shown exact (`money2`). UI: Payments → "To assemblers"; assembler Earnings shows payout status/history.
+- v1.7 assembler app: `profiles.online/online_at` (switch counts for today only), `avail` jsonb {week:{mon:{m:hours|off|shift,from,to}}, off:[dates]},
+  `skills`, `radius_km`, `mober_emp` (Admin sets in Users; copied on pass). `avail_on(profile,date,slot)` → ok/time_off/shift/day_off/outside;
+  `assign_job` refuses time_off and shift; `assembler_list(p_date,p_slot)` adds online, avail, rating. Jobs: `paused_at/paused_secs` (job_action
+  pause/resume), `checks` (arrival box checks on start), `addons`/`addons_total` (job_action addons {ids}; prices from settings `addons`, included in
+  `total`), `rating/rating_note/rated_at` via `rate_job` (customer, once, 14 days; seen only by staff + the job's assemblers). `assembler_stats(uid)`
+  = rating, acceptance, on-time (settings `late_min`), first-visit. Settings `photo_min` (finished-work photos before sign-off, client-side).
 - All times on screen use `TZ = 'Asia/Manila'`.
 - v1.6 customer pages follow the landing design (system font -apple-system/Segoe UI, weights ≤ 700, colours from the design):
   guests and customers/enterprise get `renderSite()` (design header + footer, `CAT_META` titles/blurbs, `TINTS` per SKU,
@@ -75,6 +81,7 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
+  v1.7: assembler app per the design (online switch, calendar, box checks, pause, guided photos, add-ons, ratings, scores).
   v1.5: weekly assembler payouts (manual GCash, reference numbers).
   v1.4: assembler sign-up + evaluation (Evaluator role, calendar, document checks, scorecard). v1.3: catalogue CSV import/export.
   v1.2: problems after the job, missed visits, late-cancel fee, payout holds, unpaid block, Settings + Catalogue redesign.
