@@ -17,3 +17,21 @@
     if (h) { e.preventDefault(); e.stopPropagation(); location.href = APP + h; }
   }, true);
 })();
+
+/* Hero photo: if staging/hero.jpg exists, it fills the "Photo of an assembler" box. No photo = the design's placeholder stays. */
+(function () {
+  var img = new Image();
+  img.onload = function () {
+    var tries = 0, t = setInterval(function () {
+      var all = [].slice.call(document.querySelectorAll('div,span,p')).filter(function (n) { return /^Photo of an assembler/.test((n.textContent || '').trim()); });
+      var el = all[all.length - 1];   // the innermost element holding the placeholder text
+      if (el || ++tries > 40) clearInterval(t);
+      if (!el) return;
+      var box = el.parentElement; while (box && box.offsetHeight < 200) box = box.parentElement;   // the 4:5 picture frame
+      if (!box) return;
+      el.style.display = 'none';
+      box.style.backgroundImage = 'url(hero.jpg)'; box.style.backgroundSize = 'cover'; box.style.backgroundPosition = 'center';
+    }, 150);
+  };
+  img.src = 'hero.jpg?v=' + Date.now().toString().slice(0, 7);
+})();
