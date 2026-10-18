@@ -27,6 +27,8 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 - Staging project `taskadoo-staging`, ref `khxlothqjbjcfdcgkzcd` (Singapore). "Automatically expose new tables" is OFF
   and automatic RLS is ON → every table needs explicit `grant`s and policies.
 - SQL lives in `supabase/sql/` as dated, idempotent files; Dennis pastes them into SQL Editor. A new database = run all files in date order.
+- `supabase/test-data/` (staging only, NOT part of the date-order run): `add_test_data.sql` (Dennis replaces TYPE-A-PASSWORD; accounts
+  `*@test.taskadoo.ph`, bookings with notes `[TEST]…`, eval times 14 days) and `remove_test_data.sql`.
 - Tables: `profiles` (role: customer, assembler, dispatcher, enterprise, admin; `requested_role` from sign-up waits for Admin approval;
   the first account ever becomes admin), `settings` (key `main`: commission, lead_pct, currency, slots, areas, categories, payment_note –
   readable by the public), `catalog` (fixed fee per item, crew size, minutes), `jobs` (one booking = one job; items/prices snapshotted;
