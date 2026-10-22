@@ -3014,7 +3014,7 @@ function evalPanel(a){
       <dl class="kv" style="margin-top:12px">
         <dt>Code</dt><dd><b>${esc(a.code || '—')}</b></dd>
         <dt>Age</dt><dd>${d.birth_date ? ageOf(d.birth_date) + ' (' + esc(fmtDate(d.birth_date)) + ')' : '—'}${d.sex ? ' · ' + (d.sex === 'M' ? 'Male' : 'Female') : ''}</dd>
-        ${d.lic_no ? `<dt>License</dt><dd>${esc(d.lic_no)} · codes ${esc((d.lic_codes || []).join(', ') || '—')} · expires ${esc(fmtDate(d.lic_exp))}${d.lic_exp && d.lic_exp < todayISO() ? ' <span class="chip orange">Expired – check</span>' : ''}</dd>` : ''}
+        ${d.lic_no ? `<dt>License</dt><dd>${esc(d.lic_no)} · codes ${esc((d.lic_codes || []).join(', ') || '—')} · expires ${esc(d.lic_exp ? new Date(d.lic_exp + 'T00:00:00Z').toLocaleDateString('en-PH', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' }) : '—')}${d.lic_exp && d.lic_exp < todayISO() ? ' <span class="chip orange">Expired – check</span>' : ''}</dd>` : ''}
         ${d.home_address ? `<dt>Home</dt><dd>${esc(d.home_address)}${d.home_city ? ', ' + esc(d.home_city) : ''} · <a href="${d.home_lat != null ? 'https://www.google.com/maps/search/?api=1&query=' + d.home_lat + ',' + d.home_lng : mapHref(d.home_address)}" target="_blank" rel="noopener">map</a></dd>` : ''}
         ${d.tools != null ? `<dt>Own tools</dt><dd>${d.tools ? 'Yes' : 'Not yet'}</dd>` : ''}
         <dt>Base</dt><dd>${esc(d.base_area || '—')}${d.travel_km ? ' · travels ' + d.travel_km + ' km' : ''}</dd>
