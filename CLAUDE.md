@@ -85,6 +85,17 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
    `updateProfile`, `saveSettings`, `saveItem`, `rpc` (except `assembler_list`) and `upload` are refused while previewing.
    Views must use `ME()` / `role()`, not `S.me`, for whose data they show.
 
+## Agreed with Dennis – NOT built yet (wait until he says "build"; he says "remember" for items to keep here)
+- Distance matching (OpenStreetMap, free): Taskadooer home address + map pin at sign-up (and in Profile for existing ones, staff-only);
+  customer drops/confirms a map pin when booking; Dispatch suggests Taskadooers within a radius (Settings, default 30 km), nearest
+  first, straight-line km, also respecting each one's own travel radius; "show anyway" for further ones.
+- B. Manual + time limit: dispatcher picks; the assembler has N minutes (Settings, e.g. 30) to accept, else the offer returns to
+  Dispatch as "Not answered".
+- C. Open job board: dispatcher taps "Offer to all available" – everyone online, free that day and within the radius sees it;
+  first to accept gets it.
+- Later (Phase 3): full auto cascade from the design (90 s → next → blast top 5–8 → widen → human).
+- Open question: call assemblers "Taskadooers" on screen? (Dennis uses the word; not decided.)
+
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
