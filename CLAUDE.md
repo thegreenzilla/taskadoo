@@ -95,15 +95,22 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   first to accept gets it.
 - New Taskadooer sign-up, DrayberFlex-style (reuse its camera frame + Tesseract.js OCR + parseLicense from
   /home/user/drayberflex index.html "license & NBI upload with OCR"), English text, in the assembler-app phone layout, no "Book" tab:
-  1 photo of driver's license → OCR fills name, sex, birthday, license no., expiry, DL codes, address ("Do you still live here?");
+  1 driver's license: "Take a photo" (camera with card frame) OR "Upload from gallery" → OCR fills name, sex, birthday, license no., expiry, DL codes, address ("Do you still live here?");
      DL code A (motorcycle) REQUIRED – can't continue without it; address + map pin = home for distance matching;
      one license = one person (check in SQL); expired license allowed but flagged.
   2 contact: mobile, email, password (creates the account), GCash; NBI + medical photos optional (can bring later).
   3 about 5 quick questions (experience, own tools, what they can build, part/full-time, Mober employee).
-  4 pick evaluation day/time at the hub. 5 QR ticket to show at the hub; evaluator scans it to open the application.
+  4 pick day/time exactly like DrayberFlex (vApply calendar step): Admin sets per-hub RULES once (days open, start/end hours,
+    interview length, seats per time, booking window days, closed times) → times generated automatically (replaces hand-made
+    eval_slots). One screen: left = hub, length, distance/travel time from home, "contact info correct?" tick; middle = month
+    calendar, days with free times in blue; right = times of the chosen day ("2 slots left"), tap time → Book. ≥1 h ahead,
+    full times hidden, race-safe ("someone just booked that time"). Walk-in QR poster at the hub → same sign-up, slot today.
+    5 QR ticket to show at the hub; evaluator scans it to open the application.
   Failed → same license may re-apply after 3 months (Settings); fake document etc. blocked for good.
 - Later (Phase 3): full auto cascade from the design (90 s → next → blast top 5–8 → widen → human).
-- Open question: call assemblers "Taskadooers" on screen? (Dennis uses the word; not decided.)
+- DECIDED: say "Taskadooer" instead of "assembler" on every screen (text only; role names in the database stay).
+- Video self-intro: advised against (drop-off, mobile data, storage, privacy). Offered instead: optional "Show your past work"
+  (up to 3 photos) – waiting for Dennis's answer.
 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
