@@ -11,7 +11,7 @@
     else if (/^tv mounting$/.test(t)) h = '#/shop/tv';
     else if (/^(log in|sign in to your portal)/.test(t)) h = '#/login';
     else if (/^for business|taskadoo for business|create an enterprise account/.test(t)) h = '#/signup/enterprise';
-    else if (/^become an assembler/.test(t)) { e.preventDefault(); e.stopPropagation(); location.href = 'assembler/#/signup/assembler'; return; }   // the assembler app
+    else if (/^become an assembler/.test(t)) { e.preventDefault(); e.stopPropagation(); location.href = 'assembler/#/join'; return; }   // the Taskadooer sign-up in the assembler app
     else if (/upload (your |a )?receipt|^upload receipt|have a receipt|^receipt quotation/.test(t)) h = '#/receipt';
     else { for (var k in CATS) { if (t.indexOf(k) === 0 && /items/.test(t)) { h = '#/shop/' + CATS[k]; break; } } }
     if (h) { e.preventDefault(); e.stopPropagation(); location.href = APP + h; }

@@ -1,6 +1,6 @@
 {
-  "name": "Taskadoo for assemblers (staging)",
-  "short_name": "Assembler",
+  "name": "Taskadooer app (staging)",
+  "short_name": "Taskadooer",
   "start_url": "./?app=asm#/tasks",
   "scope": "./",
   "display": "standalone",

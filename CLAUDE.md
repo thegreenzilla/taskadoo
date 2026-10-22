@@ -59,6 +59,20 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   pause/resume), `checks` (arrival box checks on start), `addons`/`addons_total` (job_action addons {ids}; prices from settings `addons`, included in
   `total`), `rating/rating_note/rated_at` via `rate_job` (customer, once, 14 days; seen only by staff + the job's assemblers). `assembler_stats(uid)`
   = rating, acceptance, on-time (settings `late_min`), first-visit. Settings `photo_min` (finished-work photos before sign-off, client-side).
+- v1.8 (2026-10-22_signup_matching.sql): "Taskadooer" on every screen (role value stays 'assembler'). New sign-up in the assembler app
+  (`renderApplicant`/`viewApply2`, phone layout, no tabs): #/join "5 easy steps" → 1 license photo (camera frame `snapOpen` or gallery;
+  Tesseract.js OCR `ocrLicense`/`parseLicense` from DrayberFlex; code A required; home address + map pin) → 2 contact + password
+  (creates the account; answers kept in localStorage `tk_ap` incl. photos, password never stored; `submitDraft` after sign-in, also
+  after "confirm your email") → 3 questions (+ optional past-work photos `work1-3`) → 4 DrayberFlex-style calendar → 5 QR ticket
+  (`applications.code` TK-XXXXXX, qrcode-generator). SQL: `check_license`/`lic_status` (one license = one person, re-apply after
+  `reapply_months`, `blocked`), `app_missing`, `app_book` ≥1 h ahead, `app_book_walkin` (hub `walkin`, URL ?walkin=<hub id>),
+  `app_doc_staff` (evaluator photographs a document), `app_decide(...,p_block)`. Hub rules in settings.hubs (days 0-6, start, end,
+  len, seats, window, off, walkin, lat/lng) → `eval_slots_ensure()` (auto slots, called by `eval_slot_list`). Maps: Leaflet 1.9.4 +
+  OSM tiles + Nominatim (`mountMaps`, `PIN`, `geocode`); jobs.lat/lng (checkout pin; `set_job_pin`), profiles.home_* (Profile → Home
+  location). `assembler_list(p_date,p_slot,p_lat,p_lng)` adds km/radius; Dispatch groups "Within match_km – nearest first".
+  Time limit: jobs.lead_offer_at/helper_offer_at + settings offer_minutes; `expire_offers()` (called on loadJobs) → event 'expired'
+  ("Not answered"). Open job board: jobs.open_board/open_at, `offer_all`, `board_fits`, `open_jobs()`, `claim_job` (first wins).
+  Test harness: scratchpad routes.js serves Leaflet/QR locally and fakes tiles + Nominatim.
 - All times on screen use `TZ = 'Asia/Manila'`.
 - v1.6 customer pages follow the landing design (system font -apple-system/Segoe UI, weights ≤ 700, colours from the design):
   guests and customers/enterprise get `renderSite()` (design header + footer, `CAT_META` titles/blurbs, `TINTS` per SKU,
@@ -86,35 +100,12 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
    Views must use `ME()` / `role()`, not `S.me`, for whose data they show.
 
 ## Agreed with Dennis – NOT built yet (wait until he says "build"; he says "remember" for items to keep here)
-- Distance matching (OpenStreetMap, free): Taskadooer home address + map pin at sign-up (and in Profile for existing ones, staff-only);
-  customer drops/confirms a map pin when booking; Dispatch suggests Taskadooers within a radius (Settings, default 30 km), nearest
-  first, straight-line km, also respecting each one's own travel radius; "show anyway" for further ones.
-- B. Manual + time limit: dispatcher picks; the assembler has N minutes (Settings, e.g. 30) to accept, else the offer returns to
-  Dispatch as "Not answered".
-- C. Open job board: dispatcher taps "Offer to all available" – everyone online, free that day and within the radius sees it;
-  first to accept gets it.
-- New Taskadooer sign-up, DrayberFlex-style (reuse its camera frame + Tesseract.js OCR + parseLicense from
-  /home/user/drayberflex index.html "license & NBI upload with OCR"), English text, in the assembler-app phone layout, no "Book" tab:
-  1 driver's license: "Take a photo" (camera with card frame) OR "Upload from gallery" → OCR fills name, sex, birthday, license no., expiry, DL codes, address ("Do you still live here?");
-     DL code A (motorcycle) REQUIRED – can't continue without it; address + map pin = home for distance matching;
-     one license = one person (check in SQL); expired license allowed but flagged.
-  2 contact: mobile, email, password (creates the account), GCash; NBI + medical photos optional (can bring later).
-  3 about 5 quick questions (experience, own tools, what they can build, part/full-time, Mober employee).
-  4 pick day/time exactly like DrayberFlex (vApply calendar step): Admin sets per-hub RULES once (days open, start/end hours,
-    interview length, seats per time, booking window days, closed times) → times generated automatically (replaces hand-made
-    eval_slots). One screen: left = hub, length, distance/travel time from home, "contact info correct?" tick; middle = month
-    calendar, days with free times in blue; right = times of the chosen day ("2 slots left"), tap time → Book. ≥1 h ahead,
-    full times hidden, race-safe ("someone just booked that time"). Walk-in QR poster at the hub → same sign-up, slot today.
-    5 QR ticket to show at the hub; evaluator scans it to open the application.
-  Failed → same license may re-apply after 3 months (Settings); fake document etc. blocked for good.
 - Later (Phase 3): full auto cascade from the design (90 s → next → blast top 5–8 → widen → human).
-- DECIDED: say "Taskadooer" instead of "assembler" on every screen (text only; role names in the database stay).
-- Video self-intro: advised against (drop-off, mobile data, storage, privacy). Offered instead: optional "Show your past work"
-  (up to 3 photos) – waiting for Dennis's answer.
 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
+  v1.8: Taskadooer sign-up with license OCR + QR ticket, hub rules + walk-ins, map pins + 30 km matching, offer time limit, open job board.
   v1.7: assembler app per the design (online switch, calendar, box checks, pause, guided photos, add-ons, ratings, scores).
   v1.5: weekly assembler payouts (manual GCash, reference numbers).
   v1.4: assembler sign-up + evaluation (Evaluator role, calendar, document checks, scorecard). v1.3: catalogue CSV import/export.

@@ -7,7 +7,8 @@
 <title>Taskadoo for assemblers</title>
 <link rel="icon" href="../app/img/icon-192.png">
 <!-- The assembler app: opens the same system in the assembler phone layout (and its own home-screen icon) -->
-<script>location.replace('../app/?app=asm' + (location.hash && location.hash.length > 2 ? location.hash : '#/tasks'));</script>
+<script>var w = /[?&]walkin=([\w-]+)/.exec(location.search);   // walk-in poster at the hub
+location.replace('../app/?app=asm' + (w ? '&walkin=' + w[1] : '') + (location.hash && location.hash.length > 2 ? location.hash : w ? '#/join' : '#/tasks'));</script>
 </head>
 <body style="font-family:sans-serif;background:#ECE9E2;color:#262261;text-align:center;padding:60px 20px">
 <p>Opening the Taskadoo assembler app… <a href="../app/?app=asm#/tasks">Tap here if nothing happens</a>.</p>
