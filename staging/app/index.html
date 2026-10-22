@@ -6,7 +6,6 @@
 <title>Taskadoo</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#262261">
-<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="img/icon-192.png">
 <link rel="apple-touch-icon" href="img/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,9 +14,10 @@
   // Taskadooer app link (staging/assembler/ → ?app=asm): its own home-screen icon and name
   window.APP_MODE = (/[?&]app=(asm|staff)\b/.exec(location.search) || [])[1] || 'cust';   // asm = Taskadooer app · staff = Admin/Dispatcher/Evaluator · cust = customer site
   window.ASM_APP = window.APP_MODE === 'asm';
-  if (window.APP_MODE === 'staff') document.title = 'Taskadoo staff';
+  // written before the page goes on, so a phone saving the icon reads the right start page (Taskadooer / staff / customer)
+  document.write('<link rel="manifest" href="' + ({ asm: 'manifest-assembler.webmanifest', staff: 'manifest-staff.webmanifest' }[window.APP_MODE] || 'manifest.webmanifest') + '">');
+  if (window.APP_MODE === 'staff') { document.title = 'Taskadoo staff'; document.querySelector('meta[name=apple-mobile-web-app-title]').content = 'Taskadoo staff'; }
   if (window.ASM_APP) {
-    document.querySelector('link[rel=manifest]').href = 'manifest-assembler.webmanifest';
     document.querySelector('meta[name=apple-mobile-web-app-title]').content = 'Taskadooer';
     document.title = 'Taskadoo for Taskadooers';
     const sb = document.createElement('meta'); sb.name = 'apple-mobile-web-app-status-bar-style'; sb.content = 'black-translucent'; document.head.appendChild(sb);
@@ -1971,6 +1971,7 @@ function sigPad(c){
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
   { v: '1.8', d: '2026-10-22', where: 'staging', title: 'New Taskadooer sign-up, jobs near home, time limit and open jobs', changes: [
+    { k: 'Fixed', t: 'Home-screen icons: the Taskadooer icon now opens the Taskadooer app (it opened the customer website), and the staff portal can have its own "Taskadoo staff" icon. If you added an icon before, remove it and add it again.', for: ['all'] },
     { k: 'New', t: 'Become a Taskadooer in 5 easy steps: 1) take a photo of your driver\'s license or upload one – we read the details for you; code A (motorcycle) is required, 2) contact info, GCash and your password, 3) a few quick questions, 4) pick a day and time on the calendar, 5) get your QR ticket for the hub.', for: ['customer', 'admin', 'evaluator'] },
     { k: 'New', t: 'Interview times are made automatically from each hub\'s days, hours, interview length and seats (Settings → Hubs). Walk-in QR poster: people at the hub scan it, apply and get an interview today.', for: ['admin', 'evaluator'] },
     { k: 'New', t: 'Evaluations: scan the applicant\'s QR ticket or type the code to open their application. See the license details (expired licenses are flagged), take a photo of a missing NBI or medical certificate, and block a license for good when failing someone for a fake document. Others can apply again after 3 months.', for: ['admin', 'evaluator'] },
@@ -2058,7 +2059,8 @@ const WN_TESTS = {
     ['Y12', 'Taskadooer', 'Home location', ['Profile → Home location: type your address, move the pin, Save.'], 'It saves. Dispatch now shows your distance to jobs.'],
     ['Y13', 'Dispatcher', 'Time limit', ['Assign a job to a Taskadooer and wait 30 minutes without them answering (or ask Admin to set the minutes lower in Settings).'], 'The Taskadooer saw "… min left to answer". After the time, the job shows "Not answered" under Needs assembler.'],
     ['Y14', 'Dispatcher', 'Offer to all nearby', ['Open a job that needs a Taskadooer and tap "Offer to all available nearby".'], 'It shows "Offered to all nearby". Taskadooers who are near and free that day see it under "Open jobs near you".'],
-    ['Y15', 'Taskadooer', 'Take an open job', ['In your app, under "Open jobs near you", tap Take this job.'], 'The job is yours. It disappears for everyone else.']
+    ['Y15', 'Taskadooer', 'Take an open job', ['In your app, under "Open jobs near you", tap Take this job.'], 'The job is yours. It disappears for everyone else.'],
+    ['Y16', 'Taskadooer', 'Home-screen icon opens the Taskadooer app', ['On your phone, if you already have a Taskadooer icon, press and hold it and remove it.', 'Open staging/assembler/ in Safari (iPhone) or Chrome (Android).', 'iPhone: tap Share → Add to Home Screen. Android: tap ⋮ → Add to Home screen.', 'Close the browser and tap the new Taskadooer icon.'], 'It opens the Taskadooer app (sign-in page "For assemblers" or your Tasks), not the customer website.'],
   ],
   '1.7': [
     ['T1', 'Admin', 'Staff portal and the hidden link', ['Open the staging website. Scroll to the very bottom and tap "© 2026 Taskadoo. All rights reserved."', 'Sign in with your Admin account.'], 'The staff portal opens (it says STAFF PORTAL, with no Create account). After signing in you see Dispatch and the other Admin pages.'],
