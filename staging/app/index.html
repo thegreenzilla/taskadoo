@@ -93,6 +93,10 @@ label.f>span{display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em
 .backsm{display:none;margin-bottom:10px}
 .list>.li{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px;cursor:pointer;color:inherit;text-decoration:none}
 .list>.li+.li{margin-top:8px}
+/* customer bookings: on a phone the status tag goes under the title instead of squeezing it */
+.bkside{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+@media (max-width:560px){.bkrow{flex-wrap:wrap;row-gap:6px}.bkrow>.grow{flex:1 1 100%;min-width:0}
+  .bkside{flex:1 1 100%;flex-direction:row;align-items:center;justify-content:space-between}}
 .list>.li.on{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
 .kv>dt{color:var(--muted);font-weight:700} .kv>dd{margin:0;color:var(--ink);font-weight:700;word-break:break-word}
@@ -1102,9 +1106,9 @@ function viewBookings(){
   const mine = S.jobs.filter(j => isStaff() || j.customer_id === ME().id);
   const open = mine.filter(j => !CLOSED.includes(j.status));
   const closed = mine.filter(j => CLOSED.includes(j.status));
-  const card = j => `<a class="li" href="#/booking/${j.id}"><div class="row"><div class="grow"><div class="b">${esc(itemsSummary(j))}</div>
+  const card = j => `<a class="li" href="#/booking/${j.id}"><div class="row bkrow"><div class="grow"><div class="b">${esc(itemsSummary(j))}</div>
       <div class="tiny muted">${esc(j.code)} · ${esc(fmtDate(j.job_date))}, ${esc(j.slot)}${role() === 'enterprise' ? ' · ' + esc(j.customer_name) : ''}</div></div>
-      <div style="text-align:right">${statusChip(j, 'cust')}<div class="b" style="margin-top:4px">${money(amt(j))}</div></div></div></a>`;
+      <div class="bkside">${statusChip(j, 'cust')}<div class="b">${money(amt(j))}</div></div></div></a>`;
   const owe = mine.filter(j => due(j) > 0 && !j.paid && role() === 'customer');
   return `<div class="narrow">
     ${owe.length ? `<div class="notice warn" style="margin-bottom:14px">💳 You have ${owe.length} unpaid ${owe.length > 1 ? 'bookings' : 'booking'} (${money(owe.reduce((a, j) => a + due(j), 0))}). ${esc(S.settings.payment_note || '')}</div>` : ''}
@@ -1148,7 +1152,7 @@ function viewBooking(id){
   return `<div class="narrow">
     <p><a href="#/bookings">‹ All bookings</a></p>
     <div class="card">
-      <div class="row"><div class="grow"><div class="tiny muted b">${esc(j.code)}</div><h2>${esc(fmtDate(j.job_date))}, ${esc(j.slot)}</h2></div><div>${statusChip(j, 'cust')}</div></div>
+      <div class="row bkrow"><div class="grow"><div class="tiny muted b">${esc(j.code)}</div><h2>${esc(fmtDate(j.job_date))}, ${esc(j.slot)}</h2></div><div>${statusChip(j, 'cust')}</div></div>
       ${!['cancelled','failed_visit'].includes(j.status) ? stepsBar(j) : ''}
       <dl class="kv" style="margin-top:12px">
         <dt>Taskadooer${crew.length > 1 ? 's' : ''}</dt><dd>${crew.length ? esc(crew.join(' + ')) : '<span class="muted">Being matched</span>'}</dd>
@@ -1971,6 +1975,7 @@ function sigPad(c){
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
   { v: '1.8', d: '2026-10-22', where: 'staging', title: 'New Taskadooer sign-up, jobs near home, time limit and open jobs', changes: [
+    { k: 'Fixed', t: 'On a phone, My bookings and the booking page no longer squeeze the date and items into a narrow column: the status tag now sits under the title.', for: ['customer', 'enterprise'] },
     { k: 'Fixed', t: 'Home-screen icons: the Taskadooer icon now opens the Taskadooer app (it opened the customer website), and the staff portal can have its own "Taskadoo staff" icon. If you added an icon before, remove it and add it again.', for: ['all'] },
     { k: 'New', t: 'Become a Taskadooer in 5 easy steps: 1) take a photo of your driver\'s license or upload one – we read the details for you; code A (motorcycle) is required, 2) contact info, GCash and your password, 3) a few quick questions, 4) pick a day and time on the calendar, 5) get your QR ticket for the hub.', for: ['customer', 'admin', 'evaluator'] },
     { k: 'New', t: 'Interview times are made automatically from each hub\'s days, hours, interview length and seats (Settings → Hubs). Walk-in QR poster: people at the hub scan it, apply and get an interview today.', for: ['admin', 'evaluator'] },
