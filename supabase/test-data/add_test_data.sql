@@ -3,7 +3,7 @@
 --
 -- BEFORE YOU RUN: change the password on the line marked >>> below (at least 8 characters).
 -- Every test account uses that password. Emails all end in @test.taskadoo.ph, for example:
---   assembler.juan@test.taskadoo.ph · dispatcher.carlo@test.taskadoo.ph · customer.rachel@test.taskadoo.ph
+--   assembler.juan@test.taskadoo.ph · dispatcher.carlo@test.taskadoo.ph · customer.rachel@test.taskadoo.ph · admin.test@test.taskadoo.ph
 -- Safe to run more than once: people that already exist are kept, bookings are only added the first time.
 -- To remove everything again, run remove_test_data.sql.
 
@@ -48,7 +48,7 @@ declare
   v_hub text := coalesce((select value->'hubs'->0->>'name' from public.settings where key = 'main'), 'Pasay Hub');
   com numeric := coalesce((select (value->>'commission')::numeric from public.settings where key = 'main'), 22);
   lp numeric := coalesce((select (value->>'lead_pct')::numeric from public.settings where key = 'main'), 55);
-  juan uuid; maria uuid; pedro uuid; ana uuid; carlo uuid; liza uuid; rachel uuid; mark uuid; eve uuid; ben uuid; joy uuid;
+  adm uuid; juan uuid; maria uuid; pedro uuid; ana uuid; carlo uuid; liza uuid; rachel uuid; mark uuid; eve uuid; ben uuid; joy uuid;
   d date; t text; sid bigint; jid bigint; it jsonb; tot numeric; crw int;
 begin
   if pw = 'TYPE-A-PASSWORD' or length(pw) < 8 then
@@ -62,6 +62,7 @@ begin
   ana    := pg_temp.tk_user('assembler.ana@test.taskadoo.ph',    'Ana Villanueva (test)', '09170000004', '', 'assembler', pw);
   carlo  := pg_temp.tk_user('dispatcher.carlo@test.taskadoo.ph', 'Carlo Mendoza (test)',  '09170000005', '', '', pw);
   liza   := pg_temp.tk_user('evaluator.liza@test.taskadoo.ph',   'Liza Garcia (test)',    '09170000006', '', '', pw);
+  adm    := pg_temp.tk_user('admin.test@test.taskadoo.ph',       'Admin (test)',          '09170000012', '', '', pw);
   rachel := pg_temp.tk_user('customer.rachel@test.taskadoo.ph',  'Rachel Cruz (test)',    '09170000007', '', '', pw);
   mark   := pg_temp.tk_user('customer.mark@test.taskadoo.ph',    'Mark Tan (test)',       '09170000008', '', '', pw);
   eve    := pg_temp.tk_user('business.eve@test.taskadoo.ph',     'Eve Lim (test)',        '09170000009', 'IKEA Philippines (test)', 'enterprise', pw);
@@ -77,6 +78,7 @@ begin
   update public.profiles set avail = jsonb_build_object('off', jsonb_build_array((today + 1)::text)) where id = ana;
   update public.profiles set role = 'dispatcher' where id = carlo and role = 'customer';
   update public.profiles set role = 'evaluator'  where id = liza  and role = 'customer';
+  update public.profiles set role = 'admin', active = true where id = adm and role = 'customer';
   update public.profiles set role = 'enterprise', requested_role = '', area = 'Pasig' where id = eve and role = 'customer';
   update public.profiles set area = 'Makati City' where id in (rachel, mark) and area = '';
 
