@@ -73,6 +73,14 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   Time limit: jobs.lead_offer_at/helper_offer_at + settings offer_minutes; `expire_offers()` (called on loadJobs) → event 'expired'
   ("Not answered"). Open job board: jobs.open_board/open_at, `offer_all`, `board_fits`, `open_jobs()`, `claim_job` (first wins).
   Test harness: scratchpad routes.js serves Leaflet/QR locally and fakes tiles + Nominatim.
+- v1.9 (2026-10-25_dispatch_center.sql): Dispatch Center (`viewDispatch`: KPIs, "Needs you" = `needsYouOf()`, groups Today/Tomorrow,
+  NEW = created after the last visit, kept in localStorage `tk_dseen_<uid>`; nav badge `newSinceSeen()`; Matching mode Manual only – Auto is Step B).
+  Suggestions: `job_candidates(p_job)` (avail, online, km, done_jobs, jobs_week, years from applications.data, eval_avg from applications.score,
+  busy = `job_clash()`), scored client-side in `candScore()` (distance 40 · experience 35 · online & fairness 25; `CAT_SKILL` maps item category
+  → sign-up skill); `candCard()` with Offer as lead/extra (`offer`/`unoffer` → assign_job), "Choose from the full list" keeps #as_lead/#as_helper.
+  No double-booking: `job_clash(uid, job)` (job_minutes + settings travel_min 60) in assign_job and board_fits. Settings urgent_hours 3.
+  Orders: `#/orders` (`viewOrders`, filters S.oQ/oSt/oDt/oAr/oTy/oPd, CSV `ordcsv`) and `#/order/<id>` (`viewOrder`, Dispatch button → #/job/<id>);
+  Admin + Dispatcher; commission lines are Admin-only.
 - All times on screen use `TZ = 'Asia/Manila'`.
 - v1.6 customer pages follow the landing design (system font -apple-system/Segoe UI, weights ≤ 700, colours from the design):
   guests and customers/enterprise get `renderSite()` (design header + footer, `CAT_META` titles/blurbs, `TINTS` per SKU,
@@ -100,11 +108,14 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
    Views must use `ME()` / `role()`, not `S.me`, for whose data they show.
 
 ## Agreed with Dennis – NOT built yet (wait until he says "build"; he says "remember" for items to keep here)
+- Step B of the dispatch plan: Auto matching mode (offer #1 → #2 → #3 one by one, then everyone nearby, hand to a person 3 h before;
+  needs a Supabase cron every minute). Agreed defaults: 10 min per auto offer, 3 one-by-one, 3 h.
 - Later (Phase 3): full auto cascade from the design (90 s → next → blast top 5–8 → widen → human).
 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
+  v1.9: Dispatch Center (incoming bookings, Needs you, suggested Taskadooers with scores, no double-booking), All orders + order details.
   v1.8: Taskadooer sign-up with license OCR + QR ticket, hub rules + walk-ins, map pins + 30 km matching, offer time limit, open job board.
   v1.7: assembler app per the design (online switch, calendar, box checks, pause, guided photos, add-ons, ratings, scores).
   v1.5: weekly assembler payouts (manual GCash, reference numbers).
