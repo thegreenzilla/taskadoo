@@ -102,7 +102,8 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 
 ## Before shipping any change
 1. Check the JS (page loads with no console errors) and try every role's screens on a phone width and a computer width
-   (no "undefined", "NaN" or "Invalid Date" on screen).
+   (no "undefined", "NaN" or "Invalid Date" on screen). Exception (Dennis, 2026-10-27): the staff portal (Admin, Dispatcher,
+   Evaluator) is for computers only – no phone designs or phone testing for it. Customer site and Taskadooer app stay phone-first.
 2. SQL changes: a new dated, idempotent file in `supabase/sql/`; tell Dennis exactly what to paste.
 3. Add an entry at the top of `WHATSNEW` in `staging/app/index.html` (version, date, plain-English title, `changes` with
    kind New / Improved / Fixed and `for` = roles that see it, `where:'staging'` until it is copied to production, then `'live'`).
