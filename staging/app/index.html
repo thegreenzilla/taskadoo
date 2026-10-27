@@ -99,6 +99,88 @@ label.f>span{display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em
   .bkside{flex:1 1 100%;flex-direction:row;align-items:center;justify-content:space-between}}
 .list>.li.on{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
 .nbadge{display:inline-block;margin-left:6px;background:var(--orange);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:1px 7px;vertical-align:1px}
+/* Staff portal frame (v2.0): side menu, search, less bold */
+.sshell{display:flex;min-height:100vh}
+.side{width:240px;flex:none;background:#fff;border-right:1px solid var(--line);padding:14px 10px;box-sizing:border-box;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;z-index:45}
+.side-top{display:flex;align-items:center;padding:0 8px 4px}.side-top .logo{height:26px;width:auto;display:block}
+.side-x,.sburger,.sscrim{display:none}
+.sg{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#6B6577;margin:14px 12px 4px}
+.sl{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:12px;color:#4A4556;text-decoration:none;font-weight:500;font-size:14.5px;position:relative}
+.sl:hover{background:var(--soft)}.sl.on{background:var(--ink);color:#fff}
+.scnt{margin-left:auto;background:var(--orange);color:#fff;border-radius:999px;font-size:11.5px;font-weight:600;padding:1px 8px}
+.sl .dot{margin-left:auto}
+.side nav{flex:1}
+.side-me{display:flex;gap:10px;align-items:center;margin-top:14px;padding:12px 8px 0;border-top:1px solid var(--line)}
+.av2{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12.5px;flex:none}
+.sbody{flex:1;min-width:0}
+.stopbar{position:sticky;top:0;z-index:30;display:flex;gap:10px;align-items:center;padding:10px 24px;background:rgba(236,233,226,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line2)}
+.gsearch{position:relative;flex:1;max-width:560px}.gsearch input{margin:0;background:#fff}
+.gres{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--line2);border-radius:14px;box-shadow:0 12px 30px rgba(38,34,97,.14);padding:6px;max-height:60vh;overflow:auto}
+.gres a{display:grid;grid-template-columns:80px 1fr;column-gap:10px;padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--ink)}
+.gres a:hover{background:var(--soft)}.gres a .tiny:last-child{grid-column:2}
+.smain2{max-width:1240px;margin:0;padding:22px 24px 90px}
+.is-staff .stagebadge{top:auto;bottom:12px;right:12px;left:auto}
+.is-staff h1{font-weight:600;font-size:27px}.is-staff h2,.is-staff h3{font-weight:600}
+.is-staff .b,.is-staff b,.is-staff strong{font-weight:500}
+.is-staff .btn{font-weight:600}.is-staff .chip{font-weight:600}.is-staff .pill{font-weight:500}
+.is-staff .kv>dt{font-weight:500}.is-staff .kv>dd{font-weight:500}.is-staff .tiny.b{font-weight:600}
+.is-staff .big{font-weight:600}.is-staff .f>span{font-weight:500}
+/* Orders tabs + table */
+.otabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.otab{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line2);background:#fff;font:500 14px/1 inherit;font-family:inherit;color:#4A4556;cursor:pointer;white-space:nowrap}
+.otab span{font-size:12px;background:#F3F0EA;border-radius:999px;padding:2px 8px;color:var(--ink)}
+.otab.on{background:var(--ink);border-color:var(--ink);color:#fff}.otab.on span{background:#fff}
+.otable tr.isnew td{background:#FFF6EE}.otable tr.isnew td:first-child{box-shadow:inset 4px 0 0 var(--orange)}
+.otable tr.on td{background:#EAF4FB}
+.otable td a{color:var(--ink)}
+/* the dispatch drawer */
+.scrim{position:fixed;inset:0;background:rgba(38,34,97,.28);z-index:50}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:480px;max-width:100vw;background:#fff;z-index:51;display:flex;flex-direction:column;box-shadow:-12px 0 36px rgba(38,34,97,.18)}
+.has-drawer{overflow:hidden}
+.dr-head{display:flex;gap:10px;align-items:flex-start;padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.dr-head h2{font-size:19px;margin:4px 0 2px}
+.dclose{width:40px;height:40px;border-radius:12px;background:#F3F0EA;display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--ink);flex:none}
+.dr-body{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:12px}
+.dr-body .card{margin:0}
+.dr-foot{display:flex;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid var(--line)}
+.dinfo{padding:12px 14px;background:var(--soft);border-radius:12px;font-size:14px;display:flex;flex-direction:column;gap:3px}
+.dsec h3{font-size:16px;margin:4px 0 8px}
+.dholds{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.dhold{display:flex;gap:10px;align-items:center;font-size:14px;padding:9px 12px;border-radius:12px;background:#F4F9FD}.dhold>.muted{width:42px;flex:none}
+.dsent{padding:14px;border-radius:14px;background:#EEF8F2}.dsent b{color:#0F6B47}
+.dsteps{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.dsteps span{font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px;background:#F3F0EA;color:#6B6577}
+.dsteps span.on{background:var(--ink);color:#fff}.dsteps span.ok{background:#DFF1E9;color:#0F6B47}.dsteps i{width:16px;height:1px;background:var(--line2)}
+.dsteps .grow{background:none;padding:0}
+.dpin summary{cursor:pointer}.dpin .pinmap{height:180px}
+/* Overview */
+.nygrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:6px 0}
+.nyitem{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:#FDF5EC;text-decoration:none}.nyitem.red{background:#FCF1EF}
+.otiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.otile{display:block;margin:0;padding:16px 18px;text-decoration:none;color:var(--text)}.otile .big{font-size:28px;color:var(--ink)}
+.ogrid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ogrid2>.card{margin:0}
+.olist{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);text-decoration:none;color:var(--ink);font-size:14px}
+.olist .ot{width:86px;flex:none;color:var(--ink)}
+@media (max-width:900px){
+  .side{position:fixed;left:0;top:0;bottom:0;transform:translateX(-102%);transition:transform .2s;box-shadow:8px 0 30px rgba(38,34,97,.18);width:280px}
+  .sshell.open .side{transform:none}
+  .sshell.open .sscrim{display:block;position:fixed;inset:0;border:0;background:rgba(38,34,97,.3);z-index:44}
+  .side-x{display:flex;margin-left:auto;width:40px;height:40px;border:0;border-radius:12px;background:#F3F0EA;align-items:center;justify-content:center;cursor:pointer}
+  .sburger{display:flex;width:44px;height:44px;border:0;border-radius:12px;background:#fff;align-items:center;justify-content:center;font-size:20px;cursor:pointer;flex:none}
+  .stopbar{padding:8px 12px}.smain2{padding:16px 14px 90px}
+  .nygrid,.ogrid2{grid-template-columns:1fr}
+  .drawer{top:7vh;width:100%;border-radius:22px 22px 0 0}
+}
+.has-drawer .stagebadge,.has-drawer #tg-fab{display:none}
+@media (max-width:700px){
+  main .otable table,main .otable table tbody{display:block;min-width:0;width:100%}.otable thead{display:none}
+  .otable table tr{display:flex;flex-wrap:wrap;gap:2px 12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .otable table td{display:block;padding:0;border:0}
+  .otable table td:nth-child(1){width:84px;flex:none}.otable table td:nth-child(2){flex:1;min-width:0}
+  .otable table td:nth-child(3),.otable table td:nth-child(6){display:none}
+  .otable table td:nth-child(4){flex:1 1 100%;padding-left:96px}.otable table td:nth-child(5){padding-left:96px}
+  .otable table tr.isnew td:first-child{box-shadow:none}.otable table tr.isnew{background:#FFF6EE;box-shadow:inset 4px 0 0 var(--orange)}
+}
 /* Dispatch Center */
 .c-orange{color:#A84A10}.c-red{color:#B42318}.c-blue{color:#0A5C91}.c-green{color:#0F6B47}
 .dhead{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:14px}
@@ -655,13 +737,13 @@ const NAV = {
   customer:   [['book','Book','🛠️'], ['bookings','My bookings','📋'], ['profile','Profile','👤']],
   enterprise: [['book','New booking','🛠️'], ['bookings','Bookings','📋'], ['profile','Account','🏢']],
   assembler:  [['tasks','Tasks','🧰'], ['calendar','Calendar','📅'], ['earnings','Earnings','💰'], ['profile','Profile','👤']],
-  dispatcher: [['dispatch','Dispatch','🧭'], ['orders','Orders','🗂️'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
+  dispatcher: [['orders','Orders','🗂️'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
   evaluator:  [['evals','Evaluations','📋'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
   applicant:  [['apply','My application','🧰'], ['book','Book','🛠️'], ['profile','Profile','👤']],
-  admin:      [['dispatch','Dispatch','🧭'], ['orders','Orders','🗂️'], ['payments','Payments','💳'], ['evals','Evaluations','📋'], ['catalog','Catalogue','📦'], ['users','Users','👥'],
+  admin:      [['overview','Overview','🏠'], ['orders','Orders','🗂️'], ['payments','Payments','💳'], ['evals','Evaluations','📋'], ['catalog','Catalogue','📦'], ['users','Users','👥'],
                ['settings','Settings','⚙️'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']]
 };
-const SUB = { booking: 'bookings', job: 'dispatch', order: 'orders', task: 'tasks', eval: 'evals' };
+const SUB = { booking: 'bookings', job: 'orders', dispatch: 'orders', order: 'orders', task: 'tasks', eval: 'evals' };
 // customers who asked to become Taskadooers see their application first
 const isApplicant = () => window.APP_MODE !== 'cust' && role() === 'customer' && ME().requested_role === 'assembler';
 // which app a signed-in person belongs in
@@ -793,13 +875,14 @@ function render(){
   let r = route();
   if (r.name === 'shop' && allowed('shop')) { S.cat = r.arg || S.cat; history.replaceState(null, '', '#/book'); r = { name: 'book', arg: '' }; }
   if (r.name === 'receipt' && allowed('receipt')) { toast(RECEIPT_MSG); history.replaceState(null, '', '#/book'); r = { name: 'book', arg: '' }; }
+  if (r.name === 'dispatch' && allowed('orders')) { history.replaceState(null, '', '#/orders'); r = { name: 'orders', arg: '' }; }   // Dispatch is now part of Orders
   if (!r.name || !allowed(r.name)) r = { name: tabsFor()[0][0], arg: '' };
   if (window.ASM_APP && role() === 'customer' && !inPreview()) { renderApplicant(); return; }
   if (window.ASM_APP && role() !== 'assembler' && !isApplicant()) { renderAsmGate(); return; }
   if (!window.ASM_APP && !inPreview() && homeApp(S.me) !== window.APP_MODE && !(window.APP_MODE === 'cust' && homeApp(S.me) === 'asm' && S.me.role === 'customer')) { renderWrongApp(); return; }
   if (siteRole()) { renderSite(r); return; }
   document.body.classList.remove('is-site');
-  const V = { book: viewBook, bookings: viewBookings, booking: viewBooking, dispatch: viewDispatch, job: viewDispatch, orders: viewOrders, order: viewOrder,
+  const V = { book: viewBook, bookings: viewBookings, booking: viewBooking, overview: viewOverview, job: viewOrders, orders: viewOrders, order: viewOrder,
     tasks: viewTasks, task: viewTask, calendar: viewCalendar, earnings: viewEarnings, profile: viewProfile, catalog: viewCatalog, users: viewUsers,
     settings: viewSettings, payments: viewPayments, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo,
     apply: viewApply, evals: viewEvals, eval: viewEvals };
@@ -810,7 +893,8 @@ function render(){
   try { body = V[r.name](r.arg); } catch (e) { console.error(e); body = `<div class="notice bad">${esc(errMsg(e))}</div>`; }
   const unseen = wnUnseen();
   if (role() === 'assembler') { renderAsm(active, tabs, body, unseen); return; }
-  document.body.classList.remove('is-asm');
+  if (['admin', 'dispatcher', 'evaluator'].includes(role())) { renderStaff(active, tabs, body, unseen, r); return; }
+  document.body.classList.remove('is-asm', 'is-staff');
   app.innerHTML = `${pvBar()}
   <header class="top"><div class="top-in">
     <a href="#/${tabs[0][0]}"><img class="logo" src="img/logo.png" alt="Taskadoo"></a>
@@ -899,6 +983,55 @@ function renderWrongApp(){
   </div></div>`;
   badge(); tgPaint();
 }
+// Staff portal: grouped side menu (☰ on phones), search everything, less bold
+const SIDE = [['Today', ['overview']], ['Jobs', ['orders']], ['Taskadooers', ['evals']], ['Money', ['payments']], ['Setup', ['catalog', 'settings', 'users']], ['Help', ['whatsnew', 'tests']]];
+function sideCount(k, active){
+  if (k === 'orders') { const n = active !== 'orders' ? newSinceSeen() : 0; return n ? n + ' new' : S.jobs.filter(toDispatch).length || ''; }
+  if (k === 'evals') return (S.apps || []).filter(a => a.status === 'booked' && a.slot_at && manilaDay(a.slot_at) === todayISO()).length || '';
+  if (k === 'users' && S.me.role === 'admin') return (S.profiles || []).filter(p => p.role === 'customer' && p.requested_role === 'enterprise' && p.active).length || '';
+  return '';
+}
+function gResults(){
+  const q = String(S.gQ || '').trim().toLowerCase(); if (q.length < 2) return [];
+  const has = (...v) => v.join(' ').toLowerCase().includes(q), out = [];
+  if (isStaff()) S.jobs.filter(j => has(j.code, j.customer_name, j.mobile, j.address, j.company, itemsSummary(j))).slice(0, 6)
+    .forEach(j => out.push(['Order', j.code + ' · ' + itemsSummary(j), j.customer_name + ' · ' + whenTxt(j) + ' ' + j.slot, '#/job/' + j.id]));
+  (S.apps || []).filter(a => has(a.code, a.full_name, a.mobile, a.email)).slice(0, 4)
+    .forEach(a => out.push(['Applicant', (a.full_name || a.email || '') + (a.code ? ' · ' + a.code : ''), a.mobile || '', '#/eval/' + a.id]));
+  if (S.me.role === 'admin') (S.profiles || []).filter(p => has(p.full_name, p.email, p.mobile)).slice(0, 4)
+    .forEach(p => out.push(['Person', p.full_name || p.email, (ROLE_LABEL[p.role] || p.role) + ' · ' + (p.mobile || p.email), '#/users']));
+  return out.slice(0, 10);
+}
+function renderStaff(active, tabs, body, unseen, r){
+  const names = tabs.map(t => t[0]), lab = {}; tabs.forEach(t => { lab[t[0]] = t[1]; });
+  const groups = SIDE.map(([g, ks]) => [g, ks.filter(k => names.includes(k) || (k === 'tests' && isTestSite()))]).filter(g => g[1].length);
+  const link = k => { const c = sideCount(k, active); return `<a class="sl ${k === active ? 'on' : ''}" href="#/${k}">${esc(k === 'tests' ? 'Tests' : lab[k])}${c ? `<span class="scnt">${esc(c)}</span>` : ''}${k === 'whatsnew' && unseen ? '<span class="dot"></span>' : ''}</a>`; };
+  const res = gResults();
+  $('#app').innerHTML = `${pvBar()}<div class="sshell ${S.side ? 'open' : ''}">
+    <aside class="side" aria-label="Staff menu">
+      <div class="side-top"><a href="#/${tabs[0][0]}"><img class="logo" src="img/logo.png" alt="Taskadoo"></a><button class="side-x" data-act="side" aria-label="Close menu">✕</button></div>
+      <div class="tiny muted" style="padding:0 12px 6px">Staff portal · ${esc(ROLE_LABEL[role()])}</div>
+      <nav>${groups.map(([g, ks]) => `<div class="sg">${esc(g)}</div>${ks.map(link).join('')}`).join('')}</nav>
+      <div class="side-me"><span class="av2">${esc(initials(ME().full_name || ME().email))}</span>
+        <div class="grow" style="min-width:0;line-height:1.5"><div class="small" style="color:var(--ink)">${esc(ME().full_name || ME().email)}</div>
+          <a class="tiny" href="#/profile">Profile</a>${S.me.role === 'admin' && !inPreview() ? ' · <a class="tiny" href="#/preview">Preview as…</a>' : ''} · <button class="linkbtn tiny" data-act="logout">Sign out</button></div></div>
+    </aside>
+    <button class="sscrim" data-act="side" aria-label="Close menu"></button>
+    <div class="sbody">
+      <header class="stopbar"><button class="sburger" data-act="side" aria-label="Open menu">☰</button>
+        <div class="gsearch"><label><span class="sr">Search everything</span><input data-in="gQ" value="${esc(S.gQ || '')}" placeholder="Search orders, names, mobile numbers or TK- codes" autocomplete="off"></label>
+          ${String(S.gQ || '').trim().length >= 2 ? `<div class="gres">${res.length ? res.map(x => `<a href="${x[3]}"><span class="tiny muted">${esc(x[0])}</span><span>${esc(x[1])}</span><span class="tiny muted">${esc(x[2])}</span></a>`).join('') : '<div class="small muted" style="padding:10px 12px">Nothing found.</div>'}</div>` : ''}</div>
+      </header>
+      <main class="main smain2">${body}</main>
+    </div></div>`;
+  document.body.classList.remove('is-asm', 'is-site'); document.body.classList.add('is-staff');
+  document.body.classList.toggle('has-bottom', false);
+  document.body.classList.toggle('has-pv', inPreview());
+  document.body.classList.toggle('has-drawer', !!document.querySelector('.drawer'));
+  document.body.classList.toggle('has-cart', !!document.querySelector('.cartbar'));
+  document.body.classList.toggle('has-sd', !!document.querySelector('#sdbar:not([hidden])'));
+  badge(); tgPaint(); after(r);
+}
 function acctMenu(tabs, unseen){
   if (!S.menu || !S.me) return '';
   return `<div class="menu"><div style="padding:8px 12px"><div class="b">${esc(S.me.full_name || S.me.email)}</div>
@@ -935,7 +1068,7 @@ function renderSite(r){
       <div><h4>Services</h4><a href="#/book">Furniture assembly</a><a href="#/shop/tv">TV mounting</a><a href="#/receipt">Receipt quotation</a><a href="#/signup/enterprise">Taskadoo for Business</a></div>
       <div><h4>Support</h4><a href="${SITE}#faq">Help center</a><a href="${SITE}">Happiness Guarantee</a><a href="${SITE}">Trust &amp; safety</a><a href="${SITE}">Contact</a></div>
     </div><div class="sfoot-bot"><a href="../staff/" style="color:inherit;text-decoration:none;cursor:text">© 2026 Taskadoo. All rights reserved.</a><span><a href="${SITE}">Privacy</a><a href="${SITE}">Terms</a><a href="${SITE}#faq">Help</a></span></div></div></footer>`;
-  document.body.classList.add('is-site');
+  document.body.classList.add('is-site'); document.body.classList.remove('is-staff');
   document.body.classList.toggle('has-bottom', false);
   document.body.classList.toggle('has-pv', inPreview());
   document.body.classList.toggle('has-cart', !!document.querySelector('.cartbar'));
@@ -1305,208 +1438,186 @@ function candScore(a, j){
 const candFacts = a => [a.km != null ? a.km + ' km' : a.area || 'no home pin', yearsTxt(a.years), num(a.done_jobs) + ' job' + (num(a.done_jobs) === 1 ? '' : 's') + ' done',
   a.rating ? '★ ' + a.rating : 'no rating yet', num(a.jobs_week) + ' this week'].join(' · ');
 
-function viewDispatch(id){
-  const t = todayISO(), tm = addDays(t, 1);
-  if (!S.dEntered) { const last = dSeenGet(); S.dSince = last || Date.now(); S.dOpened = {}; dSeenSet(Date.now()); S.dEntered = true; }
-  const sel = id ? S.jobs.find(j => String(j.id) === id) : null;
-  if (sel) S.dOpened[sel.id] = true;
-  const dateOk = j => S.dDate === 'all' || (S.dDate === 'today' ? j.job_date === t : j.job_date >= t);
-  const base = S.jobs.filter(j => dateOk(j) || needsYouOf(j) || (!CLOSED.includes(j.status) && j.job_date < t));
-  const f = DFILTERS.find(x => x[0] === S.dFilter) || DFILTERS[0];
-  const list = base.filter(f[2]).sort((a, b) => (a.job_date + String(slotMin(a.slot)).padStart(4, '0')).localeCompare(b.job_date + String(slotMin(b.slot)).padStart(4, '0')) || a.id - b.id);
-  const ny = S.jobs.map(j => [j, needsYouOf(j)]).filter(x => x[1]).sort((a, b) => a[1][3] - b[1][3] || jobStartMs(a[0]) - jobStartMs(b[0]));
-  const doneToday = S.jobs.filter(j => j.status === 'done' && j.completed_at && manilaDay(j.completed_at) === t);
-  const waiting = S.jobs.filter(j => j.job_date >= t && needsCrew(j));
-  const urgent = waiting.filter(j => jobStartMs(j) - Date.now() < num(S.settings.urgent_hours || 3) * 3600e3).length;
-  const online = (S.assemblers || []).filter(a => a.online).length, newN = S.jobs.filter(isNew).length;
-  const kpi = [
-    ['New bookings', newN, 'since you last looked', newN ? 'orange' : ''],
-    ['Waiting for a Taskadooer', waiting.length, urgent ? urgent + ' start' + (urgent > 1 ? '' : 's') + ' within ' + num(S.settings.urgent_hours || 3) + ' h' : 'none urgent', urgent ? 'red' : ''],
-    ['Offer sent', S.jobs.filter(j => j.status === 'assigned' && !needsCrew(j)).length, 'waiting for them to accept', 'blue'],
-    ['In progress', S.jobs.filter(isLive).length, 'on site now', 'green'],
-    ['Completed today', doneToday.length, 'signed off today', ''],
-    role() === 'admin' ? ['Fees earned today', money(doneToday.reduce((s, j) => s + split(j).total, 0)), 'Taskadoo share ' + money(doneToday.reduce((s, j) => s + split(j).cut, 0)), '']
-      : ['Jobs today', S.jobs.filter(j => j.job_date === t && j.status !== 'cancelled').length, 'booked for today', '']];
-  const groups = [];
-  list.forEach(j => { const k = j.job_date < t ? 'Earlier' : j.job_date === t ? 'Today' : j.job_date === tm ? 'Tomorrow' : fmtDate(j.job_date);
-    let g = groups.find(x => x[0] === k); if (!g) groups.push(g = [k, []]); g[1].push(j); });
-  return `
-  <div class="dhead">
-    <div class="grow"><h1>Dispatch Center</h1>
-      <div class="muted">${esc(fmtDate(t))} · <b style="color:var(--green)">${online} Taskadooer${online === 1 ? '' : 's'} online</b> · updates by itself every 30 seconds</div></div>
-    <div class="card dmode"><div><div class="b" style="color:var(--ink)">Matching mode</div><div class="tiny muted">You choose · the system suggests the best Taskadooer</div></div>
-      <div class="seg" role="group" aria-label="Matching mode"><button class="on" type="button">Manual</button><button type="button" disabled title="Auto-assign comes in the next step">Auto</button></div></div>
-  </div>
-  <div class="kpis">${kpi.map(k => `<div class="card kpi ${k[3] === 'orange' ? 'hot' : ''}"><div class="tiny muted b">${esc(k[0])}</div><div class="big ${k[3] ? 'c-' + k[3] : ''}">${typeof k[1] === 'number' ? k[1] : esc(k[1])}</div><div class="tiny muted">${esc(k[2])}</div></div>`).join('')}</div>
-  <div class="split ${sel ? 'has-sel' : ''}">
-    <div class="list dleft">
-      ${ny.length ? `<div class="card needs"><div class="row" style="margin-bottom:6px"><h3>Needs you</h3><span class="chip orange">${ny.length}</span><span class="tiny muted grow">Things only a person can sort out</span></div>
-        ${ny.slice(0, S.nyAll ? 99 : 5).map(([j, n]) => `<div class="nyrow"><span class="dot2 ${n[3] === 0 ? 'red' : ''}" aria-hidden="true"></span>
-          <div class="grow"><div class="b" style="color:var(--ink)">${esc(j.code)} · ${esc(n[0])}</div><div class="tiny muted">${esc(n[1])}</div></div>
-          <a class="btn small ${n[3] === 0 ? '' : 'soft'}" href="#/job/${j.id}">${esc(n[2])}</a></div>`).join('')}
-        ${ny.length > 5 ? `<button class="linkbtn small" data-act="nyall">${S.nyAll ? 'Show less' : 'Show all ' + ny.length}</button>` : ''}</div>` : ''}
-      <div class="pills" style="margin:4px 0 10px">${DFILTERS.map(x => `<button class="pill ${f[0] === x[0] ? 'on' : ''}" data-act="dfilter" data-v="${x[0]}">${esc(x[1])}<span class="n">${base.filter(x[2]).length}</span></button>`).join('')}</div>
-      <div class="row" style="margin-bottom:8px"><select id="d_date" data-in="dDate" style="width:auto"><option value="upcoming" ${S.dDate === 'upcoming' ? 'selected' : ''}>Today &amp; upcoming</option>
-        <option value="today" ${S.dDate === 'today' ? 'selected' : ''}>Today only</option><option value="all" ${S.dDate === 'all' ? 'selected' : ''}>All dates</option></select>
-        <span class="grow"></span><a class="small" href="#/orders">All orders →</a><button class="btn ghost small" data-act="reload">↻ Refresh</button></div>
-      ${groups.length ? groups.map(g => `<div class="dgroup"><b>${esc(g[0])}</b><span class="tiny muted">${g[1].length} job${g[1].length > 1 ? 's' : ''}</span></div>
-        <div class="list">${g[1].map(j => dCard(j, sel)).join('')}</div>`).join('') : `<div class="card empty"><div class="ic">🎉</div>Nothing here.</div>`}
-    </div>
-    <div class="sticky">${sel ? '<a class="backsm" href="#/dispatch">‹ All jobs</a>' + jobPanel(sel) : `<div class="card empty"><div class="ic">👈</div>Pick a job to see the suggested Taskadooers.</div>`}</div>
-  </div>`;
+/* ───────────── Orders + dispatch drawer (dispatcher + admin) ───────────── */
+// "To dispatch" = needs a person, or still needs a Taskadooer
+const toDispatch = j => needsYouOf(j) != null || (needsCrew(j) && j.job_date >= todayISO());
+const ORDER_TABS = [
+  ['todo', 'To dispatch', toDispatch],
+  ['waiting', 'Offer sent', j => j.status === 'assigned' && !needsCrew(j)],
+  ['confirmed', 'Confirmed', j => j.status === 'accepted'],
+  ['active', 'On site', isLive],
+  ['today', 'Today', j => j.job_date === todayISO() && j.status !== 'cancelled'],
+  ['done', 'Completed', j => j.status === 'done'],
+  ['cancelled', 'Cancelled', j => ['cancelled','failed_visit'].includes(j.status)],
+  ['all', 'All', () => true]
+];
+const oTab = () => ORDER_TABS.find(x => x[0] === S.oTab) || ORDER_TABS[0];
+// orders after search + filters (not the tab); with the tab when asked
+function ordersFiltered(noTab){
+  const q = String(S.oQ || '').trim().toLowerCase(), t = todayISO(), tab = oTab();
+  const dt = S.oDt || 'all', from = dt === 'today' ? t : dt === 'week' ? addDays(t, -((new Date(t + 'T00:00:00Z').getUTCDay() + 6) % 7)) : dt === 'month' ? t.slice(0, 8) + '01' : dt === 'upcoming' ? t : '';
+  const to = dt === 'today' ? t : dt === 'week' ? addDays(from, 6) : dt === 'month' ? t.slice(0, 8) + '31' : '';
+  const rows = S.jobs.filter(j => (noTab || tab[2](j)) && (!from || j.job_date >= from) && (!to || j.job_date <= to)
+    && (!S.oAr || j.area === S.oAr) && (!S.oTy || (S.oTy === 'business' ? j.source === 'enterprise' : j.source !== 'enterprise'))
+    && (!S.oPd || (S.oPd === 'unpaid' ? due(j) > 0 && !j.paid : j.paid))
+    && (!q || [j.code, j.customer_name, j.mobile, j.address, j.area, j.company, j.lead_name, j.helper_name, itemsSummary(j)].join(' ').toLowerCase().includes(q)));
+  const soon = ['todo', 'waiting', 'confirmed', 'active', 'today'].includes(tab[0]);
+  const rank = j => { const n = needsYouOf(j); return isNew(j) ? -1 : n ? n[3] : 9; };
+  return rows.sort((a, b) => tab[0] === 'todo' && rank(a) !== rank(b) ? rank(a) - rank(b)
+    : soon ? jobStartMs(a) - jobStartMs(b) || a.id - b.id : b.job_date.localeCompare(a.job_date) || slotMin(b.slot) - slotMin(a.slot) || b.id - a.id);
 }
-// one job in the Dispatch list: where it stands in one line
+const whenTxt = j => j.job_date === todayISO() ? 'Today' : j.job_date === addDays(todayISO(), 1) ? 'Tomorrow' : fmtDate(j.job_date);
+function viewOrders(sel){
+  if (!S.dEntered) { const last = dSeenGet(); S.dSince = last || Date.now(); S.dOpened = {}; dSeenSet(Date.now()); S.dEntered = true; }
+  const j = sel ? S.jobs.find(x => String(x.id) === String(sel)) : null;
+  if (j) S.dOpened[j.id] = true;
+  const all = ordersFiltered(true), rows = ordersFiltered(), tab = oTab();
+  const per = 25, pages = Math.max(1, Math.ceil(rows.length / per)), pg = Math.min(S.oPage || 1, pages), admin = role() === 'admin';
+  const areas = [...new Set(S.jobs.map(x => x.area).filter(Boolean))].sort();
+  const sel2 = (k, opts, lab) => `<label class="ofl"><span class="sr">${lab}</span><select data-ofilter="${k}">${opts.map(o => `<option value="${o[0]}" ${(S[k] || '') === o[0] ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select></label>`;
+  const more = S.oMore || S.oDt || S.oAr || S.oTy || S.oPd;
+  const need = x => { const n = needsYouOf(x); return n ? `<span class="c-red">${esc(n[0])}</span>` : dLine(x); };
+  return `<div class="row" style="margin-bottom:14px;align-items:flex-end"><div class="grow" style="min-width:220px"><h1>Orders</h1>
+      <div class="muted">New orders are on top. Click an order to send it to a Taskadooer.</div></div>
+      <button class="btn ghost small" data-act="reload" aria-label="Refresh">↻</button>${admin ? '<button class="btn ghost small" data-act="ordcsv">Download CSV</button>' : ''}<a class="btn small" href="#/book">+ New booking</a></div>
+    <div class="otabs">${ORDER_TABS.map(x => { const n = all.filter(x[2]).length; return `<button class="otab ${tab[0] === x[0] ? 'on' : ''}" data-act="otab" data-v="${x[0]}">${esc(x[1])}${['todo', 'waiting', 'confirmed', 'active', 'today'].includes(x[0]) || tab[0] === x[0] ? `<span>${n}</span>` : ''}</button>`; }).join('')}</div>
+    <div class="row" style="margin:12px 0">
+      <label class="osearch"><span class="sr">Search orders</span><input data-in="oQ" value="${esc(S.oQ || '')}" placeholder="Search code, customer, mobile or address"></label>
+      <button class="btn ghost small" data-act="omore">${more ? 'Fewer filters' : 'More filters'}</button></div>
+    ${more ? `<div class="row" style="margin:-4px 0 12px">
+      ${sel2('oDt', [['', 'All dates'], ['today', 'Today'], ['upcoming', 'Today & upcoming'], ['week', 'This week'], ['month', 'This month']], 'Dates')}
+      ${sel2('oAr', [['', 'All areas'], ...areas.map(a => [a, a])], 'Area')}
+      ${sel2('oTy', [['', 'Customers & business'], ['customer', 'Customers only'], ['business', 'Business only']], 'Type')}
+      ${sel2('oPd', [['', 'Paid & unpaid'], ['unpaid', 'Unpaid'], ['paid', 'Paid']], 'Payment')}</div>` : ''}
+    ${rows.length ? `<div class="card" style="padding:0;overflow:hidden"><div class="otable"><table>
+      <thead><tr><th>When</th><th>Order</th><th>Area</th><th>Where it stands</th><th>Status</th>${admin ? '<th class="r">Total</th>' : ''}</tr></thead>
+      <tbody>${rows.slice((pg - 1) * per, pg * per).map(x => `<tr data-act="openorder" data-id="${x.id}" class="${isNew(x) ? 'isnew' : ''} ${j && j.id === x.id ? 'on' : ''}">
+        <td class="nw">${esc(whenTxt(x))}<div class="tiny muted">${esc(x.slot)}</div></td>
+        <td>${isNew(x) ? `<span class="chip orange solid" style="margin-right:6px">New · ${esc(durTxt(Date.now() - Date.parse(x.created_at)))} ago</span>` : ''}<a href="#/job/${x.id}">${esc(itemsSummary(x))}</a>
+          <div class="tiny muted">${esc(x.code)} · ${esc(x.customer_name)}${x.source === 'enterprise' ? ' · ' + esc(x.company || 'Business') : ''}</div></td>
+        <td class="nw">${esc(x.area || '')}<div class="tiny muted">${num(x.crew) > 1 ? num(x.crew) + ' people' : '1 person'}</div></td>
+        <td class="small">${need(x)}</td>
+        <td>${statusChip(x)}</td>
+        ${admin ? `<td class="r nw">${money(amt(x))}<div class="tiny ${x.paid ? 'c-green' : due(x) > 0 ? 'c-orange' : 'muted'}">${x.paid ? 'paid' : due(x) > 0 ? (x.source === 'enterprise' ? 'to bill' : 'unpaid') : 'after job'}</div></td>` : ''}</tr>`).join('')}</tbody></table></div>
+      ${pages > 1 ? `<div class="row" style="padding:12px 16px"><span class="small muted grow">Page ${pg} of ${pages}</span>
+        <button class="btn ghost small" data-act="opage" data-v="${pg - 1}" ${pg <= 1 ? 'disabled' : ''}>‹ Previous</button><button class="btn ghost small" data-act="opage" data-v="${pg + 1}" ${pg >= pages ? 'disabled' : ''}>Next ›</button></div>` : ''}</div>`
+      : `<div class="card empty"><div class="ic">${tab[0] === 'todo' ? '🎉' : '🔍'}</div>${tab[0] === 'todo' && !String(S.oQ || '').trim() ? 'Nothing to dispatch – every order has a Taskadooer.' : 'No orders here.'}</div>`}
+    ${sel && !j ? '<div class="notice warn" style="margin-top:12px">That order was not found.</div>' : ''}
+    ${j ? `<a class="scrim" href="#/orders" aria-label="Close"></a><aside class="drawer" role="dialog" aria-label="Order ${esc(j.code)}">${drawerBody(j)}</aside>` : ''}`;
+}
+// one line on where an order stands
 function dLine(j){
   const mins = num(S.settings.offer_minutes), left = at => mins > 0 && at ? Math.ceil((Date.parse(at) + mins * 60000 - Date.now()) / 60000) : null;
-  const who = (n, ok, at) => { if (!n) return ''; if (ok) return '<b>' + esc(firstName(n)) + '</b> ✓'; const l = left(at); return '<b>' + esc(firstName(n)) + '</b>' + (l != null ? ` · <b class="c-orange">${l > 0 ? l + ' min left' : 'time is up'}</b>` : ' · waiting'); };
-  if (j.status === 'new') return (notAnswered(j) ? 'Not answered by <b>' + esc(firstName(notAnswered(j))) + '</b> · ' : '') + 'Needs ' + (num(j.crew) > 1 ? num(j.crew) + ' Taskadooers' : 'a Taskadooer') + (j.open_board ? ' · 📣 offered to all nearby' : '');
-  if (j.status === 'assigned') return 'Offer sent to ' + who(j.lead_name, j.lead_ok, j.lead_offer_at) + (j.helper_name ? ' + ' + who(j.helper_name, j.helper_ok, j.helper_offer_at) : num(j.crew) > 1 ? ' · <b class="c-red">extra Taskadooer missing</b>' : '');
-  if (j.status === 'accepted') return '<b>' + esc(firstName(j.lead_name)) + '</b>' + (j.helper_name ? ' + <b>' + esc(firstName(j.helper_name)) + '</b>' : '') + ' accepted';
-  if (isLive(j)) return '<b>' + esc(firstName(j.lead_name)) + '</b> · ' + esc((STATUS[j.status] || {}).staff || j.status).toLowerCase() + (j.started_at ? ' · started ' + esc(fmtTime(j.started_at).split(', ').pop()) : '');
-  return esc(j.lead_name ? firstName(j.lead_name) : '') ;
+  const who = (n, ok, at) => { if (!n) return ''; if (ok) return esc(firstName(n)) + ' ✓'; const l = left(at); return esc(firstName(n)) + (l != null ? ` · <span class="c-orange">${l > 0 ? l + ' min left' : 'time is up'}</span>` : ' · waiting'); };
+  if (j.status === 'new') return 'Needs ' + (num(j.crew) > 1 ? num(j.crew) + ' Taskadooers' : 'a Taskadooer') + (j.open_board ? ' · offered to everyone nearby' : '');
+  if (j.status === 'assigned') return 'Offer sent to ' + who(j.lead_name, j.lead_ok, j.lead_offer_at) + (j.helper_name ? ' + ' + who(j.helper_name, j.helper_ok, j.helper_offer_at) : num(j.crew) > 1 ? ' · <span class="c-red">extra Taskadooer missing</span>' : '');
+  if (j.status === 'accepted') return esc(firstName(j.lead_name)) + (j.helper_name ? ' + ' + esc(firstName(j.helper_name)) : '') + ' accepted';
+  if (isLive(j)) return esc(firstName(j.lead_name)) + ' · ' + esc(((STATUS[j.status] || {}).staff || j.status).toLowerCase()) + (j.started_at ? ' · started ' + esc(fmtTime(j.started_at).split(', ').pop()) : '');
+  return esc([j.lead_name, j.helper_name].filter(Boolean).map(firstName).join(' + '));
 }
-function dCard(j, sel){
-  const nw = isNew(j);
-  return `<a class="li dcard ${sel && sel.id === j.id ? 'on' : ''} ${nw ? 'isnew' : ''}" href="#/job/${j.id}">
-    <div class="row" style="gap:6px">${nw ? '<span class="chip orange solid">New</span>' : ''}<span class="b" style="color:var(--blue)">${esc(j.code)}</span>
-      <span class="chip">${esc(j.source === 'enterprise' ? (j.company || 'Business') : j.source === 'staff' ? 'Staff booking' : 'Customer')}</span>
-      <span class="grow"></span>${statusChip(j)}</div>
-    <div class="b dtitle">${esc(itemsSummary(j))}</div>
-    <div class="small muted">${esc(firstName(j.customer_name))} · ${esc(j.area || '')} · ${esc(j.slot)}</div>
-    <div class="row dfoot"><span class="chip">${num(j.crew) > 1 ? num(j.crew) + '-person job' : '1 Taskadooer'}</span><span class="small grow">${dLine(j)}</span><b style="color:var(--ink)">${money(amt(j))}</b></div></a>`;
-}
-function jobPanel(j){
-  const sp = split(j), admin = role() === 'admin';
-  const canAssign = ['new','assigned','accepted'].includes(j.status);
-  return `${decideCard(j)}<div class="card">
-    <div class="row"><div class="grow"><div class="tiny muted b">${esc(j.code)}${j.revisit_of ? ' · free re-visit' : ''}</div><h2>${esc(itemsSummary(j))}</h2>
-      <div class="small muted">${esc(fmtDate(j.job_date))}, ${esc(j.slot)}${j.job_date === todayISO() && needsCrew(j) && jobStartMs(j) > Date.now() ? ' · <b class="c-red">starts in ' + esc(durTxt(jobStartMs(j) - Date.now())) + '</b>' : ''}</div></div><div>${statusChip(j)}</div></div>
-    <dl class="kv" style="margin-top:12px">
-      <dt>Customer</dt><dd>${esc(j.customer_name)} · <a href="${telHref(j.mobile)}">${esc(j.mobile)}</a>${j.company ? ' · ' + esc(j.company) : ''}</dd>
-      <dt>Address</dt><dd><a href="${mapHref(j.address + ' ' + j.area)}" target="_blank" rel="noopener">${esc(j.address)}${j.area ? ', ' + esc(j.area) : ''}</a></dd>
-      ${j.notes ? `<dt>Notes</dt><dd>${esc(j.notes)}</dd>` : ''}
-      <dt>Crew</dt><dd>${num(j.crew) > 1 ? j.crew + ' Taskadooers (from the items)' : '1 Taskadooer'}</dd>
-      ${j.started_at ? `<dt>Assembly time</dt><dd>${esc(clock(workSecs(j)))}${j.paused_at ? ' <span class="chip orange">Timer paused</span>' : ''} · estimate ${esc(mins(estMin(j)))}</dd>` : ''}
-      ${j.rating ? `<dt>Rating</dt><dd><span style="color:#F5A623">${stars(j.rating)}</span>${j.rating_note ? ' “' + esc(j.rating_note) + '”' : ''}</dd>` : ''}
-    </dl>
-    <div class="row" style="margin-top:12px"><a class="btn ghost small" href="#/order/${j.id}">All details</a></div>
+// the right-hand drawer: only what is needed to send the order out
+function drawerBody(j){
+  const open = ['new','assigned','accepted'].includes(j.status), admin = role() === 'admin';
+  const soon = open && j.job_date === todayISO() && jobStartMs(j) > Date.now() ? ' · in ' + durTxt(jobStartMs(j) - Date.now()) : '';
+  return `<div class="dr-head"><div class="grow" style="min-width:0"><div class="row" style="gap:6px"><span class="tiny muted">${esc(j.code)}</span>${statusChip(j)}</div>
+      <h2>${esc(itemsSummary(j))}</h2>
+      <div class="small">${esc(whenTxt(j))} ${esc(j.slot)}<span class="${needsCrew(j) && soon ? 'c-red' : ''}">${esc(soon)}</span> · ${num(j.crew) > 1 ? num(j.crew) + ' people' : '1 person'} · about ${esc(mins(estMin(j)))}</div></div>
+    <a class="dclose" href="#/orders" aria-label="Close">✕</a></div>
+  <div class="dr-body">
+    <div class="dinfo"><a href="${mapHref(j.address + ' ' + j.area)}" target="_blank" rel="noopener">${esc(j.address)}${j.area ? ', ' + esc(j.area) : ''}</a>
+      <div>${esc(j.customer_name)} · <a href="${telHref(j.mobile)}">${esc(j.mobile)}</a>${j.company ? ' · ' + esc(j.company) : ''}</div>
+      ${j.notes ? `<div class="muted">“${esc(j.notes)}”</div>` : ''}</div>
+    ${decideCard(j)}
+    ${open ? candCard(j) : isLive(j) ? `<div class="dsec"><h3>On site</h3><div class="small">${dLine(j)}</div>
+        ${j.started_at ? `<div class="small muted">Assembly time ${esc(clock(workSecs(j)))} · estimate ${esc(mins(estMin(j)))}</div>` : ''}</div>`
+      : `<div class="dsec"><h3>${esc((STATUS[j.status] || {}).staff || j.status)}</h3><div class="small">${esc([j.lead_name, j.helper_name].filter(Boolean).join(' + ') || 'No Taskadooer')}</div></div>`}
+    ${open ? `<details class="dsec dpin" ${j.lat == null ? 'open' : ''}><summary class="small">📍 Map pin${j.lat == null ? ' <span class="c-red">– not set, distances can\'t be worked out</span>' : ''}</summary>
+      <div class="row" style="margin:8px 0"><span class="tiny muted grow">Drag the pin to the exact building.</span><button class="btn small" id="pin_save" data-act="savepin" data-id="${j.id}" ${S.jobPin ? '' : 'disabled'}>Save pin</button></div>
+      ${mapBox('job', j.address + ', ' + j.area + ', Philippines')}</details>` : ''}
   </div>
-  ${canAssign ? candCard(j) : `<div class="card"><h3 style="margin-bottom:10px">Taskadooers</h3><dl class="kv"><dt>Lead</dt><dd>${esc(j.lead_name || '—')}</dd><dt>Extra</dt><dd>${esc(j.helper_name || '—')}</dd></dl></div>`}
-  <div class="card"><div class="row" style="margin-bottom:8px"><h3 class="grow">Location</h3>${S.jobPin ? `<button class="btn small" id="pin_save" data-act="savepin" data-id="${j.id}">Save pin</button>` : '<button class="btn small" id="pin_save" data-act="savepin" data-id="' + j.id + '" disabled>Save pin</button>'}</div>
-    ${mapBox('job', j.address + ', ' + j.area + ', Philippines')}</div>
-  <div class="card">${itemsTable(j)}
-    <table class="lines" style="margin-top:8px">
-      ${num(j.refund) > 0 ? `<tr><td>Booked total</td><td class="r">${money(j.total)}</td></tr><tr><td>Refund</td><td class="r">−${money(j.refund)}</td></tr>` : ''}
-      <tr><td>${j.status === 'failed_visit' ? 'Failed-visit fee' : j.status === 'cancelled' ? 'Late cancellation fee' : 'Job fee'}</td><td class="r">${money(sp.total)}</td></tr>
-      ${admin ? `<tr><td>Taskadoo ${num(j.commission_pct)}%</td><td class="r">−${money(sp.cut)}</td></tr>` : ''}
-      <tr><td>Lead${sp.two ? ' ' + num(j.lead_pct) + '%' : ''}</td><td class="r money">${money(sp.lead)}</td></tr>
-      ${sp.two ? `<tr><td>Extra Taskadooer ${100 - num(j.lead_pct)}%</td><td class="r money">${money(sp.helper)}</td></tr>` : ''}
-    </table></div>
-  ${photosBlock(j)}
-  <div class="card"><h3 style="margin-bottom:8px">History</h3><div class="events">${eventsList(j)}</div>
-    ${!CLOSED.includes(j.status) && j.status !== 'issue' ? `<div style="margin-top:12px"><button class="btn red small" data-act="cancel" data-id="${j.id}">Cancel job</button></div>` : ''}
-    ${due(j) > 0 && admin ? `<div style="margin-top:12px">${payBtn(j)}</div>` : ''}
-    ${payoutState(j)[1] ? `<div class="tiny muted" style="margin-top:8px">Taskadooer payout: <span class="chip ${payoutState(j)[0]}">${esc(payoutState(j)[1])}</span></div>` : ''}
-  </div>`;
+  <div class="dr-foot"><a class="small" href="#/order/${j.id}">Open full details</a><span class="grow"></span>
+    ${due(j) > 0 && admin ? payBtn(j) : ''}
+    ${!CLOSED.includes(j.status) && j.status !== 'issue' ? `<button class="linkbtn small c-red" data-act="cancel" data-id="${j.id}">Cancel order</button>` : ''}</div>`;
 }
-// Suggested Taskadooers for one job: best match first, one tap to offer
+// pick Taskadooers: lead first, then the extra one; best match first, one tap to offer
 function candCard(j){
   const two = num(j.crew) > 1, asm = S.assemblers || [];
-  const tab = S.dTab && S.dTabFor === j.id ? S.dTab : (j.lead_id && !j.helper_id && two ? 'extra' : 'lead');
+  const full = j.lead_id && (!two || j.helper_id);
   const mins = num(S.settings.offer_minutes), left = at => mins > 0 && at ? Math.ceil((Date.parse(at) + mins * 60000 - Date.now()) / 60000) : null;
-  const holder = (n, ok, at, kind) => !n ? `<span class="c-red b">Not assigned yet</span>` : `<b>${esc(n)}</b> ${ok ? '<span class="chip green">accepted</span>' : `<span class="chip orange">waiting${left(at) != null ? ' · ' + (left(at) > 0 ? left(at) + ' min left' : 'time is up') : ''}</span>`}
-    <button class="linkbtn small" data-act="unoffer" data-id="${j.id}" data-v="${kind}">Remove</button>`;
+  const tab = S.dTab && S.dTabFor === j.id ? S.dTab : (!j.lead_id ? 'lead' : two && !j.helper_id ? 'extra' : 'lead');
+  const picking = !full || (S.dChange === j.id);
+  const holder = (n, ok, at, kind) => `<div class="dhold"><span class="muted">${kind === 'lead' ? 'Lead' : 'Extra'}</span>${!n ? '<span class="c-red">not picked yet</span>'
+    : `<span class="grow">${esc(n)} ${ok ? '<span class="chip green">accepted</span>' : `<span class="chip orange">waiting${left(at) != null ? ' · ' + (left(at) > 0 ? left(at) + ' min left' : 'time is up') : ''}</span>`}</span>
+      <button class="linkbtn small" data-act="unoffer" data-id="${j.id}" data-v="${kind}">Remove</button>`}</div>`;
   const list = asm.filter(a => a.id !== j.lead_id && a.id !== j.helper_id).map(a => ({ a, s: candScore(a, j) }));
   const ok = list.filter(x => !x.s.block).sort((x, y) => y.s.total - x.s.total || (x.a.km ?? 999) - (y.a.km ?? 999));
-  const no = list.filter(x => x.s.block);
-  const can = tab === 'lead' || j.lead_id;
-  const bar = (lab, v, max) => `<div><div class="tiny">${lab} <b>${v}/${max}</b></div><div class="sbar"><i style="width:${Math.round(v / max * 100)}%"></i></div></div>`;
-  const offerBtn = (a, big) => can ? `<button class="btn ${big ? '' : 'soft small'}" data-act="offer" data-id="${j.id}" data-u="${esc(a.id)}" data-v="${tab}">${big ? 'Offer as ' + (tab === 'lead' ? 'lead' : 'extra') : 'Offer'}</button>` : '';
-  const row = ({ a, s }, i) => i === 0 ? `<div class="cand best">
-      <div class="row" style="gap:10px;flex-wrap:nowrap"><span class="avc">${esc(initials(a.full_name))}</span>
-        <div class="grow" style="min-width:0"><div class="row" style="gap:6px"><b style="color:var(--ink)">${esc(a.full_name)}</b>${a.online ? '<span class="chip green">Online</span>' : ''}<span class="chip ink">Best match</span></div>
-          <div class="tiny">${esc(candFacts(a))}</div>${s.warn ? `<div class="tiny c-orange b">⚠ ${esc(s.warn)}</div>` : ''}</div>
-        <div class="score"><b>${s.total}</b><span>of 100</span></div></div>
-      <div class="sbars">${bar('Distance', s.d, 40)}${bar('Experience', s.e, 35)}${bar('Online &amp; fair', s.of, 25)}</div>
-      <div class="row">${offerBtn(a, true)}</div></div>`
-    : `<div class="cand"><div class="row" style="gap:10px;flex-wrap:nowrap"><span class="avc soft">${esc(initials(a.full_name))}</span>
-        <div class="grow" style="min-width:0"><div class="row" style="gap:6px"><b style="color:var(--ink)">${esc(a.full_name)}</b>${a.online ? '<span class="chip green">Online</span>' : ''}</div>
-          <div class="tiny">${esc(candFacts(a))}</div>${s.warn ? `<div class="tiny c-orange b">⚠ ${esc(s.warn)}</div>` : ''}
-          ${S.why === a.id ? `<div class="sbars" style="margin-top:6px">${bar('Distance', s.d, 40)}${bar('Experience', s.e, 35)}${bar('Online &amp; fair', s.of, 25)}</div>` : `<button class="linkbtn tiny" data-act="why" data-v="${esc(a.id)}">Why ${s.total}?</button>`}</div>
-        <div class="score sm"><b>${s.total}</b></div>${offerBtn(a)}</div></div>`;
-  const shown = S.candAll ? ok : ok.slice(0, 6);
-  return `<div class="card" id="cands">
-    <div class="row" style="margin-bottom:10px"><h3 class="grow">Taskadooers</h3>${j.lead_id ? `<button class="linkbtn small" data-act="unassign" data-id="${j.id}">Clear all</button>` : ''}</div>
-    <dl class="kv" style="margin-bottom:14px"><dt>Lead</dt><dd>${holder(j.lead_name, j.lead_ok, j.lead_offer_at, 'lead')}</dd>
-      ${two || j.helper_id ? `<dt>Extra</dt><dd>${holder(j.helper_name, j.helper_ok, j.helper_offer_at, 'extra')}</dd>` : ''}</dl>
-    <div class="row" style="margin-bottom:4px"><h3 class="grow" style="font-size:15px">Suggested Taskadooers</h3>
-      <div class="seg sm" role="group" aria-label="Which place to fill"><button class="${tab === 'lead' ? 'on' : ''}" data-act="dtab" data-id="${j.id}" data-v="lead">Lead</button><button class="${tab === 'extra' ? 'on' : ''}" data-act="dtab" data-id="${j.id}" data-v="extra">Extra${two ? '' : ' (optional)'}</button></div></div>
-    <div class="tiny muted" style="margin-bottom:10px">Best match first: distance from their home, experience, online now and fewer jobs this week.${S.candFor !== j.id ? ' <b>Loading…</b>' : ''}</div>
-    ${!can ? '<div class="notice warn small">Offer the lead first, then the extra Taskadooer.</div>' : ''}
-    ${j.lat == null ? '<div class="notice warn small" style="margin-bottom:10px">This booking has no map pin, so distances can\'t be worked out. Set the pin under Location.</div>' : ''}
-    ${!asm.length ? `<div class="notice warn" style="margin-bottom:10px">No active Taskadooers yet. ${role() === 'admin' ? 'Approve one in <a href="#/users">Users</a>.' : 'Ask Admin to approve Taskadooers.'}</div>` : ''}
-    ${shown.map(row).join('')}
-    ${ok.length > 6 ? `<button class="linkbtn small" data-act="candall">${S.candAll ? 'Show fewer' : 'Show all ' + ok.length}</button>` : ''}
-    ${no.length ? `<div class="tiny muted b" style="text-transform:uppercase;letter-spacing:.08em;margin:14px 0 4px">Can't be offered</div>
-      ${no.map(({ a, s }) => `<div class="cand off"><div class="row" style="gap:10px;flex-wrap:nowrap"><span class="avc soft">${esc(initials(a.full_name))}</span>
-        <div class="grow"><b>${esc(a.full_name)}</b><div class="tiny">${esc(s.block)}</div></div></div></div>`).join('')}` : ''}
-    ${num(S.settings.offer_minutes) > 0 ? `<div class="tiny muted" style="margin-top:10px">Each Taskadooer has <b>${num(S.settings.offer_minutes)} minutes</b> to accept, then the offer comes back as "Not answered".</div>` : ''}
-    ${needsCrew(j) || j.open_board ? `<div class="row" style="margin-top:12px">${j.open_board ? `<span class="chip blue">📣 Offered to all nearby since ${esc(fmtTime(j.open_at))}</span><button class="btn ghost small" data-act="offerall" data-id="${j.id}" data-v="0">Stop</button>`
-      : `<button class="btn ghost small" data-act="offerall" data-id="${j.id}" data-v="1">📣 Offer to all available nearby</button><span class="tiny muted">First to accept gets it.</span>`}</div>` : ''}
-    <details class="pickany" style="margin-top:12px"><summary class="small b">Choose from the full list</summary>
-      <label class="f" style="margin-top:10px"><span>Lead</span><select id="as_lead">${pickOpts(j, j.lead_id)}</select></label>
-      <label class="f"><span>Extra Taskadooer ${two ? '(needed)' : '(optional)'}</span><select id="as_helper">${pickOpts(j, j.helper_id)}</select></label>
-      <button class="btn small" data-act="assign" data-id="${j.id}">Save assignment</button></details>
+  const no = list.filter(x => x.s.block), shown = S.candAll ? ok : ok.slice(0, 3), can = tab === 'lead' || j.lead_id;
+  const bar = (lab, v, max) => `<div><div class="tiny">${lab} ${v}/${max}</div><div class="sbar"><i style="width:${Math.round(v / max * 100)}%"></i></div></div>`;
+  const row = ({ a, s }, i) => `<div class="cand ${i === 0 ? 'best' : ''}"><div class="row" style="gap:10px;flex-wrap:nowrap"><span class="avc ${i ? 'soft' : ''}">${esc(initials(a.full_name))}</span>
+      <div class="grow" style="min-width:0"><div>${esc(a.full_name)}${a.online ? ' <span class="tiny c-green">● online</span>' : ''}</div>
+        <div class="tiny muted">${esc(candFacts(a))}</div>${s.warn ? `<div class="tiny c-orange">⚠ ${esc(s.warn)}</div>` : ''}
+        ${S.why === a.id ? `<div class="sbars">${bar('Distance', s.d, 40)}${bar('Experience', s.e, 35)}${bar('Online &amp; fair', s.of, 25)}</div>` : `<button class="linkbtn tiny" data-act="why" data-v="${esc(a.id)}">Why ${s.total}?</button>`}</div>
+      <div class="score"><b>${s.total}</b></div>${can ? `<button class="btn small ${i ? 'soft' : ''}" data-act="offer" data-id="${j.id}" data-u="${esc(a.id)}" data-v="${tab}">Offer</button>` : ''}</div></div>`;
+  return `<div class="dsec" id="cands">
+    ${j.lead_id || j.helper_id ? `<div class="dholds">${holder(j.lead_name, j.lead_ok, j.lead_offer_at, 'lead')}${two || j.helper_id ? holder(j.helper_name, j.helper_ok, j.helper_offer_at, 'extra') : ''}</div>` : ''}
+    ${!picking ? `<div class="dsent"><b>${j.status === 'accepted' ? 'Confirmed' : 'Offers sent'}</b>
+        <div class="small muted">${j.status === 'accepted' ? 'Everyone accepted – nothing more to do.' : 'They have ' + mins + ' minutes to accept. If nobody answers, the order comes back to "To dispatch".'}</div>
+        <button class="linkbtn small" data-act="dchange" data-id="${j.id}">Change who</button></div>`
+    : `${two ? `<div class="dsteps"><span class="${tab === 'lead' ? 'on' : j.lead_id ? 'ok' : ''}">1 · Lead</span><i></i><span class="${tab === 'extra' ? 'on' : j.helper_id ? 'ok' : ''}">2 · Extra</span>
+        ${j.lead_id ? `<span class="grow"></span><button class="linkbtn tiny" data-act="dtab" data-id="${j.id}" data-v="${tab === 'lead' ? 'extra' : 'lead'}">${tab === 'lead' ? 'Pick the extra instead' : 'Change the lead'}</button>` : ''}</div>` : ''}
+      <h3>${tab === 'lead' ? 'Pick the ' + (two ? 'lead' : 'Taskadooer') : 'Pick the extra Taskadooer'}${S.candFor !== j.id ? ' <span class="tiny muted">loading…</span>' : ''}</h3>
+      ${!can ? '<div class="notice warn small">Offer the lead first.</div>' : ''}
+      ${!asm.length ? `<div class="notice warn small">No active Taskadooers yet. ${role() === 'admin' ? 'Approve one in <a href="#/users">Users</a>.' : 'Ask Admin to approve Taskadooers.'}</div>` : ''}
+      ${shown.map(row).join('')}
+      <div class="row" style="gap:14px;margin-top:6px">${ok.length > 3 ? `<button class="linkbtn small" data-act="candall">${S.candAll ? 'Show fewer' : 'Show ' + (ok.length - 3) + ' more'}</button>` : ''}
+        ${needsCrew(j) ? (j.open_board ? `<span class="tiny muted">Offered to everyone nearby</span><button class="linkbtn small" data-act="offerall" data-id="${j.id}" data-v="0">Stop</button>`
+          : `<button class="linkbtn small" data-act="offerall" data-id="${j.id}" data-v="1">Offer to everyone nearby</button>`) : ''}</div>
+      ${no.length ? `<details class="small" style="margin-top:8px"><summary class="muted">${no.length} can't be offered</summary>
+        ${no.map(({ a, s }) => `<div class="tiny" style="margin-top:4px">${esc(a.full_name)} – ${esc(s.block)}</div>`).join('')}</details>` : ''}
+      <details class="pickany small" style="margin-top:8px"><summary>Choose from the full list</summary>
+        <label class="f" style="margin-top:10px"><span>Lead</span><select id="as_lead">${pickOpts(j, j.lead_id)}</select></label>
+        <label class="f"><span>Extra Taskadooer ${two ? '(needed)' : '(optional)'}</span><select id="as_helper">${pickOpts(j, j.helper_id)}</select></label>
+        <button class="btn small" data-act="assign" data-id="${j.id}">Save</button></details>`}
   </div>`;
 }
 const pickOpts = (j, selId) => `<option value="">— none —</option>` + (S.assemblers || []).map(a => ({ a, s: candScore(a, j) })).sort((x, y) => y.s.total - x.s.total)
   .map(({ a, s }) => `<option value="${esc(a.id)}" ${a.id === selId ? 'selected' : ''} ${s.block && a.id !== selId ? 'disabled' : ''}>${esc(a.full_name)} · ${s.total}${a.km != null ? ' · ' + a.km + ' km' : ''}${s.block ? ' – ' + esc(s.block) : s.warn ? ' – ' + esc(s.warn) : ''}</option>`).join('');
 
-/* ───────────── All orders (dispatcher + admin) ───────────── */
-const ORDER_ST = [['all', 'All statuses', () => true], ['needs', 'Waiting for Taskadooer', needsCrew], ['waiting', 'Offer sent', j => j.status === 'assigned' && !needsCrew(j)],
-  ['confirmed', 'Confirmed', j => j.status === 'accepted'], ['active', 'In progress', isLive], ['issue', 'Needs a decision', attention],
-  ['done', 'Completed', j => j.status === 'done'], ['cancelled', 'Cancelled / missed', j => ['cancelled','failed_visit'].includes(j.status)]];
-function ordersFiltered(){
-  const q = String(S.oQ || '').trim().toLowerCase(), t = todayISO(), st = ORDER_ST.find(x => x[0] === (S.oSt || 'all')) || ORDER_ST[0];
-  const dt = S.oDt || 'all', from = dt === 'today' ? t : dt === 'week' ? addDays(t, -((new Date(t + 'T00:00:00Z').getUTCDay() + 6) % 7)) : dt === 'month' ? t.slice(0, 8) + '01' : dt === 'upcoming' ? t : '';
-  const to = dt === 'today' ? t : dt === 'week' ? addDays(from, 6) : dt === 'month' ? t.slice(0, 8) + '31' : '';
-  return S.jobs.filter(j => st[2](j) && (!from || j.job_date >= from) && (!to || j.job_date <= to)
-    && (!S.oAr || j.area === S.oAr) && (!S.oTy || (S.oTy === 'business' ? j.source === 'enterprise' : j.source !== 'enterprise'))
-    && (!S.oPd || (S.oPd === 'unpaid' ? due(j) > 0 && !j.paid : j.paid))
-    && (!q || [j.code, j.customer_name, j.mobile, j.address, j.area, j.company, j.lead_name, j.helper_name, itemsSummary(j)].join(' ').toLowerCase().includes(q)))
-    .sort((a, b) => b.job_date.localeCompare(a.job_date) || slotMin(b.slot) - slotMin(a.slot) || b.id - a.id);
-}
-function viewOrders(){
-  const rows = ordersFiltered(), per = 25, pages = Math.max(1, Math.ceil(rows.length / per)), pg = Math.min(S.oPage || 1, pages);
-  const areas = [...new Set(S.jobs.map(j => j.area).filter(Boolean))].sort();
-  const sel = (k, opts, lab) => `<label class="ofl"><span class="sr">${lab}</span><select data-ofilter="${k}">${opts.map(o => `<option value="${o[0]}" ${(S[k] || '') === o[0] ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select></label>`;
-  const unpaid = rows.filter(j => due(j) > 0 && !j.paid).reduce((s, j) => s + due(j), 0);
-  return `<div class="row" style="margin-bottom:14px;align-items:flex-end"><div class="grow" style="min-width:240px"><h1>All orders</h1><div class="muted">Every booking, past and upcoming. Tap an order to see all the details.</div></div>
-      <button class="btn ghost small" data-act="ordcsv">⬇ Download CSV</button><a class="btn small" href="#/book">+ New booking</a></div>
-    <div class="card ofilters">
-      <label class="osearch"><span class="sr">Search orders</span><input data-in="oQ" value="${esc(S.oQ || '')}" placeholder="Search code, customer, mobile, address or Taskadooer"></label>
-      ${sel('oSt', ORDER_ST.map(x => [x[0] === 'all' ? '' : x[0], x[1]]), 'Status')}
-      ${sel('oDt', [['', 'All dates'], ['today', 'Today'], ['upcoming', 'Today & upcoming'], ['week', 'This week'], ['month', 'This month']], 'Dates')}
-      ${sel('oAr', [['', 'All areas'], ...areas.map(a => [a, a])], 'Area')}
-      ${sel('oTy', [['', 'Customers & business'], ['customer', 'Customers only'], ['business', 'Business only']], 'Type')}
-      ${sel('oPd', [['', 'Paid & unpaid'], ['unpaid', 'Unpaid'], ['paid', 'Paid']], 'Payment')}
+/* ───────────── Overview (Admin's first page) ───────────── */
+function viewOverview(){
+  const t = todayISO(), h = new Date(Date.now() + 8 * 3600e3).getUTCHours();
+  const items = S.jobs.map(j => [j, needsYouOf(j)]).filter(x => x[1]).sort((a, b) => a[1][3] - b[1][3] || jobStartMs(a[0]) - jobStartMs(b[0]))
+    .map(([j, n]) => [j.code + ' · ' + n[0], n[1], '#/job/' + j.id, n[3] === 0]);
+  const biz = (S.profiles || []).filter(p => p.role === 'customer' && p.requested_role === 'enterprise' && p.active);
+  if (biz.length) items.push([biz.length + ' business account' + (biz.length > 1 ? 's' : '') + ' to approve', biz.map(p => p.company || p.full_name || p.email).join(', '), '#/users', false]);
+  const ivs = (S.apps || []).filter(a => a.status === 'booked' && a.slot_at && manilaDay(a.slot_at) === t).sort((a, b) => String(a.slot_at).localeCompare(String(b.slot_at)));
+  const today = S.jobs.filter(j => j.job_date === t && j.status !== 'cancelled');
+  const owe = S.jobs.filter(j => due(j) > 0 && !j.paid && j.source !== 'enterprise');
+  const po = (S.payouts || []).filter(p => p.status === 'pending');
+  const asm = S.assemblers || [], on = asm.filter(a => a.online).length;
+  const next = S.jobs.filter(j => !CLOSED.includes(j.status) && j.status !== 'issue' && j.job_date >= t && j.job_date <= addDays(t, 1)).sort((a, b) => jobStartMs(a) - jobStartMs(b)).slice(0, 6);
+  const tile = (href, lab, big, sub, cls) => `<a class="card otile" href="${href}"><div class="tiny muted">${lab}</div><div class="big ${cls || ''}">${big}</div><div class="small">${sub}</div></a>`;
+  const tm = a => new Date(a.slot_at).toLocaleTimeString('en-PH', { timeZone: TZ, hour: 'numeric', minute: '2-digit' });
+  return `<h1>${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}, ${esc(firstName(S.me.full_name) || 'there')}</h1>
+    <div class="muted" style="margin-bottom:16px">${esc(fmtDate(t))} · today at a glance</div>
+    ${items.length ? `<div class="card needs"><div class="row" style="margin-bottom:4px"><h3>Needs you</h3><span class="chip orange">${items.length}</span></div>
+      <div class="nygrid">${items.slice(0, 6).map(x => `<a class="nyitem ${x[3] ? 'red' : ''}" href="${x[2]}"><span class="dot2 ${x[3] ? 'red' : ''}" aria-hidden="true"></span><span class="grow"><span style="color:var(--ink)">${esc(x[0])}</span><span class="tiny muted" style="display:block">${esc(x[1])}</span></span></a>`).join('')}</div>
+      ${items.length > 6 ? `<a class="small" href="#/orders">And ${items.length - 6} more in Orders</a>` : ''}</div>`
+      : '<div class="card"><span class="c-green">✓</span> Nothing needs you right now.</div>'}
+    <div class="otiles">
+      ${tile('#/orders', 'Jobs today', today.length, `${today.filter(needsCrew).length} waiting · ${today.filter(isLive).length} on site · ${today.filter(j => j.status === 'done').length} done`)}
+      ${tile('#/orders', 'Taskadooers online', `${on} <span class="small muted">of ${asm.length}</span>`, `${S.jobs.filter(isLive).length} on a job right now`, 'c-green')}
+      ${tile('#/payments', 'Customers owe', money(owe.reduce((s, j) => s + due(j), 0)), owe.length + ' unpaid job' + (owe.length === 1 ? '' : 's'), owe.length ? 'c-orange' : '')}
+      ${tile('#/payments', 'Payouts to send', money2(po.reduce((s, p) => s + num(p.amount), 0)), po.length + ' Taskadooer' + (po.length === 1 ? '' : 's') + ' · GCash')}
     </div>
-    <div class="small" style="margin:12px 2px">${rows.length} order${rows.length === 1 ? '' : 's'} · total <b>${money(rows.reduce((s, j) => s + amt(j), 0))}</b>${unpaid ? ` · unpaid <b class="c-orange">${money(unpaid)}</b>` : ''} · waiting for a Taskadooer <b>${rows.filter(needsCrew).length}</b></div>
-    ${rows.length ? `<div class="card" style="padding:0;overflow:hidden"><div class="otable"><table>
-      <thead><tr><th>Order</th><th>When</th><th>Customer</th><th>Items</th><th>Area</th><th>Taskadooer</th><th>Status</th><th class="r">Total</th><th>Paid</th></tr></thead>
-      <tbody>${rows.slice((pg - 1) * per, pg * per).map(j => `<tr data-act="openorder" data-id="${j.id}">
-        <td><a href="#/order/${j.id}" class="b">${esc(j.code)}</a><div class="tiny muted">${esc(j.source === 'enterprise' ? 'Business · ' + (j.company || '') : j.source === 'staff' ? 'Staff booking' : 'Customer')}</div></td>
-        <td class="nw"><b>${esc(j.job_date === todayISO() ? 'Today' : fmtDate(j.job_date))}</b><div class="tiny muted">${esc(j.slot)}</div></td>
-        <td><b>${esc(j.customer_name)}</b><div class="tiny muted">${esc(j.mobile)}</div></td>
-        <td style="max-width:240px">${esc(itemsSummary(j))}<div class="tiny muted">${num(j.crew) > 1 ? num(j.crew) + ' Taskadooers' : '1 Taskadooer'}</div></td>
-        <td class="nw">${esc(j.area || '')}</td>
-        <td class="nw">${esc([j.lead_name, j.helper_name].filter(Boolean).map(firstName).join(' + ') || '—')}</td>
-        <td>${statusChip(j)}</td><td class="r b nw">${money(amt(j))}</td>
-        <td>${j.paid ? '<span class="chip green">Paid</span>' : due(j) > 0 ? `<span class="chip orange">${j.source === 'enterprise' ? 'To bill' : 'Unpaid'}</span>` : '<span class="tiny muted">After job</span>'}</td></tr>`).join('')}</tbody></table></div>
-      ${pages > 1 ? `<div class="row" style="padding:12px 16px"><span class="small muted grow">Page ${pg} of ${pages}</span>
-        <button class="btn ghost small" data-act="opage" data-v="${pg - 1}" ${pg <= 1 ? 'disabled' : ''}>‹ Previous</button><button class="btn ghost small" data-act="opage" data-v="${pg + 1}" ${pg >= pages ? 'disabled' : ''}>Next ›</button></div>` : ''}</div>`
-      : `<div class="card empty"><div class="ic">🔍</div>No orders match.</div>`}`;
+    <div class="ogrid2">
+      <div class="card"><div class="row" style="margin-bottom:6px"><h3 class="grow">Next jobs</h3><a class="small" href="#/orders">All orders</a></div>
+        ${next.length ? next.map(j => `<a class="olist" href="#/job/${j.id}"><span class="ot">${esc(j.job_date === t ? j.slot : 'Tmrw ' + j.slot)}</span><span class="grow">${esc(itemsSummary(j))} · ${esc(j.area || '')}<span class="tiny muted" style="display:block">${dLine(j)}</span></span>${statusChip(j)}</a>`).join('') : '<div class="small muted">No more jobs today or tomorrow.</div>'}</div>
+      <div class="card"><div class="row" style="margin-bottom:6px"><h3 class="grow">Interviews today</h3><a class="small" href="#/evals">Evaluations</a></div>
+        ${ivs.length ? ivs.map(a => `<a class="olist" href="#/eval/${a.id}"><span class="ot">${esc(tm(a))}</span><span class="grow">${esc(a.full_name || a.email || '')}<span class="tiny muted" style="display:block">${esc(a.slot_hub || '')}</span></span><span class="chip orange">Booked</span></a>`).join('') : '<div class="small muted">No interviews today.</div>'}</div>
+    </div>`;
 }
+
 const ORDER_STEPS = [['Booked', j => j.created_at], ['Taskadooer found', j => j.lead_id && ev(j, 'assigned')], ['Accepted', j => ['accepted','travelling','arrived','in_progress','finished','issue','done'].includes(j.status) && (ev(j, 'accepted') || ev(j, 'claimed') || ev(j, 'assigned'))],
   ['On the way', j => ev(j, 'travel')], ['Arrived', j => j.arrived_at || ev(j, 'arrive')], ['Assembling', j => j.started_at], ['Signed off', j => j.completed_at], ['Paid', j => j.paid && (j.paid_at || true)]];
 const ev = (j, a) => { const e = (j.events || []).slice().reverse().find(x => x.action === a); return e ? e.at : ''; };
@@ -2237,6 +2348,13 @@ function sigPad(c){
 // for: roles that see the line (customer, enterprise, Taskadooer, dispatcher, admin) or 'all'.
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
+  { v: '2.0', d: '2026-10-27', where: 'staging', title: 'New staff portal: side menu, Overview, and dispatch from Orders', changes: [
+    { k: 'New', t: 'The staff portal has a menu on the left, grouped by kind of work (Today, Jobs, Taskadooers, Money, Setup, Help), with counts on pages that need you. On a phone tap ☰ to open it. Your name, Profile and Sign out are at the bottom of the menu.', for: ['admin', 'dispatcher', 'evaluator'] },
+    { k: 'New', t: 'Overview (Admin\'s first page): what needs you, jobs today, Taskadooers online, what customers owe, payouts to send, the next jobs and today\'s interviews.', for: ['admin'] },
+    { k: 'New', t: 'Dispatch now happens in Orders. The list opens on "To dispatch", new orders are on top in orange with "New · 4 min ago", and the menu shows "1 new". Click an order and a panel slides in from the right: pick the lead, then the extra Taskadooer, one tap each. Close it and you are back in the list.', for: ['admin', 'dispatcher'] },
+    { k: 'New', t: 'Search everything from the top bar: order codes, customer names, mobile numbers, TK- ticket codes and staff.', for: ['admin', 'dispatcher', 'evaluator'] },
+    { k: 'Improved', t: 'New booking is a button on Orders instead of a menu item. The portal uses less bold text, and on a phone each order shows as a simple card.', for: ['admin', 'dispatcher'] }
+  ] },
   { v: '1.9', d: '2026-10-26', where: 'staging', title: 'Dispatch Center, All orders and suggested Taskadooers', changes: [
     { k: 'New', t: 'Dispatch is now the Dispatch Center: numbers at the top (new bookings since you last looked, waiting for a Taskadooer, offer sent, in progress, completed today), a "Needs you" box for things only a person can sort out, and jobs grouped by Today / Tomorrow. New bookings get an orange NEW tag and the Dispatch menu shows "1 new". The page updates by itself every 30 seconds.', for: ['dispatcher', 'admin'] },
     { k: 'New', t: 'Suggested Taskadooers: open a job and the best matches come first with a score out of 100 – distance from their home (40), experience: years, jobs done, rating, evaluation and the kind of furniture they build (35), online now and fewer jobs this week (25). Tap "Offer as lead", then "Offer as extra" for 2-person jobs. "Why?" shows the score. Nothing is sent until you tap.', for: ['dispatcher', 'admin'] },
@@ -2320,19 +2438,19 @@ const WHATSNEW = [
 ];
 // Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
 const WN_TESTS = {
-  '1.9': [
-    ['D1', 'Dispatcher, Admin', 'The Dispatch Center', ['Open Dispatch in the staff portal.'], 'You see "Dispatch Center", the number boxes at the top, a "Needs you" box if anything needs a person, filter buttons and jobs grouped by Today / Tomorrow. No odd words or blank numbers anywhere.'],
-    ['D2', 'Dispatcher, Admin', 'New bookings show as NEW', ['Leave Dispatch (open Orders).', 'In another browser or phone, book a job on the customer site.', 'Wait 30 seconds (or tap Refresh) and look at the Dispatch menu, then open Dispatch.'], 'The Dispatch menu shows "1 new". In Dispatch the "New bookings" box shows 1 and the job has an orange NEW tag. After you open it, the tag goes away.'],
-    ['D3', 'Dispatcher, Admin', 'Suggested Taskadooers', ['Open a job that needs a Taskadooer.'], 'Under "Suggested Taskadooers" the best match is at the top with a score out of 100 and three bars (Distance, Experience, Online & fair). Others are below with their score. Tap "Why?" on one – it shows their bars.'],
-    ['D4', 'Dispatcher, Admin', 'Offer as lead and extra', ['On a 2-person job, tap "Offer as lead" on the best match.', 'Look at the Lead / Extra switch, then tap "Offer as extra" on the new best match.'], 'After the first tap it says "Offer sent to …" and switches to Extra by itself. After the second, both names show as "waiting" with the minutes left. Both Taskadooers see the offer in their app.'],
-    ['D5', 'Dispatcher, Admin', 'Busy Taskadooers can\'t be offered', ['Find a Taskadooer who already has a job today or tomorrow.', 'Open another job on the same day at about the same time.'], 'That Taskadooer is listed under "Can\'t be offered" with "Busy – already on TD-… at …".'],
-    ['D6', 'Dispatcher, Admin', 'Remove an offer', ['On a job with a lead (and extra), tap Remove next to the extra, then next to the lead.'], 'Each name goes back to "Not assigned yet" and the job goes back to Waiting for Taskadooer.'],
-    ['D7', 'Dispatcher, Admin', 'All orders – search and filters', ['Open Orders.', 'Type part of a customer\'s name in the search box.', 'Choose a status, e.g. Completed.'], 'The table shows only matching orders, and the line above it updates the count and totals. The search box keeps your typing.'],
-    ['D8', 'Dispatcher, Admin', 'Download orders as CSV', ['On Orders, tap Download CSV and open the file (Excel or Google Sheets).'], 'A file taskadoo-orders-<date>.csv with one line per order shown on screen.'],
-    ['D9', 'Dispatcher, Admin', 'Order details and the Dispatch button', ['On Orders, tap an order that is waiting for a Taskadooer.', 'Tap the blue Dispatch button.'], 'The order page shows progress, items, Taskadooers, customer, map, payment and history. Dispatch opens the Dispatch Center with that job and its suggested Taskadooers.'],
-    ['D10', 'Dispatcher', 'Money split is Admin-only', ['As a Dispatcher, open any order and look at Payment.'], 'You see the job fee and the Taskadooers\' shares, but not the Taskadoo commission. Admin sees the commission too.'],
-    ['D11', 'Dispatcher, Admin', 'Dispatch on a phone', ['Open Dispatch on your phone, tap a job, then tap ‹ All jobs.'], 'Everything fits the screen (no sideways scrolling except the filter buttons). The job opens full screen and back works.']
+  '2.0': [
+    ['O1', 'Admin, Dispatcher, Evaluator', 'The side menu', ['Sign in to the staff portal on a computer.', 'On a phone, tap ☰ at the top left.'], 'A menu on the left with groups (Admin: Today, Jobs, Taskadooers, Money, Setup, Help). A Dispatcher sees only Orders and Help. On a phone the menu slides in and closes when you tap outside it.'],
+    ['O2', 'Admin', 'Overview', ['Sign in as Admin.'], 'You land on Overview: "Needs you", jobs today, Taskadooers online, customers owe, payouts to send, next jobs and interviews today. Each box opens the right page.'],
+    ['O3', 'Admin, Dispatcher', 'New orders on top', ['Leave Orders (open another page).', 'In another browser or phone, book a job on the customer site.', 'Wait 30 seconds, look at the menu, then open Orders.'], 'The menu shows "Orders 1 new". In Orders the new order is first, in orange, with "New · … min ago".'],
+    ['O4', 'Admin, Dispatcher', 'Dispatch from the drawer', ['In Orders → To dispatch, click a 2-person order.', 'Tap Offer on the best match, then Offer again on the next best.'], 'A panel slides in from the right. After the first tap it moves to "2 · Extra" by itself. After the second it shows "Offers sent" with both names and the minutes left.'],
+    ['O5', 'Admin, Dispatcher', 'Close and change', ['In the panel, tap ✕ (or click outside it).', 'Open the same order again and tap "Change who", or Remove next to a name.'], 'Closing takes you back to the list. Change who shows the suggestions again; Remove puts the order back in To dispatch.'],
+    ['O6', 'Admin, Dispatcher', 'Busy Taskadooers', ['Open an order on the same day and time as another order a Taskadooer already has.', 'Open "… can\'t be offered" under the suggestions.'], 'That Taskadooer is not in the suggestions and is listed as "Busy – already on TD-… at …".'],
+    ['O7', 'Admin, Dispatcher, Evaluator', 'Search everything', ['Type a customer\'s name or a mobile number in the search box at the top.', 'Tap a result.'], 'Matching orders (and for Admin, people and applicants) show as you type. Tapping one opens it.'],
+    ['O8', 'Admin, Dispatcher', 'Tabs and filters', ['In Orders tap Offer sent, Confirmed, Today and All.', 'Tap More filters and choose an area.'], 'Each tab shows only those orders with a count. The area filter narrows the list; Fewer filters clears it.'],
+    ['O9', 'Admin, Dispatcher', 'New booking button', ['In Orders tap + New booking and book for a customer.'], 'The booking screen opens; after confirming, the order shows in Orders → To dispatch.'],
+    ['O10', 'Dispatcher', 'Orders on a phone', ['Open Orders on your phone and tap an order.'], 'Orders show as simple cards (no sideways scrolling). The order opens as a sheet from the bottom with big buttons.']
   ],
+
   '1.8': [
     ['Y1', 'Everyone', 'The 5 easy steps', ['Signed out, open the website and tap "Become an assembler" (or open staging/assembler/ and tap Apply now).'], 'You see "5 easy steps to apply" with a Start button.'],
     ['Y2', 'Everyone', 'Your driver\'s license', ['Tap Start. Tap "Take a photo" and photograph the front of a driver\'s license (or Upload a photo).', 'Check the details it filled in. Fix anything wrong.'], 'It says "Reading your license…" and then fills in what it could read (name, birthday, license number, expiry, codes, address). If it can\'t read it, you type the details.'],
@@ -2462,8 +2580,8 @@ const WN_TESTS = {
 };
 // Preparation a test needs
 const WN_SETUP = {
-  D2: 'You need a second browser or phone signed in as a customer (or a guest booking).', D4: 'Needs a 2-person job (e.g. a PAX wardrobe) and two Taskadooers who are free that day.',
-  D5: 'Do D4 first – the Taskadooer you offered is now busy at that time.', D6: 'Do D4 first.', D10: 'Sign in as dispatcher.carlo@test.taskadoo.ph.',
+  O3: 'You need a second browser or phone signed in as a customer (or a guest booking).', O4: 'Needs a 2-person order (e.g. a PAX wardrobe) and two Taskadooers free that day.',
+  O5: 'Do O4 first.', O6: 'Do O4 first – the Taskadooer you offered is now busy at that time.', O10: 'Sign in as dispatcher.carlo@test.taskadoo.ph on your phone.',
   Y2: 'Use a real driver\'s license (yours is fine). Do Y1 first.', Y3: 'Do Y2 first.', Y4: 'Do Y3 first.', Y5: 'Do Y4 first. Use an email that has no Taskadoo account.', Y6: 'Do Y5 first.',
   Y7: 'Evaluator or Admin, in the staff portal. Needs the ticket from Y6.', Y8: 'Do Y7 first.', Y9: 'Admin only.', Y11: 'Do Y10 first. Taskadooers need a home location (Y12).',
   Y12: 'Sign in to the Taskadooer app.', Y13: 'Dispatcher or Admin, plus a Taskadooer who doesn\'t answer.', Y14: 'Dispatcher or Admin.', Y15: 'Do Y14 first. You must be near the job and free that day (online for jobs today).',
@@ -3371,6 +3489,10 @@ function viewEvalCalendar(){
 async function reloadJob(id){ const j = await api.job(id); const k = S.jobs.findIndex(x => x.id === id); if (j) { if (k >= 0) S.jobs[k] = j; else S.jobs.unshift(j); } else if (k >= 0) S.jobs.splice(k, 1); }
 const ACT = {
   menu(){ S.menu = !S.menu; render(); },
+  side(){ S.side = !S.side; render(); },
+  otab(b){ S.oTab = b.dataset.v; S.oPage = 1; render(); },
+  omore(){ S.oMore = !(S.oMore || S.oDt || S.oAr || S.oTy || S.oPd); if (!S.oMore) { S.oDt = S.oAr = S.oTy = S.oPd = ''; } render(); },
+  dchange(b){ S.dChange = Number(b.dataset.id); render(); },
   paytab(b){ S.payTab = b.dataset.v; render(); },
   async payreload(b){ await busy(b, async () => { await loadJobs(); await loadPayouts(); S.ready = null; render(); toast('Updated'); }); },
   async pocreate(b){ const end = S.poEnd || lastSunday();
@@ -3537,7 +3659,7 @@ const ACT = {
     if (ex && !j.lead_id) throw new Error('Offer the lead first, then the extra Taskadooer.');
     await api.rpc('assign_job', { p_job: id, p_lead: ex ? j.lead_id : u, p_helper: ex ? u : (j.helper_id === u ? null : j.helper_id) });
     await reloadJob(id); await loadCands(id); const a = S.assemblers.find(x => x.id === u);
-    S.dTab = !ex && num(j.crew) > 1 && !S.jobs.find(x => x.id === id).helper_id ? 'extra' : S.dTab; S.dTabFor = id;
+    S.dTab = null; S.dChange = null;
     toast('Offer sent to ' + (a ? firstName(a.full_name) : 'the Taskadooer') + '.'); render(); }); },
   async unoffer(b){ const id = Number(b.dataset.id), j = S.jobs.find(x => x.id === id), ex = b.dataset.v === 'extra';
     if (!ex && j.helper_id && !confirm('Removing the lead also removes the extra Taskadooer. Continue?')) return;
@@ -3547,7 +3669,7 @@ const ACT = {
   candall(){ S.candAll = !S.candAll; render(); },
   nyall(){ S.nyAll = !S.nyAll; render(); },
   opage(b){ S.oPage = Number(b.dataset.v) || 1; render(); toTop(); },
-  openorder(b, e){ if (e.target.closest('a')) return; go('order', b.dataset.id); },
+  openorder(b, e){ if (e.target.closest('a')) return; go('job', b.dataset.id); },
   ordcsv(){
     const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', admin = role() === 'admin';
     const head = ['Order', 'Date', 'Time', 'Type', 'Company', 'Customer', 'Mobile', 'Address', 'Area', 'Items', 'Crew', 'Lead', 'Extra', 'Status', 'Total', 'Paid'].concat(admin ? ['Taskadoo share'] : []);
@@ -3765,7 +3887,7 @@ const ACT = {
     const r = await api.rpc('resolve_job', { p_job: id, p_outcome: S.resOpt, p_amount: num(val('res_amt')), p_note: val('res_note') });
     S.resOpt = null; await reloadJob(id); if (r && r.revisit_id) await reloadJob(r.revisit_id);
     toast(r && r.revisit_id ? 'Decision saved – re-visit job created. Assign it now.' : 'Decision saved'); render(); }); },
-  gotoattention(b, e){ e.preventDefault(); S.dFilter = 'attention'; S.dFilterSet = true; go('dispatch'); },
+  gotoattention(b, e){ e.preventDefault(); S.oTab = 'todo'; go('orders'); },
 };
 const CHANGE = {
   aphub(el){ S.apHub = el.value; S.apDay = null; S.pickSlot = null; render(); },
@@ -3817,7 +3939,7 @@ document.addEventListener('input', e => {
   const k = e.target.dataset && e.target.dataset.in; if (!k) return;
   S[k] = e.target.value;
   if (k === 'oQ') S.oPage = 1;
-  if (k === 'search' || k === 'uSearch' || k === 'pvSearch' || k === 'cSearch' || k === 'oQ') { const pos = e.target.selectionStart; render(); const el = document.querySelector('[data-in="' + k + '"]'); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (x) {} } }
+  if (k === 'search' || k === 'uSearch' || k === 'pvSearch' || k === 'cSearch' || k === 'oQ' || k === 'gQ') { const pos = e.target.selectionStart; render(); const el = document.querySelector('[data-in="' + k + '"]'); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (x) {} } }
   if (k === 'dDate' || k === 'poEnd') render();
 });
 document.addEventListener('input', e => {
@@ -3881,7 +4003,9 @@ window.addEventListener('hashchange', async () => {
   if (route().name === 'profile') S.statsFor = null;   // fresh scores each time Profile opens
   if (route().name === 'users' && S.me && S.me.role === 'admin') { try { await loadProfiles(); } catch (e) { console.warn(e); } }   // new sign-ups show straight away
   const r = route();
-  if (!['dispatch', 'job'].includes(r.name)) S.dEntered = false;   // "New" counts from the last time Dispatch was opened
+  S.side = false; S.gQ = '';
+  if (!['orders', 'job'].includes(r.name)) S.dEntered = false;   // "New" counts from the last time Orders was opened
+  if (r.name !== 'job') { S.dChange = null; S.dTab = null; }
   if (S.me && isStaff() && r.name === 'job') { S.jobPin = null; S.why = null; S.candAll = false; if (S.dTabFor !== Number(r.arg)) S.dTab = null; S.candFor = null; render(); try { await loadCands(r.arg); } catch (e) { console.warn(e); } }
   render(); if (!['job'].includes(r.name)) { toTop(); } else if (window.innerWidth < 900) toTop();
 });
