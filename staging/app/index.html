@@ -181,6 +181,37 @@ label.f>span{display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em
   .otable table td:nth-child(4){flex:1 1 100%;padding-left:96px}.otable table td:nth-child(5){padding-left:96px}
   .otable table tr.isnew td:first-child{box-shadow:none}.otable table tr.isnew{background:#FFF6EE;box-shadow:inset 4px 0 0 var(--orange)}
 }
+/* Taskadooers + Settings sections (v2.1) */
+.tkhead{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.tkstats{display:flex;gap:20px;text-align:center}.tkstats b{display:block;font-size:20px;font-weight:600;color:var(--ink)}.tkstats span{font-size:12px;color:var(--muted)}
+.tktabs{display:flex;gap:4px;border-bottom:1px solid var(--line2);margin:14px 0;overflow-x:auto}
+.tktabs button{min-height:42px;padding:0 14px;border:0;background:none;border-bottom:3px solid transparent;font:500 14px/1 inherit;font-family:inherit;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tktabs button.on{color:var(--ink);border-bottom-color:var(--ink)}
+.tktable tr[data-act]{cursor:pointer}.tktable tr[data-act]:hover td{background:#F8F6F1}
+.setwrap{display:grid;grid-template-columns:270px minmax(0,1fr);gap:16px;align-items:start}
+.setnav{margin:0;padding:6px;position:sticky;top:70px}
+.setnav button{display:block;width:100%;text-align:left;border:0;background:none;border-radius:12px;padding:10px 12px;font:500 14px/1.3 inherit;font-family:inherit;color:#4A4556;cursor:pointer}
+.setnav button small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.setnav button.on{background:var(--blue-soft);color:#0A5C91}.setnav button.on small{color:#0A5C91}
+.setmain>.card:first-child,.setmain>.card[data-sec]{margin-top:0}
+.setmain>.card[data-sec]{display:none}
+.setmain[data-show="fees"]>.card[data-sec="fees"]{display:block;margin-bottom:14px}
+.setmain[data-show="times"]>.card[data-sec="times"]{display:block;margin-bottom:14px}
+.setmain[data-show="cats"]>.card[data-sec="cats"]{display:block;margin-bottom:14px}
+.setmain[data-show="addons"]>.card[data-sec="addons"]{display:block;margin-bottom:14px}
+.setmain[data-show="problems"]>.card[data-sec="problems"]{display:block;margin-bottom:14px}
+.setmain[data-show="matching"]>.card[data-sec="matching"]{display:block;margin-bottom:14px}
+.setmain[data-show="hubs"]>.card[data-sec="hubs"]{display:block;margin-bottom:14px}
+.setmain[data-show="signup"]>.card[data-sec="signup"]{display:block;margin-bottom:14px}
+@media (max-width:900px){.setwrap{grid-template-columns:1fr}.setnav{position:static;display:flex;overflow-x:auto;gap:4px}.setnav button{flex:none;width:auto}.setnav button small{display:none}
+  .tkstats{gap:14px}}
+@media (max-width:700px){
+  main .otable.tktable table td:nth-child(1){flex:1 1 auto;width:auto;min-width:0}
+  main .otable.tktable table td:nth-child(2){padding-left:0;align-self:center}
+  main .otable.tktable table td:nth-child(3),main .otable.tktable table td:nth-child(4){display:none}
+  main .otable.tktable table td:nth-child(n+5){display:none}
+  main .otable.tktable table td:nth-child(2){flex:none}
+}
 /* Dispatch Center */
 .c-orange{color:#A84A10}.c-red{color:#B42318}.c-blue{color:#0A5C91}.c-green{color:#0F6B47}
 .dhead{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:14px}
@@ -740,10 +771,10 @@ const NAV = {
   dispatcher: [['orders','Orders','🗂️'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
   evaluator:  [['evals','Evaluations','📋'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
   applicant:  [['apply','My application','🧰'], ['book','Book','🛠️'], ['profile','Profile','👤']],
-  admin:      [['overview','Overview','🏠'], ['orders','Orders','🗂️'], ['payments','Payments','💳'], ['evals','Evaluations','📋'], ['catalog','Catalogue','📦'], ['users','Users','👥'],
+  admin:      [['overview','Overview','🏠'], ['orders','Orders','🗂️'], ['taskadooers','Taskadooers','🧰'], ['payouts','Payouts','💸'], ['payments','Customer payments','💳'], ['evals','Evaluations','📋'], ['catalog','Catalogue','📦'], ['users','Users','👥'],
                ['settings','Settings','⚙️'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']]
 };
-const SUB = { booking: 'bookings', job: 'orders', dispatch: 'orders', order: 'orders', task: 'tasks', eval: 'evals' };
+const SUB = { taskadooer: 'taskadooers', booking: 'bookings', job: 'orders', dispatch: 'orders', order: 'orders', task: 'tasks', eval: 'evals' };
 // customers who asked to become Taskadooers see their application first
 const isApplicant = () => window.APP_MODE !== 'cust' && role() === 'customer' && ME().requested_role === 'assembler';
 // which app a signed-in person belongs in
@@ -884,7 +915,8 @@ function render(){
   document.body.classList.remove('is-site');
   const V = { book: viewBook, bookings: viewBookings, booking: viewBooking, overview: viewOverview, job: viewOrders, orders: viewOrders, order: viewOrder,
     tasks: viewTasks, task: viewTask, calendar: viewCalendar, earnings: viewEarnings, profile: viewProfile, catalog: viewCatalog, users: viewUsers,
-    settings: viewSettings, payments: viewPayments, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo,
+    settings: viewSettings, payments: () => { S.payTab = 'in'; return viewPayments(); }, payouts: () => { S.payTab = 'payouts'; return viewPayments(); },
+    taskadooers: viewTaskadooers, taskadooer: viewTaskadooer, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo,
     apply: viewApply, evals: viewEvals, eval: viewEvals };
   const active = SUB[r.name] || r.name;
   const tabs = tabsFor();
@@ -984,7 +1016,7 @@ function renderWrongApp(){
   badge(); tgPaint();
 }
 // Staff portal: grouped side menu (☰ on phones), search everything, less bold
-const SIDE = [['Today', ['overview']], ['Jobs', ['orders']], ['Taskadooers', ['evals']], ['Money', ['payments']], ['Setup', ['catalog', 'settings', 'users']], ['Help', ['whatsnew', 'tests']]];
+const SIDE = [['Today', ['overview']], ['Jobs', ['orders']], ['Taskadooers', ['taskadooers', 'evals', 'payouts']], ['Money', ['payments']], ['Setup', ['catalog', 'settings', 'users']], ['Help', ['whatsnew', 'tests']]];
 function sideCount(k, active){
   if (k === 'orders') { const n = active !== 'orders' ? newSinceSeen() : 0; return n ? n + ' new' : S.jobs.filter(toDispatch).length || ''; }
   if (k === 'evals') return (S.apps || []).filter(a => a.status === 'booked' && a.slot_at && manilaDay(a.slot_at) === todayISO()).length || '';
@@ -1583,6 +1615,99 @@ function candCard(j){
 const pickOpts = (j, selId) => `<option value="">— none —</option>` + (S.assemblers || []).map(a => ({ a, s: candScore(a, j) })).sort((x, y) => y.s.total - x.s.total)
   .map(({ a, s }) => `<option value="${esc(a.id)}" ${a.id === selId ? 'selected' : ''} ${s.block && a.id !== selId ? 'disabled' : ''}>${esc(a.full_name)} · ${s.total}${a.km != null ? ' · ' + a.km + ' km' : ''}${s.block ? ' – ' + esc(s.block) : s.warn ? ' – ' + esc(s.warn) : ''}</option>`).join('');
 
+/* ───────────── Taskadooers list + profile (Admin) ───────────── */
+const shareOf = (j, uid) => { const s = split(j); return j.lead_id === uid ? s.lead : j.helper_id === uid ? s.helper : 0; };
+const tkApp = p => (S.apps || []).find(a => a.user_id === p.id) || null;
+const tkJobs = p => S.jobs.filter(j => j.lead_id === p.id || j.helper_id === p.id);
+function tkStatus(p){
+  if (!p.active) return ['Paused', 'red'];
+  if (tkJobs(p).some(isLive)) return ['On a job', 'blue'];
+  const a = (S.assemblers || []).find(x => x.id === p.id);
+  if (a ? a.online : isOnline(p)) return ['Online', 'green'];
+  const av = availOn(p, todayISO());
+  return [av === 'ok' || av === 'outside' ? 'Offline' : 'Day off', ''];
+}
+const TK_FILTERS = [['all', 'All', () => true], ['online', 'Online now', p => tkStatus(p)[0] === 'Online'], ['job', 'On a job', p => tkStatus(p)[0] === 'On a job'],
+  ['mober', 'Mober employees', p => p.mober_emp], ['paused', 'Paused', p => !p.active]];
+function viewTaskadooers(){
+  const s = String(S.tkQ || '').trim().toLowerCase(), f = TK_FILTERS.find(x => x[0] === S.tkF) || TK_FILTERS[0];
+  const all = (S.profiles || []).filter(p => p.role === 'assembler');
+  const list = all.filter(p => f[2](p) && (!s || [p.full_name, p.email, p.mobile, p.area, p.home_address].join(' ').toLowerCase().includes(s)))
+    .sort((a, b) => (tkStatus(a)[0] === 'Online' ? 0 : 1) - (tkStatus(b)[0] === 'Online' ? 0 : 1) || String(a.full_name).localeCompare(String(b.full_name)));
+  const t = todayISO(), wk = addDays(t, -((new Date(t + 'T00:00:00Z').getUTCDay() + 6) % 7));
+  const stat = p => { const a = (S.assemblers || []).find(x => x.id === p.id) || {}; const mine = tkJobs(p);
+    return { done: mine.filter(j => j.status === 'done').length, rating: a.rating, week: mine.filter(j => j.job_date >= wk && j.job_date <= addDays(wk, 6) && !['cancelled', 'new'].includes(j.status)).length }; };
+  return `<div class="row" style="margin-bottom:12px;align-items:flex-end"><div class="grow" style="min-width:220px"><h1>Taskadooers</h1>
+      <div class="muted">Everyone who passed the evaluation. Click a name for their full profile.</div></div>
+      <label style="flex:0 1 280px"><span class="sr">Search Taskadooers</span><input data-in="tkQ" value="${esc(S.tkQ || '')}" placeholder="Search name, mobile or area" style="margin:0;background:#fff"></label></div>
+    <div class="otabs" style="margin-bottom:12px">${TK_FILTERS.map(x => `<button class="otab ${f[0] === x[0] ? 'on' : ''}" data-act="tkf" data-v="${x[0]}">${esc(x[1])}<span>${all.filter(x[2]).length}</span></button>`).join('')}</div>
+    ${list.length ? `<div class="card" style="padding:0;overflow:hidden"><div class="otable tktable"><table>
+      <thead><tr><th>Taskadooer</th><th>Status</th><th>Area · travel</th><th>Builds</th><th>Jobs done</th><th>Rating</th><th>This week</th></tr></thead>
+      <tbody>${list.map(p => { const st = tkStatus(p), x = stat(p); return `<tr data-act="opentk" data-id="${esc(p.id)}">
+        <td><a href="#/taskadooer/${esc(p.id)}" class="row" style="gap:10px;flex-wrap:nowrap;text-decoration:none"><span class="avc soft">${esc(initials(p.full_name || p.email))}</span><span>${esc(p.full_name || p.email)}<span class="tiny muted" style="display:block">${esc(p.mobile || p.email)}</span></span></a></td>
+        <td><span class="chip ${st[1]}">${esc(st[0])}</span></td>
+        <td class="nw">${esc(p.area || p.home_address || '—')}<div class="tiny muted">${p.home_lat != null ? 'up to ' + (num(p.radius_km) || num(S.settings.match_km) || 30) + ' km' : 'no home pin'}</div></td>
+        <td class="small" style="max-width:240px">${esc((p.skills || []).join(', ') || '—')}</td>
+        <td>${x.done}</td><td>${x.rating ? '★ ' + esc(x.rating) : '<span class="muted">new</span>'}</td><td>${x.week} job${x.week === 1 ? '' : 's'}</td></tr>`; }).join('')}</tbody></table></div></div>`
+      : `<div class="card empty"><div class="ic">🧰</div>${all.length ? 'No Taskadooers match.' : 'No Taskadooers yet. They appear here after passing the evaluation.'}</div>`}`;
+}
+const TK_TABS = [['about', 'About'], ['jobs', 'Jobs'], ['avail', 'Availability'], ['pay', 'Earnings & payouts'], ['docs', 'Documents']];
+function viewTaskadooer(id){
+  const p = (S.profiles || []).find(x => x.id === id);
+  if (!p) return `<p><a href="#/taskadooers">‹ All Taskadooers</a></p><div class="card empty">Taskadooer not found.</div>`;
+  const st = tkStatus(p), s = needStats(p.id), app = tkApp(p), d = (app && app.data) || {}, tab = S.tkTab || 'about';
+  const pct = (a, b) => (num(b) ? Math.round(num(a) / num(b) * 100) + '%' : '—');
+  const mine = tkJobs(p).slice().sort((a, b) => b.job_date.localeCompare(a.job_date) || slotMin(b.slot) - slotMin(a.slot));
+  const month = todayISO().slice(0, 7), earned = mine.filter(j => j.status === 'done' && (j.completed_at || '').slice(0, 7) === month).reduce((x, j) => x + shareOf(j, p.id), 0);
+  const scores = Object.values((app && app.score) || {}).map(Number).filter(v => v > 0), ev = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '';
+  S.tkPin = p.home_lat != null ? [p.home_lat, p.home_lng] : null;
+  let body = '';
+  if (tab === 'about') body = `<div class="ogrid2">
+      <div class="card"><h3>Work</h3><dl class="kv">
+        <dt>Builds</dt><dd>${esc((p.skills || []).join(', ') || '—')}</dd>
+        <dt>Experience</dt><dd>${esc(d.years ? yearsTxt(d.years) + ' before Taskadoo' : '—')}</dd>
+        <dt>Evaluation</dt><dd>${ev ? esc(ev) + ' / 5' : '—'}${app && app.evaluated_at ? ' · passed ' + esc(fmtDate(app.evaluated_at)) : ''}</dd>
+        <dt>Mober employee</dt><dd>${p.mober_emp ? 'Yes' : 'No'}</dd>
+        <dt>Own tools</dt><dd>${d.tools === true || d.tools === 'true' ? 'Yes' : d.tools === false || d.tools === 'false' ? 'No' : '—'}</dd></dl></div>
+      <div class="card"><h3>Home &amp; travel</h3><dl class="kv">
+        <dt>Home</dt><dd>${esc(p.home_address || '—')}</dd>
+        <dt>Travels up to</dt><dd>${num(p.radius_km) || num(S.settings.match_km) || 30} km</dd>
+        <dt>Today</dt><dd>${esc(AVAIL_LABEL[availOn(p, todayISO())] || '')}</dd></dl>
+        ${S.tkPin ? `<div style="margin-top:10px">${mapBox('tk', p.home_address || '', true)}</div>` : '<div class="tiny muted" style="margin-top:8px">No home pin yet – the Taskadooer sets it in their app (Profile → Home location).</div>'}</div>
+      <div class="card"><h3>Pay</h3><dl class="kv">
+        <dt>GCash</dt><dd>${esc([p.gcash_name, p.gcash_number].filter(Boolean).join(' · ') || '—')}</dd>
+        <dt>This month</dt><dd>${money(earned)} earned</dd></dl></div>
+      <div class="card"><h3>Customer comments</h3>${s && (s.comments || []).filter(c => c.note).length ? s.comments.filter(c => c.note).slice(0, 4).map(c => `<div class="small" style="margin-bottom:6px"><span style="color:#F5A623">${stars(c.stars)}</span> “${esc(c.note)}” <span class="tiny muted">· ${esc(fmtDate(c.at))}</span></div>`).join('') : '<div class="small muted">No comments yet.</div>'}</div>
+    </div>`;
+  if (tab === 'jobs') body = `<div class="card" style="padding:0;overflow:hidden">${mine.length ? `<div class="otable"><table><thead><tr><th>When</th><th>Order</th><th>Role</th><th>Status</th><th class="r">Their share</th></tr></thead><tbody>
+      ${mine.map(j => `<tr data-act="opentkjob" data-id="${j.id}"><td class="nw">${esc(whenTxt(j))}<div class="tiny muted">${esc(j.slot)}</div></td><td><a href="#/order/${j.id}">${esc(itemsSummary(j))}</a><div class="tiny muted">${esc(j.code)} · ${esc(j.area || '')}</div></td>
+        <td>${j.lead_id === p.id ? 'Lead' : 'Extra'}</td><td>${statusChip(j)}</td><td class="r nw">${money(shareOf(j, p.id))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">No jobs yet.</div>'}</div>`;
+  if (tab === 'avail') { const a = p.avail || {}, w = a.week || {};
+    body = `<div class="card"><h3>Usual week</h3>${DAYS.map(k => { const x = w[k]; return `<div class="row small" style="padding:7px 0;border-top:1px solid var(--line)"><span style="width:110px">${DAY_NAME[k]}</span>
+        <span>${!x ? 'Any time' : x.m === 'off' ? 'Day off' : x.m === 'shift' ? 'Mober shift' : (x.from && x.to ? esc(x.from) + ' – ' + esc(x.to) : 'Any time')}</span></div>`; }).join('')}
+      <h3 style="margin-top:16px">Days off</h3><div class="small">${(a.off || []).filter(x => x >= todayISO()).sort().map(x => esc(fmtDate(x))).join(' · ') || 'None coming up.'}</div>
+      <div class="tiny muted" style="margin-top:10px">The Taskadooer sets this in their app (Calendar).</div></div>`; }
+  if (tab === 'pay') { const po = (S.payouts || []).filter(x => x.assembler_id === p.id);
+    body = `<div class="card"><h3>Payouts</h3>${po.length ? po.map(x => `<div class="row small" style="padding:8px 0;border-top:1px solid var(--line)"><span class="grow">Week to ${esc(fmtDate(x.period_end))}</span>
+        <span class="chip ${x.status === 'sent' ? 'green' : x.status === 'pending' ? 'orange' : ''}">${esc(x.status === 'sent' ? 'Sent' + (x.reference ? ' · ' + x.reference : '') : x.status === 'pending' ? 'To send' : 'Cancelled')}</span><span style="width:110px;text-align:right">${money2(x.amount)}</span></div>`).join('')
+      : '<div class="small muted">No payouts yet.</div>'}<div class="tiny muted" style="margin-top:10px">Payouts are made every Monday in <a href="#/payouts">Payouts</a>.</div></div>`; }
+  if (tab === 'docs') { const docs = (app && app.docs) || {}, L = { lic: "Driver's license", id: 'ID', nbi: 'NBI clearance', med: 'Medical certificate' };
+    body = `<div class="card"><h3>Documents</h3>${Object.keys(L).filter(k => docs[k]).map(k => `<div class="row small" style="padding:8px 0;border-top:1px solid var(--line)"><span class="grow">${L[k]}</span>
+        <span class="chip ${docs[k].ok === true ? 'green' : docs[k].ok === false ? 'red' : 'orange'}">${docs[k].ok === true ? 'OK' : docs[k].ok === false ? 'Not OK' : 'Not checked'}</span></div>`).join('') || '<div class="small muted">No documents on file.</div>'}
+      ${app ? `<div style="margin-top:10px"><a class="small" href="#/eval/${esc(app.id)}">Open their evaluation</a>${app.lic_no ? ' · <span class="tiny muted">License ' + esc(app.lic_no) + '</span>' : ''}</div>` : ''}</div>`; }
+  return `<p style="margin:0 0 12px"><a href="#/taskadooers">‹ All Taskadooers</a></p>
+    <div class="card tkhead"><span class="avc" style="width:60px;height:60px;font-size:20px">${esc(initials(p.full_name || p.email))}</span>
+      <div class="grow" style="min-width:220px"><div class="row" style="gap:8px"><h1 style="margin:0">${esc(p.full_name || p.email)}</h1><span class="chip ${st[1]}">${esc(st[0])}</span>${p.mober_emp ? '<span class="chip ink">Mober</span>' : ''}</div>
+        <div class="small muted">${esc(p.area || '')}${p.area ? ' · ' : ''}Taskadooer since ${esc(fmtDate(p.created_at))} · <a href="${telHref(p.mobile)}">${esc(p.mobile || '')}</a></div></div>
+      <div class="tkstats"><div><b>${s ? num(s.done) : '…'}</b><span>jobs done</span></div><div><b>${s && s.rating ? '★ ' + num(s.rating).toFixed(1) : '—'}</b><span>rating</span></div>
+        <div><b>${s ? pct(s.on_time, s.arrived) : '…'}</b><span>on time</span></div><div><b>${s ? pct(s.accepted, num(s.accepted) + num(s.declined)) : '…'}</b><span>accepts offers</span></div></div>
+      <div class="row">${S.me.role === 'admin' && !inPreview() ? `<button class="btn soft small" data-act="pvperson" data-id="${esc(p.id)}">Preview their app</button>` : ''}
+        <button class="btn ghost small" data-act="tkmober" data-id="${esc(p.id)}">${p.mober_emp ? 'Not a Mober employee' : 'Mark as Mober employee'}</button>
+        <button class="btn ghost small ${p.active ? 'red-t' : ''}" data-act="tkactive" data-id="${esc(p.id)}">${p.active ? 'Pause account' : 'Activate account'}</button></div></div>
+    <div class="tktabs" role="tablist">${TK_TABS.map(x => `<button role="tab" aria-selected="${tab === x[0]}" class="${tab === x[0] ? 'on' : ''}" data-act="tktab" data-v="${x[0]}">${esc(x[1])}</button>`).join('')}</div>
+    ${body}`;
+}
+
 /* ───────────── Overview (Admin's first page) ───────────── */
 function viewOverview(){
   const t = todayISO(), h = new Date(Date.now() + 8 * 3600e3).getUTCHours();
@@ -2039,8 +2164,9 @@ function viewPayments(){
       : `<div class="empty">Nothing to collect yet.</div>`}</div>`;
 }
 
-const payTabs = () => `<div class="row" style="margin-bottom:14px"><h1 class="grow">Payments</h1>
-  <div class="tabs2" style="margin:0;width:auto"><button class="${S.payTab !== 'payouts' ? 'on' : ''}" data-act="paytab" data-v="in">From customers</button><button class="${S.payTab === 'payouts' ? 'on' : ''}" data-act="paytab" data-v="payouts">To Taskadooers</button></div>
+const payTabs = () => `<div class="row" style="margin-bottom:14px"><div class="grow"><h1>${S.payTab === 'payouts' ? 'Payouts to Taskadooers' : 'Customer payments'}</h1>
+    <div class="muted">${S.payTab === 'payouts' ? 'Every Monday by GCash. Taskadoo pays the transfer fee.' : 'What customers owe and have paid.'}</div></div>
+  <button class="btn ghost small" data-act="paytab" data-v="${S.payTab === 'payouts' ? 'in' : 'payouts'}">${S.payTab === 'payouts' ? 'Customer payments →' : 'Payouts →'}</button>
   <button class="btn ghost small" data-act="payreload">↻ Refresh</button></div>`;
 const lastSunday = () => { const t = todayISO(), dow = new Date(t + 'T00:00:00Z').getUTCDay(); return addDays(t, -dow); };
 function viewPayouts(){
@@ -2223,30 +2349,40 @@ function sdExample(d){ const t = 1000, cut = t * num(d.commission) / 100, pool =
 function sdPaint(){ const b = document.getElementById('sdbar'); if (b) b.hidden = !sdDirty(); document.body.classList.toggle('has-sd', !!b && !b.hidden);
   const ex = document.getElementById('sd_ex'); if (ex && S.sd) ex.textContent = sdExample(S.sd);
   const pv = document.getElementById('sd_pay_prev'); if (pv && S.sd) pv.textContent = '💳 ' + (S.sd.payment_note || ''); }
+// Settings in sections: a short list on the left, one section at a time, one Save bar for all
+const SET_SECS = [['fees', 'Fees & payment', d => num(d.commission) + '% Taskadoo · lead ' + num(d.lead_pct) + '%'],
+  ['times', 'Booking times & areas', d => (d.slots || []).length + ' times · ' + (d.areas || []).length + ' areas'],
+  ['cats', 'Categories', d => (d.categories || []).length + ' on the website'],
+  ['addons', 'Add-ons', d => (d.addons || []).length + ' extra services'],
+  ['problems', 'Problems & cancellations', d => num(d.dispute_hours || 24) + ' h to report · ' + money(d.cancel_fee || 300) + ' late fee'],
+  ['matching', 'Matching & offers', d => num(d.match_km || 30) + ' km · ' + num(d.offer_minutes || 30) + ' min to accept'],
+  ['hubs', 'Hubs & interviews', d => (d.hubs || []).map(h => h.name).join(', ') || 'no hubs yet'],
+  ['signup', 'Sign-up rules', d => 'age ' + num(d.min_age || 21) + ' · re-apply after ' + num(d.reapply_months || 3) + ' months']];
+const setNav = d => `<nav class="setnav card" aria-label="Settings sections">${SET_SECS.map(x => `<button class="${(S.setSec || 'fees') === x[0] ? 'on' : ''}" data-act="setsec" data-v="${x[0]}">${esc(x[1])}<small>${esc(x[2](d))}</small></button>`).join('')}</nav>`;
 function viewSettings(){
   const d = sdInit(), catCount = id => S.catalog.filter(c => c.cat === id).length;
   const chip = (k, v, i) => `<span class="chip" style="font-size:13.5px;padding:6px 6px 6px 12px;background:#fff">${esc(v)}<button class="linkbtn" data-act="sdrm" data-k="${k}" data-i="${i}" aria-label="Remove ${esc(v)}" style="text-decoration:none;color:var(--muted);padding:0 4px">✕</button></span>`;
   const numf = (k, label, help, min, max, step) => `<label class="f"><span>${label}</span><input type="number" data-sd="${k}" value="${esc(d[k])}" min="${min}" max="${max}" step="${step || 1}"><div class="tiny muted" style="margin-top:4px">${help}</div></label>`;
-  return `<div class="narrow" style="padding-bottom:70px"><h1 style="margin-bottom:14px">Settings</h1>
-    <div class="card"><h3 style="margin-bottom:12px">Fees &amp; commission</h3>
+  return `<h1 style="margin-bottom:14px">Settings</h1><div class="setwrap">${setNav(d)}<div class="setmain" data-show="${esc(S.setSec || 'fees')}">
+    <div class="card" data-sec="fees"><h3 style="margin-bottom:12px">Fees &amp; commission</h3>
       <div class="grid2">${numf('commission', 'Taskadoo commission %', 'Taken from every job fee.', 0, 90)}${numf('lead_pct', 'Lead share of the crew pool %', 'Only on jobs with 2 or more Taskadooers.', 0, 100)}</div>
       <label class="f"><span>Currency</span><select data-sd="currency"><option ${d.currency !== 'THB' ? 'selected' : ''}>PHP</option><option ${d.currency === 'THB' ? 'selected' : ''}>THB</option></select></label>
       <div class="notice small" id="sd_ex">${esc(sdExample(d))}</div>
       <div class="tiny muted" style="margin-top:6px">New bookings use these numbers. Existing bookings keep the numbers they were booked with.</div></div>
-    <div class="card"><h3 style="margin-bottom:4px">Time slots</h3><div class="tiny muted" style="margin-bottom:10px">The arrival times customers can pick.</div>
+    <div class="card" data-sec="times"><h3 style="margin-bottom:4px">Time slots</h3><div class="tiny muted" style="margin-bottom:10px">The arrival times customers can pick.</div>
       <div class="row" style="gap:8px">${(d.slots || []).map((v, i) => chip('slots', v, i)).join('') || '<span class="muted small">No time slots – add at least one.</span>'}</div>
       <div class="row" style="margin-top:12px"><input type="time" id="sd_time" style="width:auto" value="09:00"><button class="btn soft small" data-act="sdaddslot">+ Add time</button></div></div>
-    <div class="card"><h3 style="margin-bottom:4px">Service areas</h3><div class="tiny muted" style="margin-bottom:10px">Cities customers can choose when booking.</div>
+    <div class="card" data-sec="times"><h3 style="margin-bottom:4px">Service areas</h3><div class="tiny muted" style="margin-bottom:10px">Cities customers can choose when booking.</div>
       <div class="row" style="gap:8px">${(d.areas || []).map((v, i) => chip('areas', v, i)).join('')}</div>
       <div class="row" style="margin-top:12px"><input id="sd_area" placeholder="Example: Cebu City" style="flex:1;min-width:160px"><button class="btn soft small" data-act="sdaddarea">+ Add area</button></div></div>
-    <div class="card"><h3 style="margin-bottom:4px">Categories</h3><div class="tiny muted" style="margin-bottom:10px">Shown as tabs on the booking page, in this order.</div>
+    <div class="card" data-sec="cats"><h3 style="margin-bottom:4px">Categories</h3><div class="tiny muted" style="margin-bottom:10px">Shown as tabs on the booking page, in this order.</div>
       <div class="list">${(d.categories || []).map((c, i, a) => `<div class="li" style="cursor:default;padding:8px 10px"><div class="row" style="gap:6px">
         <input data-cat="${i}" value="${esc(c.name)}" style="flex:1;min-width:120px"><span class="tiny muted" style="width:60px;text-align:center">${catCount(c.id)} items</span>
         <button class="tg-x" data-act="sdmove" data-i="${i}" data-d="-1" ${i ? '' : 'disabled'} aria-label="Move up">↑</button>
         <button class="tg-x" data-act="sdmove" data-i="${i}" data-d="1" ${i < a.length - 1 ? '' : 'disabled'} aria-label="Move down">↓</button>
         <button class="tg-x" data-act="sdrm" data-k="categories" data-i="${i}" ${catCount(c.id) ? 'disabled title="Move or delete its items first"' : ''} aria-label="Delete">✕</button></div></div>`).join('')}</div>
       <div class="row" style="margin-top:12px"><input id="sd_cat" placeholder="New category, e.g. Outdoor" style="flex:1;min-width:160px"><button class="btn soft small" data-act="sdaddcat">+ Add category</button></div></div>
-    <div class="card"><h3 style="margin-bottom:12px">Problems, cancellations &amp; missed visits</h3>
+    <div class="card" data-sec="problems"><h3 style="margin-bottom:12px">Problems, cancellations &amp; missed visits</h3>
       <div class="grid2">
         ${numf('dispute_hours', 'Hours to report a problem', 'After the job is completed. Taskadooer payouts are held until then.', 1, 168)}
         ${numf('cancel_free_hours', 'Free cancellation until … hours before', 'Later than this, the fee below applies.', 0, 168)}
@@ -2255,12 +2391,16 @@ function viewSettings(){
         ${numf('fail_pct', 'Failed-visit fee % of the job', 'When nobody is home.', 0, 100)}
         ${numf('fail_max', 'Failed-visit fee maximum (' + cur() + ')', 'The fee is never more than this.', 0, 100000, 50)}
       </div></div>
-    <div class="card"><h3 style="margin-bottom:12px">Matching &amp; offers</h3>
+    <div class="card" data-sec="matching"><h3 style="margin-bottom:12px">Matching &amp; offers</h3>
       <div class="grid2">${numf('match_km', 'Suggest Taskadooers within (km)', 'Straight-line distance from their home to the customer.', 1, 200)}
-        ${numf('offer_minutes', 'Minutes to accept an offer', 'Not accepted in time → back to Dispatch as "Not answered". 0 = no limit.', 0, 1440, 5)}
-        ${numf('reapply_months', 'Re-apply after a failed interview (months)', 'The same driver\'s license can apply again after this.', 0, 36)}</div>
+        ${numf('offer_minutes', 'Minutes to accept an offer', 'Not accepted in time → back to Orders as "Not answered". 0 = no limit.', 0, 1440, 5)}
+        ${numf('travel_min', 'Travel time between two jobs (minutes)', 'Used to spot double-booking: job length plus this.', 0, 240, 15)}
+        ${numf('urgent_hours', '"Needs you" when unfilled this close (hours)', 'Orders without a Taskadooer this close to the start turn red.', 1, 48)}</div>
+      <div class="notice small">Matching mode: <b>Manual</b> – the system suggests the best Taskadooer, a person taps Offer. Auto-assign comes later.</div></div>
+    <div class="card" data-sec="signup"><h3 style="margin-bottom:12px">Re-applying &amp; past work</h3>
+      <div class="grid2">${numf('reapply_months', 'Re-apply after a failed interview (months)', 'The same driver\'s license can apply again after this.', 0, 36)}</div>
       <label class="row small" style="gap:6px"><input type="checkbox" data-sd="past_work" ${d.past_work !== false ? 'checked' : ''} style="width:auto"> Ask for optional photos of past work at sign-up</label></div>
-    <div class="card"><h3 style="margin-bottom:4px">Add-on services</h3><div class="tiny muted" style="margin-bottom:10px">Extras the Taskadooer can offer on site. The customer approves them when signing; they're added to the bill and split like the job (Taskadoo commission, then lead / extra).</div>
+    <div class="card" data-sec="addons"><h3 style="margin-bottom:4px">Add-on services</h3><div class="tiny muted" style="margin-bottom:10px">Extras the Taskadooer can offer on site. The customer approves them when signing; they're added to the bill and split like the job (Taskadoo commission, then lead / extra).</div>
       <div class="list">${(d.addons || []).map((x, i) => `<div class="li" style="cursor:default;padding:8px 10px"><div class="row" style="gap:6px">
         <input data-ao="${i}" data-f="name" value="${esc(x.name)}" placeholder="Service name" style="flex:2;min-width:140px">
         <input data-ao="${i}" data-f="price" type="number" min="0" step="10" value="${esc(x.price)}" style="width:100px" aria-label="Price">
@@ -2268,7 +2408,7 @@ function viewSettings(){
         <button class="tg-x" data-act="sdrm" data-k="addons" data-i="${i}" aria-label="Delete">✕</button></div></div>`).join('') || '<div class="muted small">No add-on services.</div>'}</div>
       <div class="row" style="margin-top:12px"><input id="sd_ao" placeholder="New service, e.g. Door adjustment" style="flex:1;min-width:160px"><button class="btn soft small" data-act="sdaddao">+ Add service</button></div>
       <div class="grid2" style="margin-top:12px">${numf('photo_min', 'Photos needed before sign-off', 'Guided shots: before, after (front), after (wide), area left clean.', 1, 10)}${numf('late_min', '"On time" means arriving within … minutes', 'Used for the on-time score in the Taskadooer\'s profile.', 0, 60)}</div></div>
-    <div class="card"><h3 style="margin-bottom:4px">Hubs</h3><div class="tiny muted" style="margin-bottom:10px">Where evaluations are held. The address is shown to applicants with a Directions button.</div>
+    <div class="card" data-sec="hubs"><h3 style="margin-bottom:4px">Hubs</h3><div class="tiny muted" style="margin-bottom:10px">Where evaluations are held. The address is shown to applicants with a Directions button.</div>
       <div class="list">${(d.hubs || []).map((h, i) => `<div class="li" style="cursor:default;padding:10px 12px"><div class="row" style="gap:6px">
         <input data-hub="${i}" data-f="name" value="${esc(h.name)}" placeholder="Hub name" style="flex:1;min-width:120px">
         <input data-hub="${i}" data-f="address" value="${esc(h.address || '')}" placeholder="Full address" style="flex:2;min-width:160px">
@@ -2286,7 +2426,7 @@ function viewSettings(){
         <div class="row" style="margin-top:8px"><label class="row small" style="gap:6px"><input type="checkbox" data-hubi="${i}" data-hubf="walkin" ${h.walkin !== false ? 'checked' : ''} style="width:auto"> Walk-ins allowed</label>
           ${h.walkin !== false ? `<button class="btn ghost small" data-act="hubqr" data-i="${i}">Walk-in QR poster</button>` : ''}</div></div>`).join('')}</div>
       <div class="row" style="margin-top:12px"><input id="sd_hub" placeholder="New hub, e.g. Cebu Hub" style="flex:1;min-width:160px"><button class="btn soft small" data-act="sdaddhub">+ Add hub</button></div></div>
-    <div class="card"><h3 style="margin-bottom:12px">Taskadooer sign-up &amp; evaluation</h3>
+    <div class="card" data-sec="signup"><h3 style="margin-bottom:12px">Taskadooer sign-up &amp; evaluation</h3>
       <div class="grid2" style="grid-template-columns:repeat(3,1fr)">
         ${numf('joining_fee', 'Joining fee (' + cur() + ')', '0 = free. Paid at the evaluation.', 0, 100000, 50)}
         ${numf('min_age', 'Minimum age', 'Younger applicants can\'t continue.', 18, 70)}
@@ -2300,7 +2440,7 @@ function viewSettings(){
         <input data-ei="${i}" data-f="label" value="${esc(it.label)}" style="flex:1;min-width:140px">
         <button class="tg-x" data-act="sdrm" data-k="eval_items" data-i="${i}" aria-label="Delete">✕</button></div></div>`).join('')}</div>
       <div class="row" style="margin-top:10px"><input id="sd_ei" placeholder="New item, e.g. Wears safety shoes" style="flex:1;min-width:160px"><button class="btn soft small" data-act="sdaddei">+ Add item</button></div></div>
-    <div class="card"><h3 style="margin-bottom:12px">Payment note</h3>
+    <div class="card" data-sec="fees"><h3 style="margin-bottom:12px">Payment note</h3>
       <label class="f"><span>Shown to customers on their booking</span><textarea data-sd="payment_note">${esc(d.payment_note || '')}</textarea></label>
       <div class="tiny muted b" style="margin-bottom:6px">PREVIEW</div><div class="notice warn" id="sd_pay_prev">💳 ${esc(d.payment_note || '')}</div></div>
     ${S.qrModal ? `<div class="modal-bg" data-act="qrclose"><div class="modal" style="max-width:380px;text-align:center"><h2 style="margin-bottom:6px">${esc(S.qrModal.title)}</h2>
@@ -2309,7 +2449,7 @@ function viewSettings(){
       ${sdDirty() ? '<div class="notice warn small">Save settings first – the QR works once this hub is saved.</div>' : ''}<button class="btn ghost" data-act="qrclose">Close</button></div></div>` : ''}
     <div class="sdbar" id="sdbar" ${sdDirty() ? '' : 'hidden'}><div class="sdbar-in"><span class="grow b">You have unsaved changes</span>
       <button class="btn ghost small" data-act="sdundo">Undo</button><button class="btn small" data-act="savesettings">Save settings</button></div></div>
-  </div>`;
+  </div></div>`;
 }
 
 /* ───────────── Photos & signature ───────────── */
@@ -2348,6 +2488,12 @@ function sigPad(c){
 // for: roles that see the line (customer, enterprise, Taskadooer, dispatcher, admin) or 'all'.
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
+  { v: '2.1', d: '2026-10-27', where: 'staging', title: 'Taskadooers page, Settings in sections, Payouts on its own', changes: [
+    { k: 'New', t: 'Taskadooers (menu → Taskadooers): everyone who passed, with status (online, on a job, day off, paused), area and travel distance, what they build, jobs done, rating and jobs this week. Filters for online, on a job, Mober employees and paused.', for: ['admin'] },
+    { k: 'New', t: 'Click a Taskadooer for their profile: jobs done, rating, on-time and how often they accept offers, plus tabs for About, Jobs, Availability, Earnings & payouts and Documents. Buttons to preview their app, mark them as a Mober employee, or pause their account.', for: ['admin'] },
+    { k: 'Improved', t: 'Settings is split into sections with a one-line summary each (Fees & payment, Booking times & areas, Categories, Add-ons, Problems & cancellations, Matching & offers, Hubs & interviews, Sign-up rules). Open one at a time; one Save bar for all. Matching & offers now also has travel time between jobs and when an unfilled order turns red.', for: ['admin'] },
+    { k: 'Improved', t: 'Payouts to Taskadooers is its own page under Taskadooers; Customer payments is under Money.', for: ['admin'] }
+  ] },
   { v: '2.0', d: '2026-10-27', where: 'staging', title: 'New staff portal: side menu, Overview, and dispatch from Orders', changes: [
     { k: 'New', t: 'The staff portal has a menu on the left, grouped by kind of work (Today, Jobs, Taskadooers, Money, Setup, Help), with counts on pages that need you. On a phone tap ☰ to open it. Your name, Profile and Sign out are at the bottom of the menu.', for: ['admin', 'dispatcher', 'evaluator'] },
     { k: 'New', t: 'Overview (Admin\'s first page): what needs you, jobs today, Taskadooers online, what customers owe, payouts to send, the next jobs and today\'s interviews.', for: ['admin'] },
@@ -2438,6 +2584,14 @@ const WHATSNEW = [
 ];
 // Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
 const WN_TESTS = {
+  '2.1': [
+    ['K1', 'Admin', 'Taskadooers list', ['Menu → Taskadooers.', 'Tap Online now, then All. Type a name in the search box.'], 'A table of Taskadooers with status, area, what they build, jobs done, rating and this week. The tabs and search narrow the list.'],
+    ['K2', 'Admin', 'A Taskadooer\'s profile', ['Click a Taskadooer.', 'Tap each tab: About, Jobs, Availability, Earnings & payouts, Documents.'], 'The top shows jobs done, rating, on time and accepts offers. Each tab shows that part (their home on a map, their jobs, their week, payouts, documents).'],
+    ['K3', 'Admin', 'Pause and activate', ['On a test Taskadooer\'s profile tap Pause account, then Activate account.'], 'The status changes to Paused, then back. While paused they can\'t sign in or get offers.'],
+    ['K4', 'Admin', 'Settings sections', ['Menu → Settings. Tap Matching & offers and change a number.', 'Tap another section, then tap Undo on the bar at the bottom.'], 'Only one section shows at a time, each with a summary on the left. The "unsaved changes" bar stays while you switch sections; Undo puts the number back.'],
+    ['K5', 'Admin', 'Payouts page', ['Menu → Payouts. Then tap "Customer payments →".'], 'Payouts to Taskadooers opens on its own page; the button takes you to Customer payments.'],
+    ['K6', 'Admin', 'On a phone', ['Open Taskadooers and Settings on your phone.'], 'Taskadooers show as a simple list with name and status. Settings sections are buttons along the top you can swipe.']
+  ],
   '2.0': [
     ['O1', 'Admin, Dispatcher, Evaluator', 'The side menu', ['Sign in to the staff portal on a computer.', 'On a phone, tap ☰ at the top left.'], 'A menu on the left with groups (Admin: Today, Jobs, Taskadooers, Money, Setup, Help). A Dispatcher sees only Orders and Help. On a phone the menu slides in and closes when you tap outside it.'],
     ['O2', 'Admin', 'Overview', ['Sign in as Admin.'], 'You land on Overview: "Needs you", jobs today, Taskadooers online, customers owe, payouts to send, next jobs and interviews today. Each box opens the right page.'],
@@ -2580,6 +2734,7 @@ const WN_TESTS = {
 };
 // Preparation a test needs
 const WN_SETUP = {
+  K3: 'Use a test Taskadooer (e.g. assembler.ana@test.taskadoo.ph), not a real one.',
   O3: 'You need a second browser or phone signed in as a customer (or a guest booking).', O4: 'Needs a 2-person order (e.g. a PAX wardrobe) and two Taskadooers free that day.',
   O5: 'Do O4 first.', O6: 'Do O4 first – the Taskadooer you offered is now busy at that time.', O10: 'Sign in as dispatcher.carlo@test.taskadoo.ph on your phone.',
   Y2: 'Use a real driver\'s license (yours is fine). Do Y1 first.', Y3: 'Do Y2 first.', Y4: 'Do Y3 first.', Y5: 'Do Y4 first. Use an email that has no Taskadoo account.', Y6: 'Do Y5 first.',
@@ -2941,6 +3096,7 @@ async function geocode(q){
 }
 // where each map's pin is kept
 const PIN = {
+  tk: { get: () => S.tkPin, set: () => {} },
   cd: { get: () => CD.lat != null ? [CD.lat, CD.lng] : null, set: (a, b) => { CD.lat = a; CD.lng = b; saveCD(); } },
   ap: { get: () => AP.f.home_lat != null ? [AP.f.home_lat, AP.f.home_lng] : null, set: (a, b) => { AP.f.home_lat = a; AP.f.home_lng = b; saveAP(); } },
   home: { get: () => S.homePin || (ME().home_lat != null ? [ME().home_lat, ME().home_lng] : null), set: (a, b) => { S.homePin = [a, b]; const x = document.getElementById('home_save'); if (x) x.disabled = false; } },
@@ -3490,10 +3646,19 @@ async function reloadJob(id){ const j = await api.job(id); const k = S.jobs.find
 const ACT = {
   menu(){ S.menu = !S.menu; render(); },
   side(){ S.side = !S.side; render(); },
+  tkf(b){ S.tkF = b.dataset.v; render(); },
+  opentk(b, e){ if (e.target.closest('a')) return; go('taskadooer', b.dataset.id); },
+  opentkjob(b, e){ if (e.target.closest('a')) return; go('order', b.dataset.id); },
+  tktab(b){ S.tkTab = b.dataset.v; render(); },
+  async tkmober(b){ const p = S.profiles.find(x => x.id === b.dataset.id); await busy(b, async () => { const r = await api.updateProfile(p.id, { mober_emp: !p.mober_emp }); Object.assign(p, r || { mober_emp: !p.mober_emp }); toast('Saved'); render(); }); },
+  async tkactive(b){ const p = S.profiles.find(x => x.id === b.dataset.id);
+    if (p.active && !confirm('Pause ' + (p.full_name || p.email) + '? They can\'t sign in or get offers until you activate them again.')) return;
+    await busy(b, async () => { const r = await api.updateProfile(p.id, { active: !p.active }); Object.assign(p, r || { active: !p.active }); toast(p.active ? 'Account active' : 'Account paused'); render(); }); },
+  setsec(b){ S.setSec = b.dataset.v; render(); toTop(); },
   otab(b){ S.oTab = b.dataset.v; S.oPage = 1; render(); },
   omore(){ S.oMore = !(S.oMore || S.oDt || S.oAr || S.oTy || S.oPd); if (!S.oMore) { S.oDt = S.oAr = S.oTy = S.oPd = ''; } render(); },
   dchange(b){ S.dChange = Number(b.dataset.id); render(); },
-  paytab(b){ S.payTab = b.dataset.v; render(); },
+  paytab(b){ go(b.dataset.v === 'payouts' ? 'payouts' : 'payments'); },
   async payreload(b){ await busy(b, async () => { await loadJobs(); await loadPayouts(); S.ready = null; render(); toast('Updated'); }); },
   async pocreate(b){ const end = S.poEnd || lastSunday();
     if (!confirm('Create the payout list for jobs ready by ' + fmtDate(end) + '?')) return;
@@ -3939,7 +4104,7 @@ document.addEventListener('input', e => {
   const k = e.target.dataset && e.target.dataset.in; if (!k) return;
   S[k] = e.target.value;
   if (k === 'oQ') S.oPage = 1;
-  if (k === 'search' || k === 'uSearch' || k === 'pvSearch' || k === 'cSearch' || k === 'oQ' || k === 'gQ') { const pos = e.target.selectionStart; render(); const el = document.querySelector('[data-in="' + k + '"]'); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (x) {} } }
+  if (k === 'search' || k === 'uSearch' || k === 'pvSearch' || k === 'cSearch' || k === 'oQ' || k === 'gQ' || k === 'tkQ') { const pos = e.target.selectionStart; render(); const el = document.querySelector('[data-in="' + k + '"]'); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (x) {} } }
   if (k === 'dDate' || k === 'poEnd') render();
 });
 document.addEventListener('input', e => {
@@ -4001,7 +4166,8 @@ window.addEventListener('hashchange', async () => {
   S.menu = false; S.resOpt = null; S.report = null; S.noSign = null; S.editItem = null; S.csv = null; S.wk = null;
   if (route().name === 'eval') S.eTab = 'apps';
   if (route().name === 'profile') S.statsFor = null;   // fresh scores each time Profile opens
-  if (route().name === 'users' && S.me && S.me.role === 'admin') { try { await loadProfiles(); } catch (e) { console.warn(e); } }   // new sign-ups show straight away
+  if (['users', 'taskadooers', 'taskadooer'].includes(route().name) && S.me && S.me.role === 'admin') { try { await loadProfiles(); } catch (e) { console.warn(e); } }
+  if (route().name === 'taskadooer' && S.tkFor !== route().arg) { S.tkFor = route().arg; S.tkTab = 'about'; }   // new sign-ups show straight away
   const r = route();
   S.side = false; S.gQ = '';
   if (!['orders', 'job'].includes(r.name)) S.dEntered = false;   // "New" counts from the last time Orders was opened

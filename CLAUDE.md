@@ -85,7 +85,9 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   `gResults()` (S.gQ), body class `is-staff` (less bold). Dispatch merged into Orders: `#/dispatch` redirects to `#/orders`; `#/job/<id>` =
   Orders with the right-hand drawer (`drawerBody()`, `candCard()` lead → extra → "Offers sent", `dchange`); tabs `ORDER_TABS` (todo = `toDispatch`),
   new orders highlighted (`isNew`). Admin's first page `#/overview` (`viewOverview`). Dispatcher NAV: orders (+ book as a button). Full details `#/order/<id>`.
-  Designs: artifact "Staff portal redesign" (Taskadooers list/profile, Settings sections still to build).
+  v2.1: `#/taskadooers` (`viewTaskadooers`, `tkStatus`, filters `TK_FILTERS`) + `#/taskadooer/<id>` (`viewTaskadooer`, tabs `TK_TABS`, uses
+  S.profiles, S.assemblers, S.apps by user_id, needStats, S.payouts; actions tkactive/tkmober). Settings sections `SET_SECS`/`setNav` (cards carry
+  `data-sec`, CSS shows one, `S.setSec`; one sdbar). Routes `#/payouts` and `#/payments` (Customer payments) via `S.payTab`. Admin only.
 - All times on screen use `TZ = 'Asia/Manila'`.
 - v1.6 customer pages follow the landing design (system font -apple-system/Segoe UI, weights ≤ 700, colours from the design):
   guests and customers/enterprise get `renderSite()` (design header + footer, `CAT_META` titles/blurbs, `TINTS` per SKU,
@@ -115,13 +117,12 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 ## Agreed with Dennis – NOT built yet (wait until he says "build"; he says "remember" for items to keep here)
 - Step B of the dispatch plan: Auto matching mode (offer #1 → #2 → #3 one by one, then everyone nearby, hand to a person 3 h before;
   needs a Supabase cron every minute). Agreed defaults: 10 min per auto offer, 3 one-by-one, 3 h.
-- Staff portal Step 2/3 (designed, agreed): Taskadooers list + profile page (Users keeps staff + business approvals), Settings split into
-  sections with one Save, Payouts under Taskadooers / Customer payments under Money.
 - Later (Phase 3): full auto cascade from the design (90 s → next → blast top 5–8 → widen → human).
 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
+  v2.1: Taskadooers list + profile, Settings in sections, Payouts / Customer payments pages.
   v2.0: staff portal side menu, Overview, dispatch drawer in Orders, search everything, less bold.
   v1.9: Dispatch Center (incoming bookings, Needs you, suggested Taskadooers with scores, no double-booking), All orders + order details.
   v1.8: Taskadooer sign-up with license OCR + QR ticket, hub rules + walk-ins, map pins + 30 km matching, offer time limit, open job board.
