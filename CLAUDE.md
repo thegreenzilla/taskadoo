@@ -88,6 +88,14 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   v2.1: `#/taskadooers` (`viewTaskadooers`, `tkStatus`, filters `TK_FILTERS`) + `#/taskadooer/<id>` (`viewTaskadooer`, tabs `TK_TABS`, uses
   S.profiles, S.assemblers, S.apps by user_id, needStats, S.payouts; actions tkactive/tkmober). Settings sections `SET_SECS`/`setNav` (cards carry
   `data-sec`, CSS shows one, `S.setSec`; one sdbar). Routes `#/payouts` and `#/payments` (Customer payments) via `S.payTab`. Admin only.
+- v2.2 business portal (2026-11-02_business_portal.sql): profiles.biz_rate_pct / biz_fail_fee (Admin sets in Users; guard_profile) /
+  biz_hubs (business saves via `biz_save_hub`). Trigger `apply_biz_rate` (enterprise insert: list_total, rate_pct, discounted total – Taskadooer shares follow),
+  trigger `biz_fail_fee` (failed_visit fee_kept = business fee). `create_biz_booking(p)` = one job per SO row (so_no, delivered_on, crew 1–2 ≥ item crew,
+  report_to customer|hub; hub rows share batch_id, stop_no, hub_*). Hub runs: `job_clash` ignores the same batch, `assign_batch`, `offer_all`/`claim_job`
+  handle the whole batch, distance to the hub (`board_fits`, `job_candidates`). `report_problem` window for business = settings biz_dispute_days 7.
+  UI: enterprise NAV bizbook (`viewBizBook`, draft BB in sessionStorage tk_bb, CSV template, items "SKU x2 | SKU x1"), bookings, statement
+  (`statementView`/`bizStatement`, CSV, print); admin `#/statements`. Taskadooer app: hub run = one offer (`offerCard` run, accept/decline all), board grouped.
+  Mober agreements: customer tells Mober, Mober reports to Taskadoo; Mober books the time; failed visit ₱500; Taskadooer pays own fare to the hub.
 - All times on screen use `TZ = 'Asia/Manila'`.
 - v1.6 customer pages follow the landing design (system font -apple-system/Segoe UI, weights ≤ 700, colours from the design):
   guests and customers/enterprise get `renderSite()` (design header + footer, `CAT_META` titles/blurbs, `TINTS` per SKU,
@@ -123,6 +131,7 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
+  v2.2: business portal – book many jobs per SO, report to customer or hub, business rate + failed-visit fee, statements.
   v2.1: Taskadooers list + profile, Settings in sections, Payouts / Customer payments pages.
   v2.0: staff portal side menu, Overview, dispatch drawer in Orders, search everything, less bold.
   v1.9: Dispatch Center (incoming bookings, Needs you, suggested Taskadooers with scores, no double-booking), All orders + order details.
@@ -131,7 +140,7 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   v1.5: weekly assembler payouts (manual GCash, reference numbers).
   v1.4: assembler sign-up + evaluation (Evaluator role, calendar, document checks, scorecard). v1.3: catalogue CSV import/export.
   v1.2: problems after the job, missed visits, late-cancel fee, payout holds, unpaid block, Settings + Catalogue redesign.
-- Phase 2: (done: assembler registration + evaluation) enterprise portal (CSV upload, billing, self-dispatch). Payouts done manually (v1.5); automatic via provider later.
+- Phase 2: (done: assembler registration + evaluation; v2.2 business booking, CSV upload, monthly statements) still to do: self-dispatch, several users per business. Payouts done manually (v1.5); automatic via provider later.
 - Phase 3: receipt upload + pricing desk, auto-matching/offer cascade, Thailand (THB, Thai), native app if push/background location needed.
 
 ## Files

@@ -212,6 +212,14 @@ label.f>span{display:block;font-size:11.5px;font-weight:700;letter-spacing:.07em
   main .otable.tktable table td:nth-child(n+5){display:none}
   main .otable.tktable table td:nth-child(2){flex:none}
 }
+/* Business portal (v2.2) */
+.bbt td{padding:6px 6px;vertical-align:top}.bbt td input,.bbt td select{padding:8px 9px;font-size:13.5px}
+.bbt tr.bad td{background:#FDF3F1}
+.dhub{padding:12px 14px;border-radius:12px;background:#F4F9FD}.dhub b{color:var(--ink)}
+.dstop{display:flex;gap:6px;align-items:center;padding:6px 0;border-top:1px solid #DCE8F2;text-decoration:none;color:var(--ink)}.dstop.on{font-weight:600}
+.hubstops{margin-top:8px;display:flex;flex-direction:column;gap:4px}.hubstops>div{display:flex;gap:8px;align-items:center;font-size:13px}
+.hubstops span{width:20px;height:20px;border-radius:50%;background:var(--blue-soft);color:#0A5C91;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+@media print{.stop,.sfoot,.stagebadge,#tg-fab,.btn,select,.sbar,.side,.stopbar{display:none!important}body{background:#fff}.card{border:1px solid #ddd;box-shadow:none}}
 /* Dispatch Center */
 .c-orange{color:#A84A10}.c-red{color:#B42318}.c-blue{color:#0A5C91}.c-green{color:#0F6B47}
 .dhead{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:14px}
@@ -766,12 +774,12 @@ const saveCart = () => { try { localStorage.setItem('tk_cart', JSON.stringify(S.
 
 const NAV = {
   customer:   [['book','Book','🛠️'], ['bookings','My bookings','📋'], ['profile','Profile','👤']],
-  enterprise: [['book','New booking','🛠️'], ['bookings','Bookings','📋'], ['profile','Account','🏢']],
+  enterprise: [['bizbook','Book assembly','🧰'], ['bookings','Bookings','📋'], ['statement','Statements','🧾'], ['book','Catalogue','🛠️'], ['profile','Account','🏢']],
   assembler:  [['tasks','Tasks','🧰'], ['calendar','Calendar','📅'], ['earnings','Earnings','💰'], ['profile','Profile','👤']],
   dispatcher: [['orders','Orders','🗂️'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
   evaluator:  [['evals','Evaluations','📋'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']],
   applicant:  [['apply','My application','🧰'], ['book','Book','🛠️'], ['profile','Profile','👤']],
-  admin:      [['overview','Overview','🏠'], ['orders','Orders','🗂️'], ['taskadooers','Taskadooers','🧰'], ['payouts','Payouts','💸'], ['payments','Customer payments','💳'], ['evals','Evaluations','📋'], ['catalog','Catalogue','📦'], ['users','Users','👥'],
+  admin:      [['overview','Overview','🏠'], ['orders','Orders','🗂️'], ['taskadooers','Taskadooers','🧰'], ['payouts','Payouts','💸'], ['payments','Customer payments','💳'], ['statements','Business statements','🧾'], ['evals','Evaluations','📋'], ['catalog','Catalogue','📦'], ['users','Users','👥'],
                ['settings','Settings','⚙️'], ['book','New booking','🛠️'], ['whatsnew',"What's new",'✨'], ['profile','Profile','👤']]
 };
 const SUB = { taskadooer: 'taskadooers', booking: 'bookings', job: 'orders', dispatch: 'orders', order: 'orders', task: 'tasks', eval: 'evals' };
@@ -916,7 +924,7 @@ function render(){
   const V = { book: viewBook, bookings: viewBookings, booking: viewBooking, overview: viewOverview, job: viewOrders, orders: viewOrders, order: viewOrder,
     tasks: viewTasks, task: viewTask, calendar: viewCalendar, earnings: viewEarnings, profile: viewProfile, catalog: viewCatalog, users: viewUsers,
     settings: viewSettings, payments: () => { S.payTab = 'in'; return viewPayments(); }, payouts: () => { S.payTab = 'payouts'; return viewPayments(); },
-    taskadooers: viewTaskadooers, taskadooer: viewTaskadooer, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo,
+    taskadooers: viewTaskadooers, taskadooer: viewTaskadooer, statements: viewStatements, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo,
     apply: viewApply, evals: viewEvals, eval: viewEvals };
   const active = SUB[r.name] || r.name;
   const tabs = tabsFor();
@@ -1016,7 +1024,7 @@ function renderWrongApp(){
   badge(); tgPaint();
 }
 // Staff portal: grouped side menu (☰ on phones), search everything, less bold
-const SIDE = [['Today', ['overview']], ['Jobs', ['orders']], ['Taskadooers', ['taskadooers', 'evals', 'payouts']], ['Money', ['payments']], ['Setup', ['catalog', 'settings', 'users']], ['Help', ['whatsnew', 'tests']]];
+const SIDE = [['Today', ['overview']], ['Jobs', ['orders']], ['Taskadooers', ['taskadooers', 'evals', 'payouts']], ['Money', ['payments', 'statements']], ['Setup', ['catalog', 'settings', 'users']], ['Help', ['whatsnew', 'tests']]];
 function sideCount(k, active){
   if (k === 'orders') { const n = active !== 'orders' ? newSinceSeen() : 0; return n ? n + ' new' : S.jobs.filter(toDispatch).length || ''; }
   if (k === 'evals') return (S.apps || []).filter(a => a.status === 'booked' && a.slot_at && manilaDay(a.slot_at) === todayISO()).length || '';
@@ -1079,7 +1087,7 @@ function renderSite(r){
   const app = $('#app'), signed = !!S.me, unseen = signed && wnUnseen();
   if (!signed && r.name === 'shop') { S.cat = r.arg || S.cat; history.replaceState(null, '', '#/book'); r = { name: 'book', arg: '' }; }
   if (!signed && r.name === 'receipt') { toast(RECEIPT_MSG); history.replaceState(null, '', '#/book'); r = { name: 'book', arg: '' }; }
-  const V = { '': viewBook, book: viewBook, bookings: viewBookings, booking: viewBooking, profile: viewProfile, whatsnew: viewWhatsNew, tests: viewTestsSolo, apply: viewApply };
+  const V = { '': viewBook, book: viewBook, bookings: viewBookings, booking: viewBooking, profile: viewProfile, bizbook: viewBizBook, statement: viewStatement, whatsnew: viewWhatsNew, tests: viewTestsSolo, apply: viewApply };
   let body = '';
   try { body = (V[r.name] || viewBook)(r.arg); } catch (e) { console.error(e); body = `<div class="wrap" style="padding-top:24px"><div class="notice bad">${esc(errMsg(e))}</div></div>`; }
   const full = ['', 'book'].includes(r.name) && !['checkout', 'done'].includes(r.arg);
@@ -1087,7 +1095,7 @@ function renderSite(r){
   app.innerHTML = `${pvBar()}<header class="stop"><div class="stop-in">
       <a href="${SITE}" aria-label="Taskadoo home"><img src="img/logo.png" alt="Taskadoo"></a>
       <nav class="snav"><a href="${SITE}#how">How it works</a><a href="#/book">What we assemble</a><a href="${SITE}#pros">Our Taskadooers</a><a href="${SITE}#pricing">Pricing</a></nav>
-      <div class="sright">${signed ? `<a class="slink hide-sm" href="#/bookings">${role() === 'enterprise' ? 'Bookings' : 'My bookings'}</a>
+      <div class="sright">${signed ? `${role() === 'enterprise' ? '<a class="slink hide-sm" href="#/bizbook">Book assembly</a><a class="slink hide-sm" href="#/statement">Statements</a>' : ''}<a class="slink hide-sm" href="#/bookings">${role() === 'enterprise' ? 'Bookings' : 'My bookings'}</a>
           <button class="av" data-act="menu" aria-label="Account menu">${esc(initials(ME().full_name || ME().email))}${unseen ? '<span class="dot"></span>' : ''}</button>`
         : `<a class="sbiz hide-sm" href="#/signup/enterprise">For business</a><a class="slink" href="#/login">Log in</a>`}
         <a class="sbook" href="#/book">Book now</a></div></div>
@@ -1327,7 +1335,7 @@ function viewBookings(){
   const open = mine.filter(j => !CLOSED.includes(j.status));
   const closed = mine.filter(j => CLOSED.includes(j.status));
   const card = j => `<a class="li" href="#/booking/${j.id}"><div class="row bkrow"><div class="grow"><div class="b">${esc(itemsSummary(j))}</div>
-      <div class="tiny muted">${esc(j.code)} · ${esc(fmtDate(j.job_date))}, ${esc(j.slot)}${role() === 'enterprise' ? ' · ' + esc(j.customer_name) : ''}</div></div>
+      <div class="tiny muted">${j.so_no ? 'SO ' + esc(j.so_no) : esc(j.code)} · ${esc(fmtDate(j.job_date))}, ${esc(j.slot)}${role() === 'enterprise' ? ' · ' + esc(j.customer_name) : ''}${isHub(j) ? ' · via ' + esc(j.hub_name) : ''}</div></div>
       <div class="bkside">${statusChip(j, 'cust')}<div class="b">${money(amt(j))}</div></div></div></a>`;
   const owe = mine.filter(j => due(j) > 0 && !j.paid && role() === 'customer');
   return `<div class="narrow">
@@ -1361,7 +1369,7 @@ function viewBooking(id){
   if (!j) return `<div class="narrow card empty">Booking not found. <a href="#/bookings">Back</a></div>`;
   const crew = [j.lead_name && j.lead_ok ? firstName(j.lead_name) + ' (lead)' : '', j.helper_name && j.helper_ok ? firstName(j.helper_name) : ''].filter(Boolean);
   const canCancel = ['new','assigned','accepted'].includes(j.status);
-  const end = windowEnd(j), canReport = j.status === 'done' && !j.dispute && Date.now() < end && j.customer_id === ME().id;
+  const end = j.source === 'enterprise' ? bizWindowEnd(j) : windowEnd(j), canReport = j.status === 'done' && !j.dispute && Date.now() < end && j.customer_id === ME().id;
   const owed = due(j);
   let note = '';
   if (j.status === 'issue') note = `<div class="notice warn">The Taskadooer finished, but the job wasn't signed off. Taskadoo will call you to check everything is right before it's closed.</div>`;
@@ -1378,13 +1386,16 @@ function viewBooking(id){
         <dt>Taskadooer${crew.length > 1 ? 's' : ''}</dt><dd>${crew.length ? esc(crew.join(' + ')) : '<span class="muted">Being matched</span>'}</dd>
         <dt>Address</dt><dd>${esc(j.address)}${j.area ? ', ' + esc(j.area) : ''}</dd>
         <dt>Contact</dt><dd>${esc(j.customer_name)} · ${esc(j.mobile)}</dd>
+        ${j.so_no ? `<dt>SO no.</dt><dd>${esc(j.so_no)}${j.delivered_on ? ' · delivered ' + esc(fmtDate(j.delivered_on)) : ''}</dd>` : ''}
+        ${isHub(j) ? `<dt>Report to</dt><dd>${esc(j.hub_name)} · ${esc(j.slot)}</dd>` : ''}
         ${j.notes ? `<dt>Notes</dt><dd>${esc(j.notes)}</dd>` : ''}
       </dl>
     </div>
     ${note ? `<div style="margin-top:14px">${note}</div>` : ''}
     <div class="card">${itemsTable(j)}<div class="tot"><span>${CLOSED.includes(j.status) ? 'Booked total' : 'Total'}</span><span>${money(j.total)}</span></div>
       ${num(j.refund) > 0 ? `<table class="lines" style="margin-top:8px"><tr><td>Refund</td><td class="r">−${money(j.refund)}</td></tr></table>` : ''}
-      ${CLOSED.includes(j.status) && (owed > 0 || j.paid) ? `<div class="row" style="justify-content:space-between;margin-top:10px"><span class="b">Amount due</span><span class="b" style="font-size:17px">${money(owed)}</span></div>
+      ${j.source === 'enterprise' && role() === 'enterprise' ? `<div class="tiny muted" style="margin-top:8px">Billed on your monthly statement${num(j.rate_pct) ? ' at your rate (' + num(j.rate_pct) + '% off)' : ''}.</div>` : ''}
+      ${CLOSED.includes(j.status) && (owed > 0 || j.paid) && !(j.source === 'enterprise' && role() === 'enterprise') ? `<div class="row" style="justify-content:space-between;margin-top:10px"><span class="b">Amount due</span><span class="b" style="font-size:17px">${money(owed)}</span></div>
         <div style="margin-top:8px">${j.paid ? `<span class="chip green">Paid – thank you!</span>${num(j.refund) > 0 ? `<div class="notice ok small" style="margin-top:8px">You already paid, so Taskadoo will send ${money(j.refund)} back to you.</div>` : ''}` : `<div class="notice warn">💳 ${esc(S.settings.payment_note || 'Payment due after sign-off.')}</div>`}</div>` : ''}
     </div>
     ${photosBlock(j, 'Proof of completion')}
@@ -1526,7 +1537,8 @@ function viewOrders(sel){
       <tbody>${rows.slice((pg - 1) * per, pg * per).map(x => `<tr data-act="openorder" data-id="${x.id}" class="${isNew(x) ? 'isnew' : ''} ${j && j.id === x.id ? 'on' : ''}">
         <td class="nw">${esc(whenTxt(x))}<div class="tiny muted">${esc(x.slot)}</div></td>
         <td>${isNew(x) ? `<span class="chip orange solid" style="margin-right:6px">New · ${esc(durTxt(Date.now() - Date.parse(x.created_at)))} ago</span>` : ''}<a href="#/job/${x.id}">${esc(itemsSummary(x))}</a>
-          <div class="tiny muted">${esc(x.code)} · ${esc(x.customer_name)}${x.source === 'enterprise' ? ' · ' + esc(x.company || 'Business') : ''}</div></td>
+          <div class="tiny muted">${esc(x.code)}${x.so_no ? ' · SO ' + esc(x.so_no) : ''} · ${esc(x.customer_name)}${x.source === 'enterprise' ? ' · ' + esc(x.company || 'Business') : ''}</div>
+          ${isHub(x) ? `<div class="tiny c-blue">Report to ${esc(x.hub_name)} · stop ${num(x.stop_no)} of ${batchOf(x).length}</div>` : ''}</td>
         <td class="nw">${esc(x.area || '')}<div class="tiny muted">${num(x.crew) > 1 ? num(x.crew) + ' people' : '1 person'}</div></td>
         <td class="small">${need(x)}</td>
         <td>${statusChip(x)}</td>
@@ -1558,7 +1570,10 @@ function drawerBody(j){
   <div class="dr-body">
     <div class="dinfo"><a href="${mapHref(j.address + ' ' + j.area)}" target="_blank" rel="noopener">${esc(j.address)}${j.area ? ', ' + esc(j.area) : ''}</a>
       <div>${esc(j.customer_name)} · <a href="${telHref(j.mobile)}">${esc(j.mobile)}</a>${j.company ? ' · ' + esc(j.company) : ''}</div>
-      ${j.notes ? `<div class="muted">“${esc(j.notes)}”</div>` : ''}</div>
+      ${j.notes ? `<div class="muted">“${esc(j.notes)}”</div>` : ''}
+      ${j.so_no ? `<div class="small">SO ${esc(j.so_no)}${j.delivered_on ? ' · delivered ' + esc(fmtDate(j.delivered_on)) : ''}${num(j.rate_pct) ? ' · ' + num(j.rate_pct) + '% business rate' : ''}</div>` : ''}</div>
+    ${isHub(j) ? `<div class="dsec dhub"><b>Report to ${esc(j.hub_name)} · ${esc(j.slot)}</b><div class="small muted">${esc(j.hub_address)} · the same Taskadooers do all ${batchOf(j).length} jobs with the delivery team</div>
+      ${batchOf(j).map(x => `<a class="small dstop ${x.id === j.id ? 'on' : ''}" href="#/job/${x.id}">${num(x.stop_no)}. ${esc(itemsSummary(x))} · ${esc(x.area || '')} ${statusChip(x)}</a>`).join('')}</div>` : ''}
     ${decideCard(j)}
     ${open ? candCard(j) : isLive(j) ? `<div class="dsec"><h3>On site</h3><div class="small">${dLine(j)}</div>
         ${j.started_at ? `<div class="small muted">Assembly time ${esc(clock(workSecs(j)))} · estimate ${esc(mins(estMin(j)))}</div>` : ''}</div>`
@@ -1708,6 +1723,119 @@ function viewTaskadooer(id){
     ${body}`;
 }
 
+/* ───────────── Business portal (Enterprise): book many jobs, report to customer or hub, statements ───────────── */
+const isHub = j => j.report_to === 'hub';
+const batchOf = j => (j.batch_id ? S.jobs.filter(x => x.batch_id === j.batch_id).sort((a, b) => num(a.stop_no) - num(b.stop_no) || a.id - b.id) : [j]);
+const hubLine = j => (isHub(j) ? 'Report to ' + j.hub_name + ' · ' + j.slot : '');
+const bizRate = () => num(ME().biz_rate_pct);
+const bizWindowEnd = j => (j.completed_at ? Date.parse(j.completed_at) + num(S.settings.biz_dispute_days || 7) * 864e5 : 0);
+// the booking table is kept while the business works on it
+let BB = null; try { BB = JSON.parse(sessionStorage.getItem('tk_bb') || 'null'); } catch (e) { BB = null; }
+const bbNew = () => ({ so_no: '', delivered_on: '', customer_name: '', mobile: '', address: '', area: '', date: '', time: '', items: [], crew: 1, notes: '' });
+const bbInit = () => { if (!BB) BB = { report: 'customer', hub_id: '', date: addDays(todayISO(), 1), time: '07:00', rows: [bbNew()] }; return BB; };
+const bbSave = () => { try { sessionStorage.setItem('tk_bb', JSON.stringify(BB)); } catch (e) {} };
+const hm12 = hm => (/^\d{1,2}:\d{2}$/.test(hm || '') ? toSlot(hm) : '');
+const rowCrewMin = r => Math.max(1, ...r.items.map(x => num((S.catalog.find(c => c.id === x.id) || {}).crew) || 1));
+const rowList = r => r.items.reduce((s, x) => s + num((S.catalog.find(c => c.id === x.id) || {}).fee) * num(x.qty), 0);
+// what is still missing on a row (same rules as the database)
+function bbProblems(r, b){
+  const out = [], t = todayISO(), d = b.report === 'hub' ? b.date : r.date;
+  if (String(r.so_no).trim().length < 2) out.push('SO number');
+  if (String(r.customer_name).trim().length < 2) out.push('customer name');
+  if (String(r.mobile).replace(/\D/g, '').length < 10) out.push('mobile');
+  if (String(r.address).trim().length < 5) out.push('address');
+  if (!r.items.length) out.push('items');
+  if (r.items.some(x => !S.catalog.find(c => c.id === x.id && c.active))) out.push('an item is not in the catalogue');
+  if (b.report !== 'hub' && (!r.date || !r.time)) out.push('day and time');
+  if (d && d < t) out.push('the day has passed');
+  if (r.delivered_on && d && d < r.delivered_on) out.push('visit is before the delivery date');
+  return out;
+}
+function viewBizBook(){
+  if (role() !== 'enterprise') return `<div class="narrow card empty">Business accounts only. <a href="#/book">Back</a></div>`;
+  const b = bbInit(), hubs = ME().biz_hubs || [], rate = bizRate(), areas = S.settings.areas || [];
+  const ready = b.rows.filter(r => !bbProblems(r, b).length), list = b.rows.reduce((s, r) => s + rowList(r), 0);
+  const items = S.catalog.filter(c => c.active).sort((x, y) => String(x.name).localeCompare(String(y.name)));
+  const inp = (i, k, ph, type, w) => `<input data-bb="${i}.${k}" ${type ? 'type="' + type + '"' : ''} value="${esc(b.rows[i][k] || '')}" placeholder="${esc(ph)}" style="margin:0;${w ? 'width:' + w : ''}">`;
+  return `<div class="row" style="align-items:flex-end;margin-bottom:6px"><div class="grow" style="min-width:240px"><h1 style="margin:0">Book assembly</h1>
+      <div class="muted">One row per sales order (SO). Billed to ${esc(ME().company || 'your company')} monthly${rate ? ` at your rate – <b>${rate}% off</b> the catalogue` : ''}.</div></div>
+      <button class="btn ghost small" data-act="bbtemplate">Download Excel template</button>
+      <label class="btn ghost small" style="cursor:pointer">Upload file<input type="file" accept=".csv,text/csv" hidden data-change="bbfile"></label></div>
+    <div class="card"><div class="qlab" style="margin-bottom:8px">Where does the Taskadooer report to?</div>
+      <div class="choice" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+        <button class="${b.report !== 'hub' ? 'on' : ''}" data-act="bbreport" data-v="customer">Straight to the customer<small>Each row has its own day and time.</small></button>
+        <button class="${b.report === 'hub' ? 'on' : ''}" data-act="bbreport" data-v="hub">To your hub, then with your delivery team<small>Same Taskadooers for every row, one report time.</small></button></div>
+      ${b.report === 'hub' ? `<div class="row" style="margin-top:12px;align-items:flex-end">
+        <label class="f" style="flex:2 1 240px;margin:0"><span>Hub</span><select data-bbh="hub_id"><option value="">Choose a hub…</option>${hubs.map(h => `<option value="${esc(h.id)}" ${b.hub_id === h.id ? 'selected' : ''}>${esc(h.name)} – ${esc(h.address)}</option>`).join('')}</select></label>
+        <label class="f" style="flex:1 1 150px;margin:0"><span>Day</span><input type="date" data-bbh="date" value="${esc(b.date)}" min="${todayISO()}"></label>
+        <label class="f" style="flex:1 1 130px;margin:0"><span>Report time</span><input type="time" data-bbh="time" value="${esc(b.time)}"></label>
+        <button class="btn ghost small" data-act="bbhubnew">+ Add a hub</button></div>
+        ${S.bbHubForm ? `<div class="row" style="margin-top:10px;align-items:flex-end"><label class="f" style="flex:1 1 180px;margin:0"><span>Hub name</span><input id="bbh_name" placeholder="e.g. Mober 2C Hub"></label>
+          <label class="f" style="flex:3 1 300px;margin:0"><span>Address</span><input id="bbh_addr" placeholder="Building, street, city"></label><button class="btn small" data-act="bbhubsave">Save hub</button></div>` : ''}` : ''}
+    </div>
+    <div class="card" style="padding:0;overflow:hidden"><div class="otable"><table class="bbt">
+      <thead><tr><th></th><th>SO no.</th><th>Delivered on</th><th>Customer</th><th>Mobile</th><th>Address</th><th>Area</th>${b.report !== 'hub' ? '<th>Visit day</th><th>Time</th>' : ''}<th>Items</th><th>Taskadooers</th><th class="r">Price</th><th></th></tr></thead>
+      <tbody>${b.rows.map((r, i) => { const pb = bbProblems(r, b), lp = rowList(r), min = rowCrewMin(r); return `<tr class="${pb.length ? 'bad' : ''}">
+        <td class="${pb.length ? 'c-red' : 'c-green'}" title="${esc(pb.join(', '))}">${pb.length ? '!' : '✓'}</td>
+        <td>${inp(i, 'so_no', 'SO-…', '', '96px')}</td><td>${inp(i, 'delivered_on', '', 'date', '136px')}</td>
+        <td>${inp(i, 'customer_name', 'Name', '', '140px')}</td><td>${inp(i, 'mobile', '09…', 'tel', '120px')}</td><td>${inp(i, 'address', 'Unit, building, street', '', '200px')}</td>
+        <td><select data-bb="${i}.area" style="margin:0;width:130px"><option value="">Area</option>${areas.map(a => `<option ${r.area === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></td>
+        ${b.report !== 'hub' ? `<td>${inp(i, 'date', '', 'date', '136px')}</td><td>${inp(i, 'time', '', 'time', '110px')}</td>` : ''}
+        <td style="min-width:230px">${r.items.map((x, k) => { const c = S.catalog.find(z => z.id === x.id); return `<span class="chip ${c ? '' : 'red'}" style="margin:0 4px 4px 0">${num(x.qty)}× ${esc(c ? c.name : (x.raw || 'Unknown item') + ' – not in catalogue')}<button class="linkbtn" data-act="bbrmitem" data-i="${i}" data-k="${k}" aria-label="Remove" style="text-decoration:none;padding:0 2px">✕</button></span>`; }).join('')}
+          <select data-bbadd="${i}" style="margin:0;width:100%"><option value="">+ Add item</option>${items.map(c => `<option value="${c.id}">${esc(c.name)} · ${esc(c.brand)}</option>`).join('')}</select></td>
+        <td><select data-bb="${i}.crew" style="margin:0;width:70px">${[1, 2].map(n => `<option value="${n}" ${Math.max(num(r.crew), min) === n ? 'selected' : ''} ${n < min ? 'disabled' : ''}>${n}</option>`).join('')}</select></td>
+        <td class="r nw">${lp ? money(lp * (1 - rate / 100)) : '—'}${rate && lp ? `<div class="tiny muted"><s>${money(lp)}</s></div>` : ''}</td>
+        <td><button class="linkbtn small" data-act="bbrmrow" data-i="${i}" aria-label="Remove row">✕</button></td></tr>
+        ${pb.length && (r.so_no || r.customer_name || r.items.length) ? `<tr class="bad"><td></td><td colspan="${b.report !== 'hub' ? 12 : 10}" class="tiny c-red">Missing or wrong: ${esc(pb.join(', '))}</td></tr>` : ''}`; }).join('')}
+      </tbody></table></div>
+      <div class="row" style="padding:10px 14px"><button class="btn soft small" data-act="bbaddrow">+ Add row</button><button class="linkbtn small" data-act="bbcopyrow">Copy last row</button>
+        <span class="grow"></span><button class="linkbtn small" data-act="bbclear">Clear all</button></div></div>
+    <div class="card row" style="gap:16px">
+      <div class="grow" style="min-width:240px"><b style="color:var(--ink)">${ready.length} ready</b>${b.rows.length - ready.length ? ` · <span class="c-red">${b.rows.length - ready.length} need fixing</span>` : ''}
+        <div class="small muted">Total ${money(ready.reduce((s, r) => s + rowList(r), 0) * (1 - rate / 100))}${rate ? ` (${rate}% off ${money(ready.reduce((s, r) => s + rowList(r), 0))})` : ''} · on your monthly statement${b.report === 'hub' ? ' · same Taskadooers for all rows' : ''}</div></div>
+      <button class="btn" data-act="bbbook">Book ${b.rows.length} job${b.rows.length === 1 ? '' : 's'}</button></div>
+    <p class="tiny muted">Failed visit (customer not home or cancels at the door): ${money(ME().biz_fail_fee == null ? 500 : ME().biz_fail_fee)} on your statement. Problems after a job: open it in Bookings and tap "Report a problem" within ${num(S.settings.biz_dispute_days || 7)} days.</p>`;
+}
+// one line per job on a business's statement for a month
+function bizStatement(uid, month){
+  const rows = S.jobs.filter(j => j.customer_id === uid && j.source === 'enterprise' && String(j.job_date).slice(0, 7) === month
+    && (['done', 'failed_visit'].includes(j.status) || (j.status === 'cancelled' && num(j.fee_kept) > 0)))
+    .sort((a, b) => a.job_date.localeCompare(b.job_date) || slotMin(a.slot) - slotMin(b.slot));
+  return rows.map(j => ({ j, kind: j.status === 'done' ? (isHub(j) ? 'Via ' + j.hub_name : 'Home visit') : j.status === 'failed_visit' ? 'Failed visit' : 'Late cancellation',
+    what: j.status === 'done' ? itemsSummary(j) : j.status === 'failed_visit' ? 'Customer not home / cancelled at the door' : 'Cancelled late',
+    amount: j.status === 'done' ? Math.max(0, num(j.total) - num(j.refund)) : num(j.fee_kept), credit: num(j.refund) }));
+}
+function statementView(uid, who){
+  const months = [...new Set(S.jobs.filter(j => j.customer_id === uid && j.source === 'enterprise').map(j => String(j.job_date).slice(0, 7)))].sort().reverse();
+  const cur = todayISO().slice(0, 7); if (!months.includes(cur)) months.unshift(cur);
+  const m = S.stMonth && months.includes(S.stMonth) ? S.stMonth : months[0], lines = bizStatement(uid, m);
+  const p = (S.profiles || []).find(x => x.id === uid) || (uid === ME().id ? ME() : {});
+  const done = lines.filter(l => l.j.status === 'done'), fails = lines.filter(l => l.j.status !== 'done');
+  const tot = lines.reduce((s, l) => s + l.amount, 0), mLab = x => new Date(x + '-01T00:00:00').toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
+  return `<div class="row" style="align-items:flex-end;margin-bottom:12px"><div class="grow" style="min-width:240px"><h1 style="margin:0">Statement · ${esc(mLab(m))}</h1>
+      <div class="muted">${esc(who || p.company || p.full_name || '')}${num(p.biz_rate_pct) ? ' · ' + num(p.biz_rate_pct) + '% off the catalogue' : ''}${m < cur ? ' · due ' + esc(fmtDate(addDays(new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7), 1)).toISOString().slice(0, 10), 29))) : ' · so far this month'}</div></div>
+      <label><span class="sr">Month</span><select data-change="stmonth" style="width:auto;margin:0">${months.map(x => `<option value="${x}" ${x === m ? 'selected' : ''}>${esc(mLab(x))}${x === cur ? ' (so far)' : ''}</option>`).join('')}</select></label>
+      <button class="btn ghost small" data-act="stcsv" data-uid="${esc(uid)}" data-m="${m}">Download CSV</button><button class="btn ghost small" data-act="stprint">Print / save as PDF</button></div>
+    <div class="otiles" style="margin-top:0">
+      <div class="card otile"><div class="tiny muted">Jobs done</div><div class="big">${done.length}</div><div class="small">${money(done.reduce((s, l) => s + l.amount, 0))}</div></div>
+      <div class="card otile"><div class="tiny muted">Failed visits &amp; late cancellations</div><div class="big">${fails.length}</div><div class="small">${money(fails.reduce((s, l) => s + l.amount, 0))}</div></div>
+      <div class="card otile"><div class="tiny muted">Credits (problems decided)</div><div class="big">${money(lines.reduce((s, l) => s + l.credit, 0))}</div><div class="small">already taken off below</div></div>
+      <div class="card otile"><div class="tiny muted">${m < cur ? 'Total due' : 'Total so far'}</div><div class="big">${money(tot)}</div><div class="small">Net 30</div></div></div>
+    ${lines.length ? `<div class="card" style="padding:0;overflow:hidden"><div class="otable"><table><thead><tr><th>Date</th><th>SO no.</th><th>Customer</th><th>Type</th><th>What</th><th>Taskadooer</th><th class="r">Amount</th></tr></thead>
+      <tbody>${lines.map(l => `<tr><td class="nw">${esc(fmtDate(l.j.job_date))}</td><td>${esc(l.j.so_no || l.j.code)}</td><td>${esc(l.j.customer_name)}</td><td>${esc(l.kind)}</td>
+        <td>${esc(l.what)}${l.credit ? `<div class="tiny c-green">credit −${money(l.credit)}</div>` : ''}</td><td class="nw">${esc([l.j.lead_name, l.j.helper_name].filter(Boolean).map(firstName).join(' + '))}</td><td class="r nw">${money(l.amount)}</td></tr>`).join('')}
+      <tr><td colspan="6" class="r b">Total</td><td class="r b nw">${money(tot)}</td></tr></tbody></table></div></div>`
+      : '<div class="card empty"><div class="ic">🧾</div>Nothing to bill this month yet.</div>'}`;
+}
+const viewStatement = () => statementView(ME().id, ME().company);
+function viewStatements(){
+  const biz = (S.profiles || []).filter(p => p.role === 'enterprise').sort((a, b) => String(a.company).localeCompare(String(b.company)));
+  if (!biz.length) return `<h1>Business statements</h1><div class="card empty">No business accounts yet.</div>`;
+  const uid = biz.some(p => p.id === S.stBiz) ? S.stBiz : biz[0].id;
+  return `<div class="row" style="margin-bottom:10px"><label class="f" style="margin:0;max-width:340px"><span>Business</span><select data-change="stbiz">${biz.map(p => `<option value="${esc(p.id)}" ${p.id === uid ? 'selected' : ''}>${esc(p.company || p.full_name || p.email)}</option>`).join('')}</select></label></div>
+    ${statementView(uid)}`;
+}
+
 /* ───────────── Overview (Admin's first page) ───────────── */
 function viewOverview(){
   const t = todayISO(), h = new Date(Date.now() + 8 * 3600e3).getUTCHours();
@@ -1778,6 +1906,8 @@ function viewOrder(id){
       <div class="card"><h3 style="margin-bottom:10px">Customer</h3><dl class="kv">
         <dt>Name</dt><dd>${esc(j.customer_name)}</dd><dt>Mobile</dt><dd><a href="${telHref(j.mobile)}">${esc(j.mobile)}</a></dd>
         ${prof ? `<dt>Email</dt><dd>${esc(prof.email)}</dd>` : ''}${j.company ? `<dt>Company</dt><dd>${esc(j.company)}</dd>` : ''}
+        ${j.so_no ? `<dt>SO no.</dt><dd>${esc(j.so_no)}${j.delivered_on ? ' · delivered ' + esc(fmtDate(j.delivered_on)) : ''}</dd>` : ''}
+        ${isHub(j) ? `<dt>Report to</dt><dd>${esc(j.hub_name)} · ${esc(j.slot)} (stop ${num(j.stop_no)} of ${batchOf(j).length})</dd>` : ''}
         <dt>Orders</dt><dd>${S.jobs.filter(x => j.customer_id && x.customer_id === j.customer_id).length || 1}</dd>
         ${j.notes ? `<dt>Notes</dt><dd>${esc(j.notes)}</dd>` : ''}</dl></div>
       <div class="card"><h3 style="margin-bottom:8px">Address</h3><div class="small b" style="color:var(--ink);margin-bottom:10px">${esc(j.address)}${j.area ? ', ' + esc(j.area) : ''}</div>
@@ -1838,15 +1968,16 @@ function viewTasks(){
   };
   const card = (j, crew) => `<a class="li ${CLOSED.includes(j.status) ? 'done' : team(j) && !mateOk(j) ? 'wait' : ''}" href="#/task/${j.id}"><div class="row"><div class="grow">
       <div><span class="src" style="font-size:9.5px">${esc(srcLabel(j))}</span> <span class="code" style="font-size:9.5px">${esc(j.code)}</span></div>
-      <div class="b">${esc(itemsSummary(j))}</div><div class="tiny muted">${esc(j.job_date === t ? 'Today' : j.job_date === tm ? 'Tomorrow' : fmtDate(j.job_date))}, ${esc(j.slot)} · ${esc(j.area || j.address)} · ~${esc(mins(estMin(j)))}</div></div>
+      <div class="b">${esc(itemsSummary(j))}</div><div class="tiny muted">${esc(j.job_date === t ? 'Today' : j.job_date === tm ? 'Tomorrow' : fmtDate(j.job_date))}, ${esc(j.slot)} · ${esc(j.area || j.address)} · ~${esc(mins(estMin(j)))}</div>
+      ${isHub(j) ? `<div class="tiny b" style="color:var(--blue)">📍 ${esc(hubLine(j))} · stop ${num(j.stop_no)}</div>` : ''}</div>
       <div style="text-align:right">${statusChip(j)}<div class="money" style="margin-top:4px">${money(myShare(j))}</div></div></div>${crew ? crewLine(j) : ''}
       ${crew && j.id === nextId ? '<span class="btn block" style="margin-top:10px;padding:12px;font-size:13.5px">Open job →</span>' : ''}</a>`;
   const groups = [['today', 'Today · ' + fmtDate(t), j => j.job_date <= t], ['tomorrow', 'Tomorrow · ' + fmtDate(tm), j => j.job_date === tm], ['later', 'Later', j => j.job_date > tm]]
     .filter(g => f === 'all' || (f === 'today' ? g[0] === 'today' : g[0] !== 'today'))
     .map(g => [g[1], active.filter(g[2])]).filter(g => g[1].length);
   return `<div class="narrow">
-    ${offers.length ? offers.map(offerCard).join('') : ''}
-    ${(S.open || []).length ? `<div class="grp" style="margin-top:0"><h3>Open jobs near you</h3><span class="tiny muted b">first to accept gets it</span></div>${S.open.map(boardCard).join('')}` : ''}
+    ${offers.filter((x, i, a) => !x.batch_id || a.findIndex(y => y.batch_id === x.batch_id) === i).map(offerCard).join('')}
+    ${(S.open || []).length ? `<div class="grp" style="margin-top:0"><h3>Open jobs near you</h3><span class="tiny muted b">first to accept gets it</span></div>${S.open.filter((x, i, a) => !x.batch_id || a.findIndex(y => y.batch_id === x.batch_id) === i).map(boardCard).join('')}` : ''}
     <div class="kpis">
       <div><b style="color:var(--blue)">${active.filter(j => j.job_date <= t).length}</b><span>Left today</span></div>
       <div><b style="color:#B67A12">${active.filter(j => team(j) && !mateOk(j)).length}</b><span>Awaiting extra Taskadooer</span></div>
@@ -1862,6 +1993,14 @@ function viewTasks(){
 }
 // a job offered to all nearby Taskadooers
 function boardCard(o){
+  const run = o.batch_id ? (S.open || []).filter(x => x.batch_id === o.batch_id) : [o];
+  const shareOfOpen = x => { const t = num(x.total), pool = t - t * num(x.commission_pct) / 100; return num(x.crew) <= 1 ? pool : x.role === 'lead' ? pool * num(x.lead_pct) / 100 : pool - pool * num(x.lead_pct) / 100; };
+  if (o.report_to === 'hub') return `<div class="board"><div class="row"><span class="tiny b" style="letter-spacing:.1em;color:var(--blue)">📣 OPEN · ${run.length} JOB${run.length > 1 ? 'S' : ''} VIA HUB</span><span class="grow"></span>${o.km != null ? `<span class="tiny b muted">${o.km} km to the hub</span>` : ''}</div>
+    <div class="src" style="margin-top:8px">${esc(o.company ? o.company + ' · via Taskadoo' : 'Taskadoo')}</div>
+    <h3 style="margin:2px 0;font-size:17px">Report to ${esc(o.hub_name)}</h3>
+    <div class="small muted">${esc(o.job_date === todayISO() ? 'Today' : fmtDate(o.job_date))}, ${esc(o.slot)} · you ride with the delivery team · fare to the hub is yours</div>
+    <div class="hubstops">${run.map(x => `<div><span>${num(x.stop_no)}</span>${esc(itemsSummary(x))} · ${esc(x.area || '')}</div>`).join('')}</div>
+    <div class="row" style="margin-top:10px"><span class="grow money" style="font-size:22px">${money(run.reduce((s, x) => s + shareOfOpen(x), 0))}</span><button class="btn" data-act="claim" data-id="${o.id}">Take all ${run.length}</button></div></div>`;
   const total = num(o.total), pool = total - total * num(o.commission_pct) / 100, two = num(o.crew) > 1, mine = !two ? pool : o.role === 'lead' ? pool * num(o.lead_pct) / 100 : pool - pool * num(o.lead_pct) / 100;
   return `<div class="board"><div class="row"><span class="tiny b" style="letter-spacing:.1em;color:var(--blue)">📣 OPEN JOB</span><span class="grow"></span>${o.km != null ? `<span class="tiny b muted">${o.km} km from home</span>` : ''}</div>
     <div class="src" style="margin-top:8px">${esc(o.company ? o.company + ' · via Taskadoo' : 'Taskadoo customer')}</div>
@@ -1871,6 +2010,7 @@ function boardCard(o){
 }
 function offerCard(j){
   const me = ME().id, lead = j.lead_id === me, sp = split(j);
+  const run = j.batch_id ? batchOf(j).filter(x => (x.lead_id === me || x.helper_id === me) && ['assigned', 'accepted'].includes(x.status)) : [j];
   const mate = lead ? j.helper_name : j.lead_name;
   const lim = num(S.settings.offer_minutes), at = lead ? j.lead_offer_at : j.helper_offer_at, left = lim > 0 && at ? Math.max(0, Math.round((Date.parse(at) + lim * 60000 - Date.now()) / 60000)) : null;
   return `<div class="offer">
@@ -1879,13 +2019,15 @@ function offerCard(j){
     <div class="src" style="margin-top:12px">${esc(srcLabel(j))}</div>
     <h3 style="margin-top:3px;font-size:18px">${esc(itemsSummary(j))}</h3>
     <div class="small muted">${esc(j.area || '')} · ${esc(fmtDate(j.job_date))}, ${esc(j.slot)} · ~${esc(mins(estMin(j)))}${j.company ? ' · ' + esc(j.company) : ''}</div>
+    ${isHub(j) ? `<div class="notice small" style="margin-top:10px"><b>📍 ${esc(hubLine(j))}</b><br>${esc(j.hub_address)} · you ride with the delivery team to ${run.length} customer${run.length > 1 ? 's' : ''}. Fare to the hub is yours.
+      <div class="hubstops">${run.map(x => `<div><span>${num(x.stop_no)}</span>${esc(itemsSummary(x))} · ${esc(x.area || '')}</div>`).join('')}</div></div>` : ''}
     <div class="card" style="background:var(--green-soft);border:0;box-shadow:none;margin-top:10px;padding:14px">
-      <div class="tiny b" style="color:var(--green)">${sp.two ? (lead ? 'TEAM JOB · YOU ARE LEAD' : 'TEAM JOB · EXTRA ASSEMBLER') : 'SOLO JOB'}</div>
-      <div class="row" style="align-items:baseline"><span class="big" style="color:var(--green)">${money(myShare(j))}</span><span class="small muted">after ${num(j.commission_pct)}% Taskadoo fee</span></div>
-      ${sp.two ? `<div class="tiny muted">${mate ? (lead ? 'Extra assembler: ' : 'Lead: ') + '<span class="b">' + esc(mate) + '</span>' : 'Your teammate is being matched'}</div>` : ''}
+      <div class="tiny b" style="color:var(--green)">${run.length > 1 ? run.length + ' JOBS VIA THE HUB · ' + (lead ? 'YOU ARE LEAD' : 'EXTRA TASKADOOER') : sp.two ? (lead ? 'TEAM JOB · YOU ARE LEAD' : 'TEAM JOB · EXTRA TASKADOOER') : 'SOLO JOB'}</div>
+      <div class="row" style="align-items:baseline"><span class="big" style="color:var(--green)">${money(run.reduce((x, y) => x + myShare(y), 0))}</span><span class="small muted">${run.length > 1 ? 'for all ' + run.length + ' jobs · ' : ''}after ${num(j.commission_pct)}% Taskadoo fee</span></div>
+      ${sp.two ? `<div class="tiny muted">${mate ? (lead ? 'Extra Taskadooer: ' : 'Lead: ') + '<span class="b">' + esc(mate) + '</span>' : 'Your teammate is being matched'}</div>` : ''}
     </div>
-    <div class="grid2" style="margin-top:12px;grid-template-columns:1fr 2fr"><button class="btn ghost" data-act="decline" data-id="${j.id}">Decline</button>
-      <button class="btn" data-act="accept" data-id="${j.id}">Accept job</button></div>
+    <div class="grid2" style="margin-top:12px;grid-template-columns:1fr 2fr"><button class="btn ghost" data-act="decline" data-id="${j.id}" data-batch="${esc(j.batch_id || '')}">Decline</button>
+      <button class="btn" data-act="accept" data-id="${j.id}" data-batch="${esc(j.batch_id || '')}">${run.length > 1 ? 'Accept all ' + run.length + ' jobs' : 'Accept job'}</button></div>
   </div>`;
 }
 function viewTask(id){
@@ -2005,6 +2147,8 @@ function viewTask(id){
         <a href="${mapHref(j.address + ' ' + j.area)}" target="_blank" rel="noopener">🧭 Navigate</a></div>` : ''}
       <dl class="kv" style="margin-top:12px">
         <dt>When</dt><dd>${esc(j.job_date === t ? 'Today' : fmtDate(j.job_date))}, ${esc(j.slot)}</dd>
+        ${isHub(j) ? `<dt>Report to</dt><dd>${esc(j.hub_name)} · ${esc(j.slot)}<div class="tiny muted">${esc(j.hub_address)} · stop ${num(j.stop_no)} of ${batchOf(j).length}</div></dd>` : ''}
+        ${j.so_no ? `<dt>SO no.</dt><dd>${esc(j.so_no)}${j.company ? ' · ' + esc(j.company) : ''}</dd>` : ''}
         ${j.notes ? `<dt>Notes</dt><dd>${esc(j.notes)}</dd>` : ''}
         ${num(j.crew) > 1 || mate ? `<dt>${lead ? 'Extra' : 'Lead'}</dt><dd>${esc(mate || 'Being matched')}</dd>` : ''}
         <dt>Your payout</dt><dd class="money">${money(myShare(j))}</dd>
@@ -2330,7 +2474,9 @@ function viewUsers(){
         <td class="small">${esc(p.email)}<br>${esc(p.mobile)}</td>
         <td>${p.requested_role ? `<span class="chip ${p.role === 'customer' ? 'orange' : ''}">${esc(ROLE_LABEL[p.requested_role])}</span>` : ''}</td>
         <td>${self ? `<span class="chip ink">${esc(ROLE_LABEL[p.role])}</span>` : `<select data-f="role" style="width:auto">${roles.map(r => `<option value="${r}" ${p.role === r ? 'selected' : ''}>${ROLE_LABEL[r]}</option>`).join('')}</select>`}
-          ${p.role === 'assembler' && !self ? `<label class="tiny" style="display:flex;gap:5px;align-items:center;margin-top:5px;white-space:nowrap"><input data-f="mober_emp" type="checkbox" ${p.mober_emp ? 'checked' : ''} style="width:auto">Mober employee</label>` : ''}</td>
+          ${p.role === 'assembler' && !self ? `<label class="tiny" style="display:flex;gap:5px;align-items:center;margin-top:5px;white-space:nowrap"><input data-f="mober_emp" type="checkbox" ${p.mober_emp ? 'checked' : ''} style="width:auto">Mober employee</label>` : ''}
+          ${p.role === 'enterprise' && !self ? `<div class="row tiny" style="gap:6px;margin-top:6px;flex-wrap:nowrap"><label>Rate % off<input data-f="biz_rate_pct" type="number" min="0" max="90" step="0.5" value="${num(p.biz_rate_pct)}" style="width:70px;margin:0;padding:6px 8px"></label>
+            <label>Failed visit ₱<input data-f="biz_fail_fee" type="number" min="0" step="50" value="${p.biz_fail_fee == null ? 500 : num(p.biz_fail_fee)}" style="width:80px;margin:0;padding:6px 8px"></label></div>` : ''}</td>
         <td>${self ? '' : `<input data-f="active" type="checkbox" ${p.active ? 'checked' : ''} style="width:auto">`}</td>
         <td>${self ? '<span class="tiny muted">You</span>' : `<button class="btn small" data-act="saveuser" data-id="${esc(p.id)}">Save</button>
           <button class="btn ghost small" data-act="pvperson" data-id="${esc(p.id)}">Preview</button>
@@ -2488,6 +2634,14 @@ function sigPad(c){
 // for: roles that see the line (customer, enterprise, Taskadooer, dispatcher, admin) or 'all'.
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
+  { v: '2.2', d: '2026-11-02', where: 'staging', title: 'Business portal: book many jobs, report to a hub, monthly statements', changes: [
+    { k: 'New', t: 'Book assembly (business accounts): one row per sales order (SO) with the customer, address, items and number of Taskadooers. Type the rows or upload the Excel template. Rows with something missing are marked in red before booking.', for: ['enterprise'] },
+    { k: 'New', t: 'Report to: straight to the customer (each row has its own day and time), or to your hub at one report time – the same Taskadooers then ride with your delivery team to every customer. Save your hubs once (e.g. Mober 2C Hub).', for: ['enterprise'] },
+    { k: 'New', t: 'Statements: every job done, failed visit and credit for the month with the SO number. Download CSV or print / save as PDF. Problems: open the job in Bookings and tap "Report a problem" within 7 days.', for: ['enterprise'] },
+    { k: 'New', t: 'Business terms per account (Users): rate % off the catalogue and the failed-visit fee (default ₱500). Taskadooer shares come from what the business pays. Business statements are under Money.', for: ['admin'] },
+    { k: 'New', t: 'Hub runs: Orders shows "Report to … · stop 1 of 3". Offering the lead or extra gives every job in the run to the same people; Offer to everyone nearby measures distance to the hub.', for: ['admin', 'dispatcher'] },
+    { k: 'New', t: 'Taskadooer app: a hub run comes as one offer with all the stops, where to report and the total you earn – "Accept all". Each job shows the hub, the SO number and the stop.', for: ['assembler'] }
+  ] },
   { v: '2.1', d: '2026-10-27', where: 'staging', title: 'Taskadooers page, Settings in sections, Payouts on its own', changes: [
     { k: 'New', t: 'Taskadooers (menu → Taskadooers): everyone who passed, with status (online, on a job, day off, paused), area and travel distance, what they build, jobs done, rating and jobs this week. Filters for online, on a job, Mober employees and paused.', for: ['admin'] },
     { k: 'New', t: 'Click a Taskadooer for their profile: jobs done, rating, on-time and how often they accept offers, plus tabs for About, Jobs, Availability, Earnings & payouts and Documents. Buttons to preview their app, mark them as a Mober employee, or pause their account.', for: ['admin'] },
@@ -2584,6 +2738,16 @@ const WHATSNEW = [
 ];
 // Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
 const WN_TESTS = {
+  '2.2': [
+    ['B1', 'Admin', 'Business rate and failed-visit fee', ['Users → find the business account (Business). Set "Rate % off" to 15 and "Failed visit ₱" to 500, tap Save.'], 'It saves. New bookings from that business are 15% cheaper; the Taskadooer offer shows the share of the lower price.'],
+    ['B2', 'Business', 'Book straight to customers', ['Sign in as the business on the website. Tap Book assembly.', 'Keep "Straight to the customer". Fill two rows: SO number, customer, mobile, address, area, visit day and time, and add items.', 'Tap Book.'], 'Rows turn ✓ when complete. After booking you land on Bookings with both jobs, each showing its SO number.'],
+    ['B3', 'Business', 'Book via your hub', ['Book assembly → "To your hub". Tap + Add a hub, enter a name and address, Save hub.', 'Pick the day and report time, fill two rows with items (one PAX wardrobe), tap Book.'], 'The hub is saved for next time. The PAX row can\'t be set below 2 Taskadooers. Both jobs book with the same report time.'],
+    ['B4', 'Business', 'Upload a file', ['Book assembly → Download Excel template. Fill two rows (use a wrong item code in one) and save as CSV.', 'Upload file.'], 'Both rows appear. The one with the wrong code is red with "not in catalogue"; Book refuses until you fix or remove that item.'],
+    ['B5', 'Dispatcher, Admin', 'Send a hub run', ['Orders → open a job that says "Report to … · stop 1 of 2".', 'Tap Offer on a Taskadooer.'], 'The panel shows the hub and all stops. After Offer, every job in the run shows the same Taskadooer.'],
+    ['B6', 'Taskadooer', 'Accept a hub run', ['Open the Taskadooer app as the person offered in B5.'], 'One offer shows "Report to …", the stops and the total for all jobs, with "Accept all 2 jobs". Accepting accepts every job.'],
+    ['B7', 'Business', 'Report a problem', ['Open a completed job in Bookings (within 7 days). Tap Report a problem, write what the customer said, Send.'], 'The job shows "You reported a problem". Staff see it in Orders → To dispatch / Needs you.'],
+    ['B8', 'Business, Admin', 'Monthly statement', ['Business: tap Statements. Admin: Money → Business statements, choose the business.', 'Tap Download CSV.'], 'Each done job, failed visit (₱500) and credit is listed with the SO number, and the total. The CSV has the same lines.']
+  ],
   '2.1': [
     ['K1', 'Admin', 'Taskadooers list', ['Menu → Taskadooers.', 'Tap Online now, then All. Type a name in the search box.'], 'A table of Taskadooers with status, area, what they build, jobs done, rating and this week. The tabs and search narrow the list.'],
     ['K2', 'Admin', 'A Taskadooer\'s profile', ['Click a Taskadooer.', 'Tap each tab: About, Jobs, Availability, Earnings & payouts, Documents.'], 'The top shows jobs done, rating, on time and accepts offers. Each tab shows that part (their home on a map, their jobs, their week, payouts, documents).'],
@@ -2734,6 +2898,7 @@ const WN_TESTS = {
 };
 // Preparation a test needs
 const WN_SETUP = {
+  B2: 'You need a business account (e.g. business.eve@test.taskadoo.ph). Do B1 first.', B3: 'Do B1 first.', B5: 'Do B3 first.', B6: 'Do B5 first.', B7: 'Needs a completed business job – ask Claude to set one up if there is none.',
   K3: 'Use a test Taskadooer (e.g. assembler.ana@test.taskadoo.ph), not a real one.',
   O3: 'You need a second browser or phone signed in as a customer (or a guest booking).', O4: 'Needs a 2-person order (e.g. a PAX wardrobe) and two Taskadooers free that day.',
   O5: 'Do O4 first.', O6: 'Do O4 first – the Taskadooer you offered is now busy at that time.', O10: 'Sign in as dispatcher.carlo@test.taskadoo.ph on your phone.',
@@ -2787,7 +2952,7 @@ async function tsSave(id, patch, quiet){
   if (!quiet) { if (route().name === 'whatsnew') render(); else tgPaint(); }
   try { await api.saveTest(row); } catch (e) { toast(TR.err === 'setup' || /relation|does not exist|schema cache/i.test(errMsg(e)) ? 'Results can\'t be saved yet: run the test-results SQL in Supabase first.' : 'Couldn\'t save: ' + errMsg(e), true); await tsLoad(); }
 }
-const TG_ROLE = { customer: 'customer', assembler: 'assembler', taskadooer: 'assembler', dispatcher: 'dispatcher', enterprise: 'enterprise', admin: 'admin', evaluator: 'evaluator' };
+const TG_ROLE = { customer: 'customer', assembler: 'assembler', taskadooer: 'assembler', dispatcher: 'dispatcher', enterprise: 'enterprise', business: 'enterprise', admin: 'admin', evaluator: 'evaluator' };
 function tsMine(t){
   const who = t[1].toLowerCase();
   if (S.me.role === 'admin' && !inPreview()) return true;
@@ -3646,6 +3811,44 @@ async function reloadJob(id){ const j = await api.job(id); const k = S.jobs.find
 const ACT = {
   menu(){ S.menu = !S.menu; render(); },
   side(){ S.side = !S.side; render(); },
+  // business booking table
+  bbreport(b){ bbInit().report = b.dataset.v; bbSave(); render(); },
+  bbhubnew(){ S.bbHubForm = !S.bbHubForm; render(); },
+  async bbhubsave(b){ const name = val('bbh_name'), address = val('bbh_addr');
+    await busy(b, async () => { const pos = address.length >= 5 ? await geocode(address) : null;
+      const hubs = await api.rpc('biz_save_hub', { p: { name, address, lat: pos ? pos[0] : null, lng: pos ? pos[1] : null } });
+      S.me.biz_hubs = hubs || []; bbInit().hub_id = (S.me.biz_hubs[S.me.biz_hubs.length - 1] || {}).id || ''; bbSave(); S.bbHubForm = false; toast('Hub saved'); render(); }); },
+  bbaddrow(){ bbInit().rows.push(bbNew()); bbSave(); render(); },
+  bbcopyrow(){ const b = bbInit(), last = b.rows[b.rows.length - 1] || bbNew(); b.rows.push(Object.assign(bbNew(), { delivered_on: last.delivered_on, area: last.area, date: last.date, time: last.time, items: last.items.map(x => Object.assign({}, x)), crew: last.crew })); bbSave(); render(); },
+  bbrmrow(b){ const r = bbInit().rows; r.splice(Number(b.dataset.i), 1); if (!r.length) r.push(bbNew()); bbSave(); render(); },
+  bbrmitem(b){ bbInit().rows[Number(b.dataset.i)].items.splice(Number(b.dataset.k), 1); bbSave(); render(); },
+  bbclear(){ if (!confirm('Clear the whole table?')) return; BB = null; bbInit(); bbSave(); render(); },
+  bbtemplate(){
+    const lines = ['so_no,delivered_on,customer_name,mobile,address,area,visit_date,visit_time,items,taskadooers,notes',
+      'SO-1001,2026-11-03,Liza Ramos,0917 222 1111,"12 Kapitolyo St, Pasig",Pasig,2026-11-04,10:00 AM,IK-PAX-2D x1 | IK-MALM-NS x2,2,Gate code 1234',
+      '# items: catalogue codes (SKU) with x and the quantity, separated by |. visit_date/visit_time are ignored when the Taskadooer reports to your hub.',
+      '# codes: ' + S.catalog.filter(c => c.active).map(c => c.sku + ' = ' + c.name).join(' / ')];
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'taskadoo-booking-template.csv'; document.body.appendChild(a); a.click(); a.remove(); },
+  async bbbook(b){ const B = bbInit();
+    if (B.rows.some(r => bbProblems(r, B).length)) { render(); return toast('Some rows are missing details – they are marked in red.', true); }
+    if (B.report === 'hub' && !B.hub_id) return toast('Choose the hub the Taskadooers report to.', true);
+    if (B.report === 'hub' && (!B.date || !B.time)) return toast('Choose the day and report time at the hub.', true);
+    await busy(b, async () => {
+      const rows = [];
+      for (const r of B.rows) { const pos = B.rows.length <= 25 ? await geocode(r.address + (r.area ? ', ' + r.area : '') + ', Philippines') : null;
+        rows.push({ so_no: r.so_no, delivered_on: r.delivered_on || null, customer_name: r.customer_name, mobile: r.mobile, address: r.address, area: r.area,
+          lat: pos ? pos[0] : null, lng: pos ? pos[1] : null, date: r.date, time: hm12(r.time), items: r.items.map(x => ({ id: x.id, qty: num(x.qty) })), crew: Math.max(num(r.crew), rowCrewMin(r)), notes: r.notes }); }
+      const res = await api.rpc('create_biz_booking', { p: { report_to: B.report, hub_id: B.hub_id, date: B.date, time: hm12(B.time), rows } });
+      const n = ((res && res.jobs) || []).length; BB = null; try { sessionStorage.removeItem('tk_bb'); } catch (e) {}
+      await loadJobs(); toast('Booked ' + n + ' job' + (n === 1 ? '' : 's') + ' – Taskadoo is finding the Taskadooers.'); go('bookings'); }); },
+  // statements
+  stprint(){ window.print(); },
+  stcsv(b){ const lines = bizStatement(b.dataset.uid, b.dataset.m), q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const out = [['Date', 'SO no.', 'Order', 'Customer', 'Type', 'What', 'Taskadooer', 'Credit', 'Amount'].map(q).join(',')].concat(lines.map(l =>
+      [l.j.job_date, l.j.so_no, l.j.code, l.j.customer_name, l.kind, l.what, [l.j.lead_name, l.j.helper_name].filter(Boolean).join(' + '), l.credit || '', l.amount].map(q).join(',')));
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\uFEFF' + out.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'taskadoo-statement-' + b.dataset.m + '.csv'; document.body.appendChild(a); a.click(); a.remove(); },
   tkf(b){ S.tkF = b.dataset.v; render(); },
   opentk(b, e){ if (e.target.closest('a')) return; go('taskadooer', b.dataset.id); },
   opentkjob(b, e){ if (e.target.closest('a')) return; go('order', b.dataset.id); },
@@ -3822,13 +4025,15 @@ const ACT = {
     await api.rpc('assign_job', { p_job: id, p_lead: null, p_helper: null }); await reloadJob(id); await loadCands(id); render(); }); },
   async offer(b){ await busy(b, async () => { const id = Number(b.dataset.id), j = S.jobs.find(x => x.id === id), u = b.dataset.u, ex = b.dataset.v === 'extra';
     if (ex && !j.lead_id) throw new Error('Offer the lead first, then the extra Taskadooer.');
-    await api.rpc('assign_job', { p_job: id, p_lead: ex ? j.lead_id : u, p_helper: ex ? u : (j.helper_id === u ? null : j.helper_id) });
-    await reloadJob(id); await loadCands(id); const a = S.assemblers.find(x => x.id === u);
+    if (j.batch_id) await api.rpc('assign_batch', { p_batch: j.batch_id, p_lead: ex ? j.lead_id : u, p_helper: ex ? u : (j.helper_id === u ? null : j.helper_id) });
+    else await api.rpc('assign_job', { p_job: id, p_lead: ex ? j.lead_id : u, p_helper: ex ? u : (j.helper_id === u ? null : j.helper_id) });
+    if (j.batch_id) await loadJobs(); else await reloadJob(id); await loadCands(id); const a = S.assemblers.find(x => x.id === u);
     S.dTab = null; S.dChange = null;
     toast('Offer sent to ' + (a ? firstName(a.full_name) : 'the Taskadooer') + '.'); render(); }); },
   async unoffer(b){ const id = Number(b.dataset.id), j = S.jobs.find(x => x.id === id), ex = b.dataset.v === 'extra';
     if (!ex && j.helper_id && !confirm('Removing the lead also removes the extra Taskadooer. Continue?')) return;
-    await busy(b, async () => { await api.rpc('assign_job', { p_job: id, p_lead: ex ? j.lead_id : null, p_helper: null }); await reloadJob(id); await loadCands(id); render(); }); },
+    await busy(b, async () => { if (j.batch_id) { await api.rpc('assign_batch', { p_batch: j.batch_id, p_lead: ex ? j.lead_id : null, p_helper: null }); await loadJobs(); }
+      else { await api.rpc('assign_job', { p_job: id, p_lead: ex ? j.lead_id : null, p_helper: null }); await reloadJob(id); } await loadCands(id); render(); }); },
   dtab(b){ S.dTab = b.dataset.v; S.dTabFor = Number(b.dataset.id); S.why = null; render(); },
   why(b){ S.why = b.dataset.v; render(); },
   candall(){ S.candAll = !S.candAll; render(); },
@@ -3844,10 +4049,16 @@ const ACT = {
     a.download = 'taskadoo-orders-' + todayISO() + '.csv'; document.body.appendChild(a); a.click(); a.remove(); },
   async pay(b){ await busy(b, async () => { const id = Number(b.dataset.id);
     await api.rpc('mark_paid', { p_job: id, p_paid: b.dataset.v === '1' }); await reloadJob(id); render(); }); },
-  async accept(b){ await busy(b, async () => { const id = Number(b.dataset.id); await api.rpc('job_action', { p_job: id, p_action: 'accept', p: {} });
+  async accept(b){ await busy(b, async () => { const id = Number(b.dataset.id), me = ME().id;
+    const ids = b.dataset.batch ? S.jobs.filter(x => x.batch_id === b.dataset.batch && (x.lead_id === me ? !x.lead_ok : x.helper_id === me && !x.helper_ok) && ['assigned', 'accepted'].includes(x.status)).map(x => x.id) : [];
+    for (const x of ids.filter(x => x !== id)) await api.rpc('job_action', { p_job: x, p_action: 'accept', p: {} });
+    if (ids.length) await loadJobs();
+    await api.rpc('job_action', { p_job: id, p_action: 'accept', p: {} });
     await reloadJob(id); toast('Job accepted'); go('task', id); render(); }); },
   async decline(b){ if (!confirm('Decline this job?')) return;
-    await busy(b, async () => { const id = Number(b.dataset.id); await api.rpc('job_action', { p_job: id, p_action: 'decline', p: {} });
+    await busy(b, async () => { const id = Number(b.dataset.id), me = ME().id;
+      if (b.dataset.batch) for (const x of S.jobs.filter(x => x.batch_id === b.dataset.batch && x.id !== id && (x.lead_id === me || x.helper_id === me) && ['assigned', 'accepted'].includes(x.status))) await api.rpc('job_action', { p_job: x.id, p_action: 'decline', p: {} });
+      await api.rpc('job_action', { p_job: id, p_action: 'decline', p: {} }); if (b.dataset.batch) await loadJobs();
       await reloadJob(id); go('tasks'); render(); }); },
   async step(b){ await busy(b, async () => { const id = Number(b.dataset.id); await api.rpc('job_action', { p_job: id, p_action: b.dataset.a, p: {} });
     await reloadJob(id); render(); toTop(); }); },
@@ -3930,7 +4141,7 @@ const ACT = {
   scanqr(){ scanOpen(); },
   async findcode(b){ const v = val('ev_code'); if (!v) return toast('Type the code from the ticket.', true); await busy(b, () => openByCode(v.toUpperCase().startsWith('TK-') ? v : 'TK-' + v)); },
   async offerall(b){ const on = b.dataset.v === '1'; if (on && !confirm('Offer this job to every Taskadooer who is free that day and nearby? The first one to accept gets it.')) return;
-    await busy(b, async () => { await api.rpc('offer_all', { p_job: Number(b.dataset.id), p_on: on }); await reloadJob(Number(b.dataset.id)); toast(on ? 'Offered to all available Taskadooers nearby' : 'Stopped offering to all'); render(); }); },
+    await busy(b, async () => { await api.rpc('offer_all', { p_job: Number(b.dataset.id), p_on: on }); await loadJobs(); toast(on ? 'Offered to all available Taskadooers nearby' : 'Stopped offering to all'); render(); }); },
   async claim(b){ await busy(b, async () => { const r = await api.rpc('claim_job', { p_job: Number(b.dataset.id) }); await loadJobs(); toast('The job is yours 🎉'); go('task', r.id); }); },
   async savepin(b){ await busy(b, async () => { const id = Number(b.dataset.id); await api.rpc('set_job_pin', { p_job: id, p_lat: S.jobPin[0], p_lng: S.jobPin[1] });
     await reloadJob(id); S.jobPin = null; await loadCands(id); toast('Pin saved'); render(); }); },
@@ -3968,6 +4179,9 @@ const ACT = {
   async saveuser(b){ await busy(b, async () => {
     const tr = b.closest('tr'), f = { role: tr.querySelector('[data-f=role]').value, active: tr.querySelector('[data-f=active]').checked };
     const emp = tr.querySelector('[data-f=mober_emp]'); if (emp) f.mober_emp = emp.checked;
+    const br = tr.querySelector('[data-f=biz_rate_pct]'), bf = tr.querySelector('[data-f=biz_fail_fee]');
+    if (br) { const v = Number(br.value); if (!(v >= 0 && v <= 90)) throw new Error('The rate must be between 0 and 90%.'); f.biz_rate_pct = v; }
+    if (bf) { const v = Number(bf.value); if (!(v >= 0)) throw new Error('Enter the failed-visit fee in pesos.'); f.biz_fail_fee = v; }
     const p = S.profiles.find(x => x.id === b.dataset.id); if (p && f.role !== 'customer' && p.requested_role === f.role) f.requested_role = '';
     await api.updateProfile(b.dataset.id, f); await loadProfiles(); toast('Saved'); render(); }); },
   async approve(b){ await busy(b, async () => {
@@ -4055,6 +4269,24 @@ const ACT = {
   gotoattention(b, e){ e.preventDefault(); S.oTab = 'todo'; go('orders'); },
 };
 const CHANGE = {
+  stmonth(el){ S.stMonth = el.value; render(); },
+  stbiz(el){ S.stBiz = el.value; S.stMonth = null; render(); },
+  async bbfile(el){ const f = el.files[0]; el.value = ''; if (!f) return;
+    const rows = csvParse(await f.text()).filter(r => !String(r[0] || '').trim().startsWith('#'));
+    const head = (rows.shift() || []).map(h => String(h).trim().toLowerCase());
+    const col = n => head.indexOf(n), get = (r, n) => (col(n) >= 0 ? String(r[col(n)] || '').trim() : '');
+    if (col('so_no') < 0) return toast('This file has no "so_no" column. Download the template and use it.', true);
+    const isoD = v => { const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(v) || null, m2 = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(v);
+      return m ? m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0') : m2 ? m2[3] + '-' + m2[1].padStart(2, '0') + '-' + m2[2].padStart(2, '0') : ''; };
+    const hm24 = v => { const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i.exec(v); if (!m) return ''; let h = Number(m[1]) % (m[3] ? 12 : 24); if (m[3] && m[3].toUpperCase() === 'PM') h += 12; return String(h).padStart(2, '0') + ':' + m[2]; };
+    const parsed = rows.map(r => ({ so_no: get(r, 'so_no'), delivered_on: isoD(get(r, 'delivered_on')), customer_name: get(r, 'customer_name'), mobile: get(r, 'mobile'),
+      address: get(r, 'address'), area: (S.settings.areas || []).find(a => a.toLowerCase() === get(r, 'area').toLowerCase()) || get(r, 'area'),
+      date: isoD(get(r, 'visit_date')), time: hm24(get(r, 'visit_time')), crew: Number(get(r, 'taskadooers')) === 2 ? 2 : 1, notes: get(r, 'notes'),
+      items: get(r, 'items').split('|').map(x => x.trim()).filter(Boolean).map(x => { const m = /^(.+?)\s*[x×]\s*(\d+)$/i.exec(x) || [x, x, '1'];
+        const c = S.catalog.find(z => z.active && (z.sku.toLowerCase() === m[1].trim().toLowerCase() || z.name.toLowerCase() === m[1].trim().toLowerCase())); return { id: c ? c.id : -1, qty: Number(m[2]) || 1, raw: m[1] }; }) }));
+    if (!parsed.length) return toast('No rows found in that file.', true);
+    const B = bbInit(); B.rows = B.rows.filter(r => r.so_no || r.customer_name || r.items.length).concat(parsed); bbSave(); render();
+    toast(parsed.length + ' row' + (parsed.length === 1 ? '' : 's') + ' added – check the ones marked in red.'); },
   aphub(el){ S.apHub = el.value; S.apDay = null; S.pickSlot = null; render(); },
   async staffdoc(el){
     const f = el.files[0], kind = el.dataset.kind, a = (S.apps || []).find(x => x.id === el.dataset.id); el.value = ''; if (!f || !a) return;
@@ -4160,6 +4392,13 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('toggle', e => { const d = e.target; if (d.matches && d.matches('details.wn-tests') && (S.wnF || 'all') === 'all') S.wnOpen = Object.assign(S.wnOpen || {}, { [d.dataset.wn]: d.open }); }, true);
 document.addEventListener('change', e => { const k = e.target.dataset && e.target.dataset.change; if (k && CHANGE[k]) CHANGE[k](e.target); });
+document.addEventListener('input', e => { const d = e.target.dataset || {}; if (!BB) return;
+  if (d.bb) { const [i, k] = d.bb.split('.'); if (BB.rows[i]) { BB.rows[i][k] = k === 'crew' ? Number(e.target.value) : e.target.value; bbSave(); } }
+  if (d.bbh) { BB[d.bbh] = e.target.value; bbSave(); } });
+document.addEventListener('change', e => { const d = e.target.dataset || {};
+  if ((d.bb || d.bbh) && (e.target.tagName === 'SELECT' || ['date', 'time'].includes(e.target.type))) { render(); return; }
+  if (d.bbadd != null && e.target.value) { const r = bbInit().rows[Number(d.bbadd)], id = Number(e.target.value), x = r.items.find(y => y.id === id);
+    if (x) x.qty = num(x.qty) + 1; else r.items.push({ id, qty: 1 }); bbSave(); render(); } });
 document.addEventListener('change', e => { const k = e.target.dataset && e.target.dataset.ofilter; if (k) { S[k] = e.target.value; S.oPage = 1; render(); } });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.closest('.auth') && e.target.tagName === 'INPUT') { const b = document.querySelector('.auth .btn[data-act]'); if (b) b.click(); } });
 window.addEventListener('hashchange', async () => {
