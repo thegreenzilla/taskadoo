@@ -930,12 +930,12 @@ function render(){
   if (window.ASM_APP && role() === 'customer' && !inPreview()) { renderApplicant(); return; }
   if (window.ASM_APP && role() !== 'assembler' && !isApplicant()) { renderAsmGate(); return; }
   if (!window.ASM_APP && !inPreview() && homeApp(S.me) !== window.APP_MODE && !(window.APP_MODE === 'cust' && homeApp(S.me) === 'asm' && S.me.role === 'customer')) { renderWrongApp(); return; }
-  if (siteRole()) { renderSite(r); return; }
+  if (siteRole() && role() !== 'enterprise') { renderSite(r); return; }   // business accounts get the side menu like the staff portal
   document.body.classList.remove('is-site');
   const V = { book: viewBook, bookings: viewBookings, booking: viewBooking, overview: viewOverview, job: viewOrders, orders: viewOrders, order: viewOrder,
     tasks: viewTasks, task: viewTask, calendar: viewCalendar, earnings: viewEarnings, profile: viewProfile, catalog: viewCatalog, users: viewUsers,
     settings: viewSettings, payments: () => { S.payTab = 'in'; return viewPayments(); }, payouts: () => { S.payTab = 'payouts'; return viewPayments(); },
-    taskadooers: viewTaskadooers, taskadooer: viewTaskadooer, statements: viewStatements, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo,
+    taskadooers: viewTaskadooers, taskadooer: viewTaskadooer, statements: viewStatements, bizbook: viewBizBook, statement: viewStatement, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo,
     apply: viewApply, evals: viewEvals, eval: viewEvals };
   const active = SUB[r.name] || r.name;
   const tabs = tabsFor();
@@ -944,7 +944,7 @@ function render(){
   try { body = V[r.name](r.arg); } catch (e) { console.error(e); body = `<div class="notice bad">${esc(errMsg(e))}</div>`; }
   const unseen = wnUnseen();
   if (role() === 'assembler') { renderAsm(active, tabs, body, unseen); return; }
-  if (['admin', 'dispatcher', 'evaluator'].includes(role())) { renderStaff(active, tabs, body, unseen, r); return; }
+  if (['admin', 'dispatcher', 'evaluator', 'enterprise'].includes(role())) { renderStaff(active, tabs, body, unseen, r); return; }
   document.body.classList.remove('is-asm', 'is-staff');
   app.innerHTML = `${pvBar()}
   <header class="top"><div class="top-in">
@@ -1035,6 +1035,7 @@ function renderWrongApp(){
   badge(); tgPaint();
 }
 // Staff portal: grouped side menu (☰ on phones), search everything, less bold
+const SIDE_BIZ = [['Book', ['bizbook', 'book']], ['My jobs', ['bookings']], ['Money', ['statement']], ['Help', ['whatsnew', 'tests']]];
 const SIDE = [['Today', ['overview']], ['Jobs', ['orders']], ['Taskadooers', ['taskadooers', 'evals', 'payouts']], ['Money', ['payments', 'statements']], ['Setup', ['catalog', 'settings', 'users']], ['Help', ['whatsnew', 'tests']]];
 function sideCount(k, active){
   if (k === 'orders') { const n = active !== 'orders' ? newSinceSeen() : 0; return n ? n + ' new' : S.jobs.filter(toDispatch).length || ''; }
@@ -1045,8 +1046,8 @@ function sideCount(k, active){
 function gResults(){
   const q = String(S.gQ || '').trim().toLowerCase(); if (q.length < 2) return [];
   const has = (...v) => v.join(' ').toLowerCase().includes(q), out = [];
-  if (isStaff()) S.jobs.filter(j => has(j.code, j.customer_name, j.mobile, j.address, j.company, itemsSummary(j))).slice(0, 6)
-    .forEach(j => out.push(['Order', j.code + ' · ' + itemsSummary(j), j.customer_name + ' · ' + whenTxt(j) + ' ' + j.slot, '#/job/' + j.id]));
+  if (isStaff() || role() === 'enterprise') S.jobs.filter(j => (isStaff() || j.customer_id === ME().id) && has(j.code, j.so_no, j.customer_name, j.mobile, j.address, j.company, itemsSummary(j))).slice(0, 6)
+    .forEach(j => out.push(['Order', (j.so_no || j.code) + ' · ' + itemsSummary(j), j.customer_name + ' · ' + whenTxt(j) + ' ' + j.slot, (isStaff() ? '#/job/' : '#/booking/') + j.id]));
   (S.apps || []).filter(a => has(a.code, a.full_name, a.mobile, a.email)).slice(0, 4)
     .forEach(a => out.push(['Applicant', (a.full_name || a.email || '') + (a.code ? ' · ' + a.code : ''), a.mobile || '', '#/eval/' + a.id]));
   if (S.me.role === 'admin') (S.profiles || []).filter(p => has(p.full_name, p.email, p.mobile)).slice(0, 4)
@@ -1055,13 +1056,14 @@ function gResults(){
 }
 function renderStaff(active, tabs, body, unseen, r){
   const names = tabs.map(t => t[0]), lab = {}; tabs.forEach(t => { lab[t[0]] = t[1]; });
-  const groups = SIDE.map(([g, ks]) => [g, ks.filter(k => names.includes(k) || (k === 'tests' && isTestSite()))]).filter(g => g[1].length);
+  if (role() === 'enterprise') { lab.whatsnew = "What's new"; names.push('whatsnew'); }
+  const groups = (role() === 'enterprise' ? SIDE_BIZ : SIDE).map(([g, ks]) => [g, ks.filter(k => names.includes(k) || (k === 'tests' && isTestSite()))]).filter(g => g[1].length);
   const link = k => { const c = sideCount(k, active); return `<a class="sl ${k === active ? 'on' : ''}" href="#/${k}">${esc(k === 'tests' ? 'Tests' : lab[k])}${c ? `<span class="scnt">${esc(c)}</span>` : ''}${k === 'whatsnew' && unseen ? '<span class="dot"></span>' : ''}</a>`; };
   const res = gResults();
   $('#app').innerHTML = `${pvBar()}<div class="sshell ${S.side ? 'open' : ''}">
     <aside class="side" aria-label="Staff menu">
       <div class="side-top"><a href="#/${tabs[0][0]}"><img class="logo" src="img/logo.png" alt="Taskadoo"></a><button class="side-x" data-act="side" aria-label="Close menu">✕</button></div>
-      <div class="tiny muted" style="padding:0 12px 6px">Staff portal · ${esc(ROLE_LABEL[role()])}</div>
+      <div class="tiny muted" style="padding:0 12px 6px">${role() === 'enterprise' ? 'Business · ' + esc(ME().company || '') : 'Staff portal · ' + esc(ROLE_LABEL[role()])}</div>
       <nav>${groups.map(([g, ks]) => `<div class="sg">${esc(g)}</div>${ks.map(link).join('')}`).join('')}</nav>
       <div class="side-me"><span class="av2">${esc(initials(ME().full_name || ME().email))}</span>
         <div class="grow" style="min-width:0;line-height:1.5"><div class="small" style="color:var(--ink)">${esc(ME().full_name || ME().email)}</div>
@@ -1070,7 +1072,7 @@ function renderStaff(active, tabs, body, unseen, r){
     <button class="sscrim" data-act="side" aria-label="Close menu"></button>
     <div class="sbody">
       <header class="stopbar"><button class="sburger" data-act="side" aria-label="Open menu">☰</button>
-        <div class="gsearch"><label><span class="sr">Search everything</span><input data-in="gQ" value="${esc(S.gQ || '')}" placeholder="Search orders, names, mobile numbers or TK- codes" autocomplete="off"></label>
+        <div class="gsearch"><label><span class="sr">Search everything</span><input data-in="gQ" value="${esc(S.gQ || '')}" placeholder="${role() === 'enterprise' ? 'Search your bookings: SO number, customer or mobile' : 'Search orders, names, mobile numbers or TK- codes'}" autocomplete="off"></label>
           ${String(S.gQ || '').trim().length >= 2 ? `<div class="gres">${res.length ? res.map(x => `<a href="${x[3]}"><span class="tiny muted">${esc(x[0])}</span><span>${esc(x[1])}</span><span class="tiny muted">${esc(x[2])}</span></a>`).join('') : '<div class="small muted" style="padding:10px 12px">Nothing found.</div>'}</div>` : ''}</div>
       </header>
       <main class="main smain2">${body}</main>
@@ -1352,11 +1354,11 @@ function viewBookings(){
   return `<div class="narrow">
     ${owe.length ? `<div class="notice warn" style="margin-bottom:14px">💳 You have ${owe.length} unpaid ${owe.length > 1 ? 'bookings' : 'booking'} (${money(owe.reduce((a, j) => a + due(j), 0))}). ${esc(S.settings.payment_note || '')}</div>` : ''}
     <div class="row" style="margin-bottom:14px"><h1 class="grow">${role() === 'enterprise' ? 'Bookings' : 'My bookings'}</h1>
-      <button class="btn ghost small" data-act="reload">↻ Refresh</button><a class="btn small" href="#/book">+ New booking</a></div>
+      <button class="btn ghost small" data-act="reload">↻ Refresh</button><a class="btn small" href="#/${role() === 'enterprise' ? 'bizbook' : 'book'}">+ New booking</a></div>
     ${!mine.length ? `<div class="card empty"><div class="ic">📋</div>No bookings yet.<br><br><a class="btn" href="#/book">Book a Taskadooer</a></div>` : ''}
     ${open.length ? `<h3 style="margin:6px 0 10px">Upcoming</h3><div class="list">${open.map(card).join('')}</div>` : ''}
     ${closed.length ? `<h3 style="margin:22px 0 10px">Past</h3><div class="list">${closed.map(card).join('')}</div>` : ''}
-    ${role() === 'enterprise' ? `<p class="tiny muted" style="margin-top:20px">Bulk CSV upload, monthly billing and self-dispatch come in the next phase.</p>` : ''}
+
   </div>`;
 }
 const itemsSummary = j => (j.items || []).map(i => (i.qty > 1 ? i.qty + '× ' : '') + i.name).join(', ') || 'Booking';
@@ -2662,6 +2664,7 @@ function sigPad(c){
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
   { v: '2.2', d: '2026-11-02', where: 'staging', title: 'Business portal: book many jobs, report to a hub, monthly statements', changes: [
+    { k: 'Improved', t: 'Business accounts now have a menu on the left, like the staff portal: Book assembly, Catalogue, Bookings, Statements and What\'s new, plus a search box for your bookings (SO number, customer or mobile).', for: ['enterprise'] },
     { k: 'Improved', t: 'Book assembly is simpler: no more sideways scrolling. Step 1 – where the Taskadooer goes first (straight to the customer or to your hub). Step 2 – one card per job with plain labels, + and − for quantities and 1 or 2 Taskadooers. Finished jobs fold into a one-line summary (tap Edit to change them).', for: ['enterprise'] },
     { k: 'New', t: 'Book assembly (business accounts): one row per sales order (SO) with the customer, address, items and number of Taskadooers. Type the rows or upload the Excel template. Rows with something missing are marked in red before booking.', for: ['enterprise'] },
     { k: 'New', t: 'Report to: straight to the customer (each row has its own day and time), or to your hub at one report time – the same Taskadooers then ride with your delivery team to every customer. Save your hubs once (e.g. Mober 2C Hub).', for: ['enterprise'] },
@@ -4412,7 +4415,7 @@ document.addEventListener('change', e => {
 });
 document.addEventListener('input', e => { const k = e.target.dataset && e.target.dataset.cd; if (k) { CD[k] = e.target.value; saveCD(); } });
 // show the map once the address is typed (only when it wasn't shown yet)
-document.addEventListener('change', e => { const t = e.target; if ((t.id === 'c_address' || t.id === 'c_area') && !document.querySelector('[data-map=cd]') && (CD.address || '').trim().length >= 5 && CD.area) render(); });
+document.addEventListener('change', e => { const t = e.target; if ((t.id === 'c_address' || t.id === 'c_area') && !document.querySelector('[data-map=cd]') && (CD.address || '').trim().length >= 5 && CD.area) setTimeout(render, 0); });   // after the field has finished losing focus
 document.addEventListener('change', e => { const k = e.target.dataset && e.target.dataset.cd; if (k) { CD[k] = e.target.value; saveCD(); } });
 document.addEventListener('toggle', e => { if (e.target.matches && e.target.matches('details[data-nh]')) S.nhOpen = e.target.open; }, true);
 const noteT = {};
