@@ -369,6 +369,27 @@ body.is-asm{overscroll-behavior:none;-webkit-text-size-adjust:100%;-webkit-tap-h
 .asm-tabs{position:relative;z-index:30;background:#fff;border-top:1px solid #E8E3DA;padding:9px 12px calc(14px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .asm-tabs a{padding:10px 4px;border-radius:11px;text-align:center;font-weight:700;font-size:12px;color:#A39EAC;text-decoration:none;position:relative}
 .asm-tabs a.on{background:#E2F0FA;color:#0E77BA}.asm-tabs .dot{position:absolute;top:6px;right:14px;width:7px;height:7px;border-radius:50%;background:var(--red)}
+/* v2.3 hub check-in: round tab in the middle, swipe bar */
+.asm-tabs a.ck{padding:0 0 6px;margin-top:-26px;background:none;color:#0E77BA;display:flex;flex-direction:column;align-items:center;gap:3px}
+.asm-tabs a.ck i{font-style:normal;width:54px;height:54px;border-radius:50%;background:#0E77BA;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;border:4px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.asm-tabs a.ck.done i{background:var(--green)}.asm-tabs a.ck.done{color:var(--green)}.asm-tabs a.ck.late i{background:#C0392B}.asm-tabs a.ck.late{color:#C0392B}
+.swipe{position:relative;height:64px;border-radius:999px;background:#D6E9F6;display:flex;align-items:center;overflow:hidden;--p:0;user-select:none;-webkit-user-select:none}
+.swipe .sw-k{position:absolute;left:6px;top:6px;width:52px;height:52px;border-radius:50%;border:0;background:#0E77BA;color:#fff;font-size:24px;font-weight:700;cursor:grab;touch-action:none;box-shadow:0 2px 8px rgba(14,119,186,.35);z-index:2;font-family:inherit;padding:0}
+.swipe.drag .sw-k{cursor:grabbing}.swipe:not(.drag) .sw-k{transition:transform .25s}
+.swipe .sw-t{flex:1;text-align:center;padding-left:58px;padding-right:10px;font-size:16px;font-weight:700;color:#0E77BA;opacity:calc(1 - var(--p))}
+.swipe .sw-t i{font-style:normal;opacity:.45}
+.swipe.light{background:rgba(255,255,255,.22)}.swipe.light .sw-k{background:#fff;color:#0E77BA}.swipe.light .sw-t{color:#fff}
+.swipe.off{opacity:.55}.swipe.off .sw-k{cursor:not-allowed;background:#9DB7CB}.swipe.light.off .sw-k{background:rgba(255,255,255,.7)}
+.swipe.busy .sw-t{opacity:1}.swipe.busy .sw-t::after{content:'…'}
+.hubbox{border-radius:18px;padding:16px;background:#0E77BA;color:#fff;margin-bottom:16px}
+.hubbox.late{background:#B03A2E}
+.geo{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:700;border-radius:999px;padding:6px 14px;margin-top:12px}
+.geo.ok{background:var(--green-soft);color:var(--green)}.geo.far{background:#FDF0E1;color:#B4610F}.geo.bad{background:#FBE3DC;color:#C0392B}.geo.wait{background:#F3F0EA;color:#6B6577}
+.ckbig{width:104px;height:104px;border-radius:50%;background:var(--green);color:#fff;font-size:50px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.hubtag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px}
+.hubrows{border-top:1px solid var(--line)}.hubrow{display:flex;align-items:center;gap:14px;padding:12px 6px;border-bottom:1px solid var(--line)}.hubrow.hublate{background:#FFF7F4}
+.asm-tabs a.ck,.asm-tabs a.ck:focus{border:0;outline:none;box-shadow:none;background:transparent}
+.hubtag.in{background:var(--green-soft);color:var(--green)}.hubtag.late{background:#FBE3DC;color:#C0392B}.hubtag.soon{background:#F3F0EA;color:#6B6577}.hubtag.open{background:#E2F0FA;color:#0A5C91}
 .asm .narrow{max-width:none}
 .asm .card{border-radius:20px;padding:17px;margin-bottom:14px;box-shadow:none}
 .asm h1{font-size:20px}.asm h2{font-size:17px}
@@ -699,6 +720,7 @@ const todayISO = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 
 const addDays = (iso, n) => new Date(Date.parse(iso + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
 const fmtDate = iso => iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00').toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
 const TZ = 'Asia/Manila'; // all times are shown in Philippine time, whatever the phone is set to
+const fmtHM = ts => ts ? new Date(ts).toLocaleString('en-PH', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }) : '';   // time only
 const fmtTime = ts => ts ? new Date(ts).toLocaleString('en-PH', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
 const initials = n => (String(n || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('') || '?').toUpperCase();
 const firstName = n => String(n || '').trim().split(/\s+/)[0] || '';
@@ -800,7 +822,9 @@ const isApplicant = () => window.APP_MODE !== 'cust' && role() === 'customer' &&
 const APP_URL = { asm: '../assembler/', staff: '../staff/', cust: './#/book' };
 const APP_NAME = { asm: 'assembler app', staff: 'staff portal', cust: 'customer site' };
 const homeApp = p => ['admin', 'dispatcher', 'evaluator'].includes(p.role) ? 'staff' : p.role === 'assembler' || (p.role === 'customer' && p.requested_role === 'assembler') ? 'asm' : 'cust';
-const tabsFor = () => NAV[isApplicant() ? 'applicant' : role()] || [];
+const tabsFor = () => { const t = NAV[isApplicant() ? 'applicant' : role()] || [];
+  // v2.3: on a hub day the Taskadooer app gets a round "Check in" tab in the middle
+  return role() === 'assembler' && hubToday() ? [t[0], t[1], ['checkin', 'Check in', '📍'], ...t.slice(2)] : t; };
 function route(){ const h = location.hash.replace(/^#\/?/, '').split('?')[0].split('/'); return { name: h[0] || '', arg: decodeURIComponent(h[1] || '') }; }
 const SITE = '../';   // the landing page
 const GUEST_ROUTES = ['', 'book', 'shop', 'receipt'];
@@ -815,6 +839,7 @@ function allowed(name){
   if (name === 'shop' || name === 'receipt') return ['customer', 'enterprise', 'admin', 'dispatcher'].includes(role());
   if (name === 'preview') return S.me && S.me.role === 'admin' && !inPreview();
   if (name === 'apply') return role() === 'customer';
+  if (name === 'checkin') return role() === 'assembler';
   const tabs = tabsFor().map(t => t[0]);
   return tabs.includes(name) || tabs.includes(SUB[name]) || (name === 'job' && isStaff());
 }
@@ -828,7 +853,11 @@ async function loadJobs(){
   // offers not accepted in time go back to Dispatch (v1.8)
   if (S.me && ['admin', 'dispatcher', 'assembler'].includes(S.me.role) && !inPreview()) { try { await api.rpc('expire_offers', {}); } catch (e) { console.warn(e); } }
   S.jobs = (await api.jobs()) || []; S.loaded.jobs = Date.now();
-  if (role() === 'assembler') { try { S.open = (await api.rpc('open_jobs', {})) || []; } catch (e) { console.warn(e); S.open = []; } }
+  if (role() === 'assembler') {
+    try { S.open = (await api.rpc('open_jobs', {})) || []; } catch (e) { console.warn(e); S.open = []; }
+    // v2.3: hub jobs before check-in come without the customer's details
+    try { const lk = (await api.rpc('my_locked_jobs', {})) || []; const ids = new Set(S.jobs.map(j => j.id)); S.jobs = S.jobs.concat(lk.filter(j => !ids.has(j.id))); } catch (e) { console.warn(e); }
+  }
 }
 async function loadProfiles(){ S.profiles = (await api.profiles()) || []; }
 // Dispatch: every Taskadooer with the facts behind the suggestion score for one job (falls back to the plain list before the v1.9 SQL)
@@ -936,7 +965,7 @@ function render(){
     tasks: viewTasks, task: viewTask, calendar: viewCalendar, earnings: viewEarnings, profile: viewProfile, catalog: viewCatalog, users: viewUsers,
     settings: viewSettings, payments: () => { S.payTab = 'in'; return viewPayments(); }, payouts: () => { S.payTab = 'payouts'; return viewPayments(); },
     taskadooers: viewTaskadooers, taskadooer: viewTaskadooer, statements: viewStatements, bizbook: viewBizBook, statement: viewStatement, whatsnew: viewWhatsNew, preview: viewPreview, tests: viewTestsSolo,
-    apply: viewApply, evals: viewEvals, eval: viewEvals };
+    apply: viewApply, evals: viewEvals, eval: viewEvals, checkin: viewCheckin };
   const active = SUB[r.name] || r.name;
   const tabs = tabsFor();
   const menuHtml = acctMenu(tabs, wnUnseen());
@@ -971,7 +1000,7 @@ function renderAsm(active, tabs, body, unseen){
   const on = isOnline(ME()), r = route(), key = location.hash;
   const old = document.querySelector('.asm-main'), keep = old && S.asmKey === key ? old.scrollTop : 0;
   const job = r.name === 'task' && S.jobs.find(x => String(x.id) === r.arg);
-  const TITLE = { calendar: 'Calendar', earnings: 'Earnings', profile: 'Profile', whatsnew: "What's new", tests: 'Tests', task: job ? itemsSummary(job) : 'Job' };
+  const TITLE = { checkin: 'Hub check-in', calendar: 'Calendar', earnings: 'Earnings', profile: 'Profile', whatsnew: "What's new", tests: 'Tests', task: job ? itemsSummary(job) : 'Job' };
   const back = r.name === 'task' ? '#/tasks' : ['whatsnew', 'tests'].includes(r.name) ? '#/profile' : '';
   const head = r.name === 'tasks' ? `<header class="asm-top">
       <div class="hi"><div><small>${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}</small><b>${esc(ME().full_name || ME().email)}</b></div>
@@ -983,7 +1012,9 @@ function renderAsm(active, tabs, body, unseen){
   $('#app').innerHTML = `${pvBar()}<div class="asm">
     ${head}
     <main class="asm-main ${S.asmKey === key ? '' : 'fade'}"><div class="ptr" id="ptr"></div>${body}</main>
-    <nav class="asm-tabs">${tabs.map(x => `<a href="#/${x[0]}" class="${x[0] === active ? 'on' : ''}">${esc(x[1])}${x[0] === 'profile' && unseen ? '<span class="dot"></span>' : ''}</a>`).join('')}</nav>
+    <nav class="asm-tabs" style="grid-template-columns:repeat(${tabs.length},1fr)">${tabs.map(x => { if (x[0] === 'checkin') { const run = hubToday(), st = run ? hubState(run[0]) : '';
+        return `<a href="#/checkin" class="ck ${st === 'in' ? 'done' : st === 'late' ? 'late' : ''}"><i>${st === 'in' ? '✓' : '📍'}</i>${st === 'in' ? 'Checked in' : 'Check in'}</a>`; }
+      return `<a href="#/${x[0]}" class="${x[0] === active ? 'on' : ''}">${esc(x[1])}${x[0] === 'profile' && unseen ? '<span class="dot"></span>' : ''}</a>`; }).join('')}</nav>
   </div>`;
   document.body.classList.add('is-asm'); document.body.classList.remove('is-site');
   document.body.classList.toggle('has-bottom', false);
@@ -1343,6 +1374,22 @@ function viewBooked(){
 }
 
 /* ───────────── Customer / enterprise bookings ───────────── */
+// v2.3: the business sees today's hub runs and can mark the Taskadooer arrived
+function hubTodayCard(){
+  const t = todayISO(), runs = {};
+  S.jobs.filter(j => isHub(j) && j.batch_id && j.job_date === t && j.status !== 'cancelled' && j.customer_id === ME().id).forEach(j => (runs[j.batch_id] = runs[j.batch_id] || []).push(j));
+  const list = Object.values(runs).map(r => r.sort((a, b) => num(a.stop_no) - num(b.stop_no) || a.id - b.id)).sort((a, b) => hubAt(a[0]) - hubAt(b[0]));
+  if (!list.length) return '';
+  return `<div class="card" style="margin-bottom:16px"><div class="row" style="margin-bottom:6px"><h3 class="grow" style="margin:0">At the hub today · ${esc(fmtDate(t))}</h3>
+      <span class="tiny muted">Check-in opens ${HUB_OPEN()} min before the report time · 1 min after = late</span></div>
+    <div class="hubrows">
+    ${list.map(r => { const j = r[0], st = hubState(j), done = r.filter(x => ['done', 'failed_visit'].includes(x.status)).length;
+      return `<div class="hubrow ${st === 'late' && j.lead_id ? 'hublate' : ''}"><div class="grow"><div><b>${esc([j.lead_name, j.helper_name].filter(Boolean).join(' + ') || 'Being matched')}</b> · ${esc(j.hub_name)} · ${esc(j.slot)}</div>
+        <div class="small muted">${esc(r.map(x => x.so_no || x.code).join(', '))}${j.hub_in_at ? ' · checked in ' + esc(hubWho(j)) : ''}</div></div><div>${hubTag(j)}</div>
+        <div style="min-width:170px;text-align:right">${j.hub_in_at ? `<span class="small muted">${done} of ${r.length} done</span>` : j.lead_id && ['open', 'late'].includes(st) ? `<button class="btn small" data-act="hubmark" data-batch="${esc(j.batch_id)}">✅ Mark as arrived</button>` : ''}</div></div>`; }).join('')}
+    </div>
+    <div class="tiny muted" style="margin-top:8px">“Mark as arrived” is for when the Taskadooer is with you at the hub but can't check in on their phone. Their jobs open on their app right away.</div></div>`;
+}
 function viewBookings(){
   const mine = S.jobs.filter(j => isStaff() || j.customer_id === ME().id);
   const open = mine.filter(j => !CLOSED.includes(j.status));
@@ -1351,7 +1398,7 @@ function viewBookings(){
       <div class="tiny muted">${j.so_no ? 'SO ' + esc(j.so_no) : esc(j.code)} · ${esc(fmtDate(j.job_date))}, ${esc(j.slot)}${role() === 'enterprise' ? ' · ' + esc(j.customer_name) : ''}${isHub(j) ? ' · via ' + esc(j.hub_name) : ''}</div></div>
       <div class="bkside">${statusChip(j, 'cust')}<div class="b">${money(amt(j))}</div></div></div></a>`;
   const owe = mine.filter(j => due(j) > 0 && !j.paid && role() === 'customer');
-  return `<div class="narrow">
+  return `<div class="narrow">${role() === 'enterprise' ? hubTodayCard() : ''}
     ${owe.length ? `<div class="notice warn" style="margin-bottom:14px">💳 You have ${owe.length} unpaid ${owe.length > 1 ? 'bookings' : 'booking'} (${money(owe.reduce((a, j) => a + due(j), 0))}). ${esc(S.settings.payment_note || '')}</div>` : ''}
     <div class="row" style="margin-bottom:14px"><h1 class="grow">${role() === 'enterprise' ? 'Bookings' : 'My bookings'}</h1>
       <button class="btn ghost small" data-act="reload">↻ Refresh</button><a class="btn small" href="#/${role() === 'enterprise' ? 'bizbook' : 'book'}">+ New booking</a></div>
@@ -1465,6 +1512,9 @@ const newSinceSeen = () => { const t = dSeenGet(); return t ? S.jobs.filter(j =>
 // what a person must sort out on a job: [title, detail, button, order] or null
 function needsYouOf(j){
   if (j.status === 'issue') return ["Customer didn't sign", (j.lead_name ? firstName(j.lead_name) + ' finished · ' : '') + 'call the customer, then decide', 'Decide', 2];
+  // v2.3: Taskadooer not checked in at the hub 1 minute after the report time (shown once per hub run)
+  if (isHub(j) && j.lead_id && !j.hub_in_at && ['assigned', 'accepted'].includes(j.status) && batchOf(j)[0].id === j.id && hubState(j) === 'late' && Date.now() < hubAt(j) + 6 * 3600e3)
+    return ['Late at ' + j.hub_name, [j.lead_name, j.helper_name].filter(Boolean).join(' + ') + ' not checked in · report time ' + j.slot + ' · ' + batchOf(j).length + ' job' + (batchOf(j).length > 1 ? 's' : ''), 'Mark arrived', 1];
   if (j.dispute === 'open') return ['Problem reported', '“' + (j.dispute_note || '') + '” · ' + firstName(j.customer_name), 'Review', 2];
   if (!needsCrew(j)) return null;
   const st = jobStartMs(j), left = st - Date.now();
@@ -1586,6 +1636,8 @@ function drawerBody(j){
       ${j.notes ? `<div class="muted">“${esc(j.notes)}”</div>` : ''}
       ${j.so_no ? `<div class="small">SO ${esc(j.so_no)}${j.delivered_on ? ' · delivered ' + esc(fmtDate(j.delivered_on)) : ''}${num(j.rate_pct) ? ' · ' + num(j.rate_pct) + '% business rate' : ''}</div>` : ''}</div>
     ${isHub(j) ? `<div class="dsec dhub"><b>Report to ${esc(j.hub_name)} · ${esc(j.slot)}</b><div class="small muted">${esc(j.hub_address)} · the same Taskadooers do all ${batchOf(j).length} jobs with the delivery team</div>
+      <div class="row small" style="margin:8px 0;gap:8px">Hub check-in: ${hubTag(j)}${j.hub_in_at ? ` <span class="tiny muted">${esc(hubWho(j))}${j.hub_in_m != null ? ' · ' + num(j.hub_in_m) + ' m from the hub' : ''}</span>` : ''}
+        ${!j.hub_in_at && j.lead_id && ['open', 'late'].includes(hubState(j)) && !CLOSED.includes(j.status) ? `<button class="btn small" data-act="hubmark" data-batch="${esc(j.batch_id)}">✅ Mark as arrived</button>` : ''}</div>
       ${batchOf(j).map(x => `<a class="small dstop ${x.id === j.id ? 'on' : ''}" href="#/job/${x.id}">${num(x.stop_no)}. ${esc(itemsSummary(x))} · ${esc(x.area || '')} ${statusChip(x)}</a>`).join('')}</div>` : ''}
     ${decideCard(j)}
     ${open ? candCard(j) : isLive(j) ? `<div class="dsec"><h3>On site</h3><div class="small">${dLine(j)}</div>
@@ -1740,6 +1792,53 @@ function viewTaskadooer(id){
 const isHub = j => j.report_to === 'hub';
 const batchOf = j => (j.batch_id ? S.jobs.filter(x => x.batch_id === j.batch_id).sort((a, b) => num(a.stop_no) - num(b.stop_no) || a.id - b.id) : [j]);
 const hubLine = j => (isHub(j) ? 'Report to ' + j.hub_name + ' · ' + j.slot : '');
+// v2.3 hub check-in: opens hub_open_min before the report time; 1 minute after = late
+const HUB_OPEN = () => num(S.settings.hub_open_min || 30), HUB_RADIUS = () => num(S.settings.hub_radius_m || 300);
+const hubAt = j => Date.parse(j.job_date + 'T00:00:00+08:00') + (slotMin(j.slot) === 9999 ? 480 : slotMin(j.slot)) * 60000;
+const hubState = j => (j.hub_in_at ? 'in' : Date.now() >= hubAt(j) + 60000 ? 'late' : Date.now() >= hubAt(j) - HUB_OPEN() * 60000 ? 'open' : 'soon');
+const hubLate = j => !!j.hub_in_at && Date.parse(j.hub_in_at) >= hubAt(j) + 60000;
+const hubWho = j => ({ app: 'on the app', business: 'by ' + (j.company || 'the business'), staff: 'by Taskadoo' }[j.hub_in_by] || '');
+function hubTag(j){
+  const s = hubState(j), late = Math.round((Date.now() - hubAt(j)) / 60000);
+  if (s === 'in') return `<span class="hubtag ${hubLate(j) ? 'late' : 'in'}">Arrived ${esc(fmtHM(j.hub_in_at))}${hubLate(j) ? ' · late' : ''}</span>`;
+  if (!j.lead_id) return '<span class="hubtag soon">No Taskadooer yet</span>';
+  if (s === 'late') return `<span class="hubtag late">Late · ${late < 60 ? late + ' min' : durTxt(late * 60000)}</span>`;
+  if (s === 'open') return '<span class="hubtag open">Check-in open</span>';
+  return `<span class="hubtag soon">Opens ${esc(fmtHM(new Date(hubAt(j) - HUB_OPEN() * 60000).toISOString()))}</span>`;
+}
+// my hub runs (one array of jobs per run), and the one to check in to today
+function myHubRuns(){
+  const me = ME().id, runs = {};
+  S.jobs.filter(j => isHub(j) && j.batch_id && (j.lead_id === me || j.helper_id === me) && j.status !== 'cancelled').forEach(j => (runs[j.batch_id] = runs[j.batch_id] || []).push(j));
+  return Object.values(runs).map(r => r.sort((a, b) => num(a.stop_no) - num(b.stop_no) || a.id - b.id)).sort((a, b) => hubAt(a[0]) - hubAt(b[0]));
+}
+const runMine = r => { const me = ME().id; return r.some(x => (x.lead_id === me ? x.lead_ok : x.helper_id === me && x.helper_ok)); };
+const hubToday = () => myHubRuns().find(r => r[0].job_date === todayISO() && runMine(r) && r.some(x => !CLOSED.includes(x.status))) || null;
+// the phone's location (asked only on the check-in screens)
+function geoNeed(){
+  if (!navigator.geolocation || S.geoBusy || (S.geo && Date.now() - S.geo.at < 60000) || (S.geoErr && Date.now() - S.geoErrAt < 60000)) return;
+  S.geoBusy = true;
+  navigator.geolocation.getCurrentPosition(p => { S.geoBusy = false; S.geoErr = ''; S.geo = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy, at: Date.now() }; render(); },
+    e => { S.geoBusy = false; S.geoErr = e && e.code === 1 ? 'Location is blocked for this app' : 'Could not find your location'; S.geoErrAt = Date.now(); render(); },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+}
+const geoNow = () => new Promise((ok, no) => {
+  if (S.geo && Date.now() - S.geo.at < 60000) return ok(S.geo);
+  if (!navigator.geolocation) return no(new Error('This phone has no location. Ask the hub dispatcher to check you in.'));
+  navigator.geolocation.getCurrentPosition(p => { S.geo = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy, at: Date.now() }; ok(S.geo); },
+    () => no(new Error('Turn on location so the app can see you are at the hub – or ask the hub dispatcher to check you in.')), { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
+});
+const metresTo = (lat, lng, j) => { const R = 6371000, r = x => x * Math.PI / 180, a = Math.sin(r(j.hub_lat - lat) / 2) ** 2 + Math.cos(r(lat)) * Math.cos(r(j.hub_lat)) * Math.sin(r(j.hub_lng - lng) / 2) ** 2; return Math.round(2 * R * Math.asin(Math.sqrt(a))); };
+function geoLine(j){
+  if (j.hub_lat == null) return '';
+  geoNeed();
+  if (S.geo) { const m = metresTo(S.geo.lat, S.geo.lng, j), near = m <= HUB_RADIUS();
+    return `<div class="geo ${near ? 'ok' : 'far'}">📍 ${near ? "You're at the hub · " + m + ' m' : "You're " + (m < 1000 ? m + ' m' : (m / 1000).toFixed(1) + ' km') + ' from the hub'}</div>`; }
+  if (S.geoErr) return `<div class="geo bad">📍 ${esc(S.geoErr)} – turn location on, or ask the hub dispatcher</div>`;
+  return '<div class="geo wait">📍 Finding your location…</div>';
+}
+// the swipe bar: drag the circle to the right end
+const swipeBar = (label, batch, light, off) => `<div class="swipe ${light ? 'light' : ''} ${off ? 'off' : ''}" data-swipe="hubin" data-batch="${esc(batch)}"><button class="sw-k" aria-label="${esc(label)}" ${off ? 'disabled' : ''}>→</button><span class="sw-t">${esc(label)} <i>›››</i></span></div>`;
 const bizRate = () => num(ME().biz_rate_pct);
 const bizWindowEnd = j => (j.completed_at ? Date.parse(j.completed_at) + num(S.settings.biz_dispute_days || 7) * 864e5 : 0);
 // the booking table is kept while the business works on it
@@ -1998,13 +2097,21 @@ function viewTasks(){
   const card = (j, crew) => `<a class="li ${CLOSED.includes(j.status) ? 'done' : team(j) && !mateOk(j) ? 'wait' : ''}" href="#/task/${j.id}"><div class="row"><div class="grow">
       <div><span class="src" style="font-size:9.5px">${esc(srcLabel(j))}</span> <span class="code" style="font-size:9.5px">${esc(j.code)}</span></div>
       <div class="b">${esc(itemsSummary(j))}</div><div class="tiny muted">${esc(j.job_date === t ? 'Today' : j.job_date === tm ? 'Tomorrow' : fmtDate(j.job_date))}, ${esc(j.slot)} · ${esc(j.area || j.address)} · ~${esc(mins(estMin(j)))}</div>
-      ${isHub(j) ? `<div class="tiny b" style="color:var(--blue)">📍 ${esc(hubLine(j))} · stop ${num(j.stop_no)}</div>` : ''}</div>
+      ${isHub(j) ? `<div class="tiny b" style="color:var(--blue)">📍 ${esc(hubLine(j))} · stop ${num(j.stop_no)}${j.locked ? ' · 🔒 details at check-in' : ''}</div>` : ''}</div>
       <div style="text-align:right">${statusChip(j)}<div class="money" style="margin-top:4px">${money(myShare(j))}</div></div></div>${crew ? crewLine(j) : ''}
       ${crew && j.id === nextId ? '<span class="btn block" style="margin-top:10px;padding:12px;font-size:13.5px">Open job →</span>' : ''}</a>`;
   const groups = [['today', 'Today · ' + fmtDate(t), j => j.job_date <= t], ['tomorrow', 'Tomorrow · ' + fmtDate(tm), j => j.job_date === tm], ['later', 'Later', j => j.job_date > tm]]
     .filter(g => f === 'all' || (f === 'today' ? g[0] === 'today' : g[0] !== 'today'))
     .map(g => [g[1], active.filter(g[2])]).filter(g => g[1].length);
+  const hr = hubToday(), hj = hr && hr[0], hst = hj && hubState(hj);
+  const hubBox = !hj ? '' : hst === 'in' ? `<a class="notice ok small" href="#/checkin" style="display:block;margin-bottom:14px;text-decoration:none">✓ Checked in at ${esc(hj.hub_name)} · ${esc(fmtHM(hj.hub_in_at))}${hubLate(hj) ? ' (late)' : ''} – your ${hr.length} job${hr.length > 1 ? 's are' : ' is'} unlocked</a>`
+    : `<div class="hubbox ${hst === 'late' ? 'late' : ''}"><div class="row"><span class="tiny b grow" style="letter-spacing:.06em;opacity:.9;color:#fff">TODAY · HUB RUN</span><span class="tiny b" style="color:#fff;background:rgba(255,255,255,.18);border-radius:999px;padding:3px 10px">${hst === 'late' ? 'LATE · ' : 'Report '}${esc(hj.slot)}</span></div>
+      <div style="font-size:19px;font-weight:700;margin:4px 0 2px">📍 ${esc(hj.hub_name)}</div>
+      <div class="small" style="opacity:.9">${hr.length} job${hr.length > 1 ? 's' : ''} waiting · 🔒 customer details open at check-in</div>
+      <div style="margin-top:12px">${swipeBar(hst === 'soon' ? 'Opens ' + fmtHM(new Date(hubAt(hj) - HUB_OPEN() * 60000).toISOString()) : 'Swipe for hub check-in', hj.batch_id, true, hst === 'soon')}</div>
+      <div class="tiny" style="text-align:center;margin-top:8px;opacity:.9">${hst === 'late' ? 'You are late – check in now' : 'Late from ' + esc(fmtHM(new Date(hubAt(hj) + 60000).toISOString()))} · <a href="#/checkin" style="color:#fff">details</a></div></div>`;
   return `<div class="narrow">
+    ${hubBox}
     ${offers.filter((x, i, a) => !x.batch_id || a.findIndex(y => y.batch_id === x.batch_id) === i).map(offerCard).join('')}
     ${(S.open || []).length ? `<div class="grp" style="margin-top:0"><h3>Open jobs near you</h3><span class="tiny muted b">first to accept gets it</span></div>${S.open.filter((x, i, a) => !x.batch_id || a.findIndex(y => y.batch_id === x.batch_id) === i).map(boardCard).join('')}` : ''}
     <div class="kpis">
@@ -2064,7 +2171,7 @@ function viewTask(id){
   if (!j) return `<div class="narrow card empty">Job not found. <a href="#/tasks">Back</a></div>`;
   const me = ME().id, lead = j.lead_id === me, myOk = lead ? j.lead_ok : j.helper_ok, t = todayISO();
   if (['assigned','accepted'].includes(j.status) && !myOk) return `<div class="narrow"><p><a href="#/tasks">‹ Tasks</a></p>${offerCard(j)}</div>`;
-  const unlocked = !['new','assigned'].includes(j.status) || myOk;
+  const unlocked = (!['new','assigned'].includes(j.status) || myOk) && !j.locked;
   const mate = lead ? j.helper_name : j.lead_name;
   let step = '';
   const photoBtn = `<label class="btn soft block" style="cursor:pointer">📷 Add photos<input type="file" accept="image/*" capture="environment" multiple hidden data-change="photos" data-id="${j.id}"></label>`;
@@ -2083,6 +2190,11 @@ function viewTask(id){
     : (j.addons || []).length ? `<div class="notice small" style="margin-top:12px">Add-ons: ${esc(j.addons.map(a => a.name).join(', '))}</div>` : '';
   if (['new','assigned'].includes(j.status)) {
     step = `<div class="notice">⏳ You've accepted. Waiting for ${num(j.crew) > 1 && !(lead ? j.helper_ok : j.lead_ok) ? 'your teammate to accept' : 'dispatch to confirm the crew'} – the customer is confirmed once every slot is filled.</div>`;
+  } else if (j.status === 'accepted' && j.locked) {
+    const today = j.job_date === t;
+    step = `<div class="notice">🔒 <b>Customer details open when you check in at ${esc(j.hub_name)}.</b><br>Report time ${esc(today ? 'today' : fmtDate(j.job_date))}, ${esc(j.slot)}. Check-in opens ${HUB_OPEN()} minutes before.</div>
+      <h3 style="margin-top:14px">Before you go</h3><ul class="prep"><li>Bring the tools for: ${esc(itemsSummary(j))} (about ${esc(mins(est))}).</li><li>Fare to the hub is yours. You ride with the delivery team to the customers.</li></ul>
+      ${today ? '<a class="btn block" href="#/checkin">📍 Go to hub check-in</a>' : ''}`;
   } else if (j.status === 'accepted') {
     step = lead ? (j.job_date > t ? `<div class="notice">📅 This job is on <b>${esc(fmtDate(j.job_date))}</b>. "Start travelling" opens on the day.</div>`
       : `<div class="notice ok small" style="margin-bottom:12px">✓ Job accepted – ${lead ? 'you are lead' : 'you are the extra Taskadooer'}.${num(j.crew) > 1 && mate ? ' ' + esc(mate) + ' is confirmed as your teammate.' : ''} Window: ${esc(j.slot)}.</div>
@@ -2186,6 +2298,48 @@ function viewTask(id){
     <div class="card">${step}</div>
     <div class="card">${itemsTable(j)}</div>
     ${photosBlock(j)}
+  </div>`;
+}
+// v2.3 hub check-in (Taskadooer app)
+function viewCheckin(){
+  const run = hubToday(), t = todayISO();
+  if (!run) {
+    const nx = myHubRuns().find(r => r[0].job_date > t && runMine(r) && r.some(x => !CLOSED.includes(x.status)));
+    return `<div class="narrow"><div class="card" style="text-align:center;padding:24px 18px"><div style="font-size:40px">📍</div><h2>No hub check-in today</h2>
+      <div class="small muted" style="margin-top:6px">${nx ? 'Next: ' + esc(nx[0].hub_name) + ' · ' + esc(fmtDate(nx[0].job_date)) + ', ' + esc(nx[0].slot) + '. Check-in opens ' + HUB_OPEN() + ' minutes before.' : 'When you have a job that reports to a hub, you check in here.'}</div>
+      <p style="margin-top:14px"><a class="btn ghost" href="#/tasks">Back to Tasks</a></p></div></div>`;
+  }
+  const j = run[0], st = hubState(j), open = run.filter(x => !CLOSED.includes(x.status));
+  if (st === 'in') {
+    const nextJob = open[0] || run[0];
+    return `<div class="narrow">
+      <div class="card" style="text-align:center;padding:24px 16px"><div class="ckbig">✓</div>
+        <h2 style="color:var(--green)">You're checked in!</h2>
+        <div style="margin-top:4px">${esc(j.hub_name)} · <b>${esc(fmtHM(j.hub_in_at))}</b> · ${hubLate(j) ? '<span style="color:#C0392B;font-weight:700">late</span>' : 'on time'}</div>
+        <div class="small muted" style="margin-top:6px">Checked in ${esc(hubWho(j))}. ${esc(j.company || 'The business')} and Taskadoo can see you're here.</div></div>
+      <div class="card"><h3 style="margin-bottom:6px">🔓 ${run.length} job${run.length > 1 ? 's' : ''} unlocked</h3>
+        ${run.map(x => `<a class="li" href="#/task/${x.id}" style="margin-bottom:8px"><div class="row"><div class="grow"><div class="b">${num(x.stop_no)} · ${esc(x.customer_name)}</div>
+          <div class="tiny muted">${esc(x.area || '')} · ${esc(itemsSummary(x))}</div></div>${statusChip(x)}</div></a>`).join('')}</div>
+      <a class="btn block" href="#/task/${nextJob.id}">See my jobs</a></div>`;
+  }
+  const opensAt = fmtHM(new Date(hubAt(j) - HUB_OPEN() * 60000).toISOString());
+  const nav = j.hub_lat != null ? `https://www.google.com/maps/dir/?api=1&destination=${j.hub_lat},${j.hub_lng}` : mapHref(j.hub_name + ' ' + j.hub_address);
+  return `<div class="narrow">
+    <div class="card" style="text-align:center;padding:22px 16px">
+      <div class="tiny b" style="letter-spacing:.06em;color:var(--blue)">YOUR HUB TODAY</div>
+      <h2 style="font-size:22px;margin:2px 0">${esc(j.hub_name)}</h2>
+      <div class="small muted">${esc(j.hub_address)}</div>
+      <div style="margin-top:6px">Report time <b>${esc(j.slot)}</b> · ${run.length} job${run.length > 1 ? 's' : ''}</div>
+      <div style="margin:22px 0 8px">${swipeBar(st === 'soon' ? 'Check-in opens ' + opensAt : 'Swipe to check in', j.batch_id, false, st === 'soon')}</div>
+      <div class="tiny muted">${st === 'soon' ? 'Opens ' + HUB_OPEN() + ' minutes before the report time' : 'Slide the blue circle all the way to the right'}</div>
+      ${geoLine(j)}
+      <div class="small" style="margin-top:12px;${st === 'late' ? 'color:#C0392B;font-weight:700' : ''}">${st === 'late' ? 'You are late – the report time was ' + esc(j.slot) + '. Check in now.' : 'Open from ' + esc(opensAt) + ' · late from ' + esc(fmtHM(new Date(hubAt(j) + 60000).toISOString()))}</div>
+    </div>
+    <div class="card small"><b>Phone not working?</b> Ask the ${esc(j.company || 'hub')} dispatcher at the hub to check you in from their portal.</div>
+    <div class="card"><div class="row"><h3 class="grow" style="margin:0">Your ${run.length} job${run.length > 1 ? 's' : ''}</h3><span class="tiny b muted">🔒 LOCKED</span></div>
+      ${run.map(x => `<div class="row" style="padding:8px 0;border-top:1px solid var(--line)"><span class="b" style="width:22px">${num(x.stop_no)}</span><div class="grow"><div>${esc(itemsSummary(x))}</div><div class="tiny muted">${esc(x.area || '')} · customer hidden</div></div><span>🔒</span></div>`).join('')}
+      <div class="tiny muted" style="margin-top:6px">Names, mobile numbers, exact addresses and SO numbers show after you check in.</div></div>
+    <p style="text-align:center"><a class="b" href="${nav}" target="_blank" rel="noopener">🧭 Navigate to the hub</a></p>
   </div>`;
 }
 function viewCalendar(){
@@ -2663,6 +2817,12 @@ function sigPad(c){
 // for: roles that see the line (customer, enterprise, Taskadooer, dispatcher, admin) or 'all'.
 // where: 'staging' until it is copied to production, then 'live'. Its tests go in WN_TESTS under the same version.
 const WHATSNEW = [
+  { v: '2.3', d: '2026-11-04', where: 'staging', title: 'Hub check-in: customer details open at the hub', changes: [
+    { k: 'New', t: 'Jobs that report to a hub: before you check in you see the hub, the report time, the items and your pay – but not the customer (name, mobile, address, SO number, notes). They open when you check in at the hub.', for: ['assembler'] },
+    { k: 'New', t: 'On a hub day the app has a round "Check in" button in the middle of the menu, and a blue box at the top of Tasks. Swipe the circle all the way to the right to check in. It opens 30 minutes before the report time, and works when your phone is within 300 m of the hub. 1 minute after the report time counts as late.', for: ['assembler'] },
+    { k: 'New', t: 'Bookings → "At the hub today": see if each Taskadooer has arrived, is late or not open yet. "Mark as arrived" checks them in when their phone can\'t.', for: ['enterprise'] },
+    { k: 'New', t: 'Orders: a Taskadooer not checked in 1 minute after the hub report time shows in Needs you ("Late at …"). The job drawer shows the hub check-in and a "Mark as arrived" button.', for: ['admin', 'dispatcher'] }
+  ] },
   { v: '2.2', d: '2026-11-02', where: 'staging', title: 'Business portal: book many jobs, report to a hub, monthly statements', changes: [
     { k: 'Improved', t: 'Business accounts now have a menu on the left, like the staff portal: Book assembly, Catalogue, Bookings, Statements and What\'s new, plus a search box for your bookings (SO number, customer or mobile).', for: ['enterprise'] },
     { k: 'Improved', t: 'Book assembly is simpler: no more sideways scrolling. Step 1 – where the Taskadooer goes first (straight to the customer or to your hub). Step 2 – one card per job with plain labels, + and − for quantities and 1 or 2 Taskadooers. Finished jobs fold into a one-line summary (tap Edit to change them).', for: ['enterprise'] },
@@ -2769,6 +2929,14 @@ const WHATSNEW = [
 ];
 // Tests per version: [id, who, title, steps, what should happen]. "who" = the role(s) that do it.
 const WN_TESTS = {
+  '2.3': [
+    ['H1', 'Taskadooer', 'Customer details are hidden before check-in', ['Open the Taskadooer app. Tap the hub job on Tasks.'], 'You see the hub, the time, the items and your pay. The customer name, mobile, address and SO number are not shown – it says they open when you check in at the hub. There is no "Start travelling" button.'],
+    ['H2', 'Taskadooer', 'Swipe away from the hub', ['Not at the hub: tap the round "Check in" button in the middle of the menu.', 'Allow location if the phone asks.', 'Swipe the blue circle all the way to the right.'], 'It shows how far you are from the hub and says to check in when you are at the hub. Nothing opens.'],
+    ['H3', 'Taskadooer', 'Half swipe does nothing', ['On Check in, drag the circle only halfway and let go.'], 'The circle slides back. You are not checked in.'],
+    ['H4', 'Taskadooer', 'Check in at the hub', ['Go to the hub (within 300 m). Open Check in and swipe all the way.'], 'A green "You\'re checked in!" screen with the time and "on time" or "late". Your jobs now show the customer names and addresses, and "Start travelling" works.'],
+    ['H5', 'Business', 'See late and mark as arrived', ['After the report time, before the Taskadooer checks in: open Bookings.', 'Look at "At the hub today".', 'Tap "Mark as arrived".'], 'The row shows "Late · N min" in red. After tapping it shows "Arrived" with the time and "by …". On the Taskadooer\'s phone the jobs open.'],
+    ['H6', 'Dispatcher', 'Late at the hub in Needs you', ['After the report time, before the Taskadooer checks in: open Orders.', 'Click the "Late at …" item, then look at the hub box in the drawer.'], 'Needs you lists "Late at <hub>". The drawer shows "Hub check-in: Late" and a "Mark as arrived" button that works.']
+  ],
   '2.2': [
     ['B1', 'Admin', 'Business rate and failed-visit fee', ['Users → find the business account (Business). Set "Rate % off" to 15 and "Failed visit ₱" to 500, tap Save.'], 'It saves. New bookings from that business are 15% cheaper; the Taskadooer offer shows the share of the lower price.'],
     ['B2', 'Business', 'Book straight to customers', ['Sign in as the business on the website. Tap Book assembly.', 'Keep "Straight to the customer". Fill two rows: SO number, customer, mobile, address, area, visit day and time, and add items.', 'Tap Book.'], 'Rows turn ✓ when complete. After booking you land on Bookings with both jobs, each showing its SO number.'],
@@ -2929,6 +3097,8 @@ const WN_TESTS = {
 };
 // Preparation a test needs
 const WN_SETUP = {
+  H1: 'Business: book a hub run for today with the report time about 20 minutes from now. Dispatcher: give it to your test Taskadooer. Taskadooer: accept it. (The hub needs its map pin for the 300 m check.)', H2: 'Do H1 first.', H3: 'Do H1 first.', H4: 'Do H1 first. You must be at the hub.',
+  H5: 'Do H1 first, and let the report time pass without checking in.', H6: 'Do H1 first, and let the report time pass without checking in.',
   B2: 'You need a business account (e.g. business.eve@test.taskadoo.ph). Do B1 first.', B3: 'Do B1 first.', B5: 'Do B3 first.', B6: 'Do B5 first.', B7: 'Needs a completed business job – ask Claude to set one up if there is none.',
   K3: 'Use a test Taskadooer (e.g. assembler.ana@test.taskadoo.ph), not a real one.',
   O3: 'You need a second browser or phone signed in as a customer (or a guest booking).', O4: 'Needs a 2-person order (e.g. a PAX wardrobe) and two Taskadooers free that day.',
@@ -3838,9 +4008,37 @@ function viewEvalCalendar(){
 }
 
 /* ───────────── Actions ───────────── */
-async function reloadJob(id){ const j = await api.job(id); const k = S.jobs.findIndex(x => x.id === id); if (j) { if (k >= 0) S.jobs[k] = j; else S.jobs.unshift(j); } else if (k >= 0) S.jobs.splice(k, 1); }
+async function reloadJob(id){ const j = await api.job(id); if (!j && role() === 'assembler') { await loadJobs(); return; } const k = S.jobs.findIndex(x => x.id === id); if (j) { if (k >= 0) S.jobs[k] = j; else S.jobs.unshift(j); } else if (k >= 0) S.jobs.splice(k, 1); }
+// v2.3 hub check-in: the Taskadooer swipes, or the business / dispatcher marks them arrived
+async function hubCheckin(batch){
+  const run = S.jobs.filter(x => x.batch_id === batch), j = run[0] || {};
+  try {
+    const pos = j.hub_lat != null ? await geoNow() : null;
+    const r = await api.rpc('hub_checkin', { p_batch: batch, p_lat: pos ? pos.lat : null, p_lng: pos ? pos.lng : null });
+    await loadJobs(); toast(r && r.late ? 'Checked in – you are late' : "Checked in – you're on time 👍"); go('checkin'); render();
+  } catch (e) { toast(errMsg(e), true); render(); }
+}
+(function(){
+  let d = null;
+  document.addEventListener('pointerdown', e => {
+    const k = e.target.closest && e.target.closest('.swipe:not(.off):not(.busy) .sw-k'); if (!k) return;
+    const bar = k.parentElement; d = { k, bar, x0: e.clientX, dx: 0, max: bar.clientWidth - k.offsetWidth - 12 };
+    try { k.setPointerCapture(e.pointerId); } catch (x) {}
+    bar.classList.add('drag'); e.preventDefault();
+  });
+  document.addEventListener('pointermove', e => { if (!d) return; d.dx = Math.max(0, Math.min(d.max, e.clientX - d.x0)); d.k.style.transform = `translateX(${d.dx}px)`; d.bar.style.setProperty('--p', (d.dx / d.max).toFixed(2)); });
+  const up = () => { if (!d) return; const { k, bar, dx, max } = d; d = null; bar.classList.remove('drag');
+    if (dx >= max * 0.85) { k.style.transform = `translateX(${max}px)`; bar.classList.add('busy'); bar.querySelector('.sw-t').textContent = 'Checking in'; hubCheckin(bar.dataset.batch); }
+    else { k.style.transform = ''; bar.style.setProperty('--p', 0); } };
+  document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+  // keyboard: Enter / Space on the circle does the same as a full swipe
+  document.addEventListener('keydown', e => { const k = e.target.closest && e.target.closest('.swipe:not(.off):not(.busy) .sw-k'); if (!k || !['Enter', ' '].includes(e.key)) return;
+    e.preventDefault(); const bar = k.parentElement; bar.classList.add('busy'); bar.querySelector('.sw-t').textContent = 'Checking in'; hubCheckin(bar.dataset.batch); });
+})();
 const ACT = {
   menu(){ S.menu = !S.menu; render(); },
+  async hubmark(b){ if (!confirm('Mark the Taskadooer as arrived at the hub? Their jobs open on their app right away.')) return;
+    await busy(b, async () => { const r = await api.rpc('hub_mark_in', { p_batch: b.dataset.batch }); await loadJobs(); toast(r && r.late ? 'Marked arrived – late' : 'Marked arrived'); render(); }); },
   side(){ S.side = !S.side; render(); },
   // business booking table
   bbreport(b){ bbInit().report = b.dataset.v; bbSave(); render(); },

@@ -96,6 +96,15 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   UI: enterprise NAV bizbook (`viewBizBook`, draft BB in sessionStorage tk_bb, CSV template, items "SKU x2 | SKU x1"), bookings, statement
   (`statementView`/`bizStatement`, CSV, print); admin `#/statements`. Taskadooer app: hub run = one offer (`offerCard` run, accept/decline all), board grouped.
   Mober agreements: customer tells Mober, Mober reports to Taskadoo; Mober books the time; failed visit ₱500; Taskadooer pays own fare to the hub.
+- v2.3 hub check-in (2026-11-04_hub_checkin.sql): a hub job is locked for its Taskadooers until `jobs.hub_in_at` (also hub_in_by app|business|staff,
+  hub_in_name, hub_in_m). RLS `jobs_read` hides locked hub rows from lead/helper; `my_locked_jobs()` gives the masked copy (`job_for_me(j)`:
+  customer_name 'Stop N', no mobile/address/lat/lng/notes/so_no/events, `locked:true`); the app merges it into S.jobs in loadJobs.
+  `job_action` is now a wrapper (old body = `job_action_core`, not callable by clients) that refuses 'travel' before check-in and returns
+  `job_for_me`; `claim_job` returns `job_for_me` too. `hub_checkin(p_batch, p_lat, p_lng)` (Taskadooer swipe; within settings hub_radius_m 300
+  of hub_lat/lng when the hub has a pin), `hub_mark_in(p_batch)` (business owner of the run or staff). Opens settings hub_open_min 30 before
+  the report time (`hub_run_first`); late = 1 min after. UI: `hubToday()`, `hubState()`/`hubTag()`, round "Check in" tab (`tabsFor`, `viewCheckin`),
+  `.hubbox` on Tasks, `swipeBar()` + pointer handlers → `hubCheckin()`, `geoLine()`/`geoNow()`; business `hubTodayCard()` in Bookings;
+  staff `needsYouOf` "Late at …" + drawer "Mark as arrived" (ACT.hubmark).
 - All times on screen use `TZ = 'Asia/Manila'`.
 - v1.6 customer pages follow the landing design (system font -apple-system/Segoe UI, weights ≤ 700, colours from the design):
   guests and customers/enterprise get `renderSite()` (design header + footer, `CAT_META` titles/blurbs, `TINTS` per SKU,
@@ -132,6 +141,7 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
 ## Roadmap
 - Phase 1 (built): roles + login, catalogue, booking, dispatch, assembler web app (accept → photos → signature), payments marked by Admin.
   v1.1: What's new page, test checklists (🧪 Tests), Preview the app as.
+  v2.3: hub check-in – customer details open at the hub (swipe in the app, or the business/dispatcher marks arrived).
   v2.2: business portal – book many jobs per SO, report to customer or hub, business rate + failed-visit fee, statements.
   v2.1: Taskadooers list + profile, Settings in sections, Payouts / Customer payments pages.
   v2.0: staff portal side menu, Overview, dispatch drawer in Orders, search everything, less bold.
