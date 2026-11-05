@@ -2821,6 +2821,7 @@ const WHATSNEW = [
     { k: 'New', t: 'Jobs that report to a hub: before you check in you see the hub, the report time, the items and your pay – but not the customer (name, mobile, address, SO number, notes). They open when you check in at the hub.', for: ['assembler'] },
     { k: 'New', t: 'On a hub day the app has a round "Check in" button in the middle of the menu, and a blue box at the top of Tasks. Swipe the circle all the way to the right to check in. It opens 30 minutes before the report time, and works when your phone is within 300 m of the hub. 1 minute after the report time counts as late.', for: ['assembler'] },
     { k: 'New', t: 'Bookings → "At the hub today": see if each Taskadooer has arrived, is late or not open yet. "Mark as arrived" checks them in when their phone can\'t.', for: ['enterprise'] },
+    { k: 'New', t: 'Website: "Become an assembler" now opens a "Maging Taskadooer" page in Taglish – why join, how pay works, the 5 steps, what you need and questions. Its "Mag-apply na" buttons open the sign-up in the Taskadooer app.', for: ['admin', 'customer'] },
     { k: 'New', t: 'Orders: a Taskadooer not checked in 1 minute after the hub report time shows in Needs you ("Late at …"). The job drawer shows the hub check-in and a "Mark as arrived" button.', for: ['admin', 'dispatcher'] }
   ] },
   { v: '2.2', d: '2026-11-02', where: 'staging', title: 'Business portal: book many jobs, report to a hub, monthly statements', changes: [
@@ -2935,6 +2936,7 @@ const WN_TESTS = {
     ['H3', 'Taskadooer', 'Half swipe does nothing', ['On Check in, drag the circle only halfway and let go.'], 'The circle slides back. You are not checked in.'],
     ['H4', 'Taskadooer', 'Check in at the hub', ['Go to the hub (within 300 m). Open Check in and swipe all the way.'], 'A green "You\'re checked in!" screen with the time and "on time" or "late". Your jobs now show the customer names and addresses, and "Start travelling" works.'],
     ['H5', 'Business', 'See late and mark as arrived', ['After the report time, before the Taskadooer checks in: open Bookings.', 'Look at "At the hub today".', 'Tap "Mark as arrived".'], 'The row shows "Late · N min" in red. After tapping it shows "Arrived" with the time and "by …". On the Taskadooer\'s phone the jobs open.'],
+    ['J1', 'Admin, Customer', 'Become a Taskadooer page', ['Open the website (staging) on your phone.', 'Scroll down and tap "Become an assembler".', 'Read the page, open the first question, then tap "Mag-apply na".'], 'A Taglish page "Furniture assembler ka? Dagdag kita sa sarili mong oras." opens. Every "Mag-apply na" button opens the 5-step sign-up in the Taskadooer app.'],
     ['H6', 'Dispatcher', 'Late at the hub in Needs you', ['After the report time, before the Taskadooer checks in: open Orders.', 'Click the "Late at …" item, then look at the hub box in the drawer.'], 'Needs you lists "Late at <hub>". The drawer shows "Hub check-in: Late" and a "Mark as arrived" button that works.']
   ],
   '2.2': [

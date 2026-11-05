@@ -12,7 +12,10 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
   - `staging/index.html` – customer landing page = Dennis's design export, built with
     `python3 originals/build.py originals/Taskadoo_Landing-3.html staging/index.html "Taskadoo" 1 originals/landing-links.js`
     (landing-links.js sends its buttons to the app: Book now/Browse → `app/#/book` or `#/shop/<category>`, Log in → `#/login`,
-    For business → `#/signup/enterprise`, Become an assembler → `#/signup/assembler`, receipt buttons → `#/receipt`).
+    For business → `#/signup/enterprise`, Become an assembler → `join/`, receipt buttons → `#/receipt`).
+  - `staging/join/index.html` – "Maging Taskadooer" recruitment landing page (Taglish, static, portal system font; images `../hero.jpg`,
+    `join/img/`). Every "Mag-apply na" → `../assembler/#/join`. Pay FAQ says 2% of the furniture price, 78% to the Taskadooer (Dennis 2026-11-05) –
+    the system still uses fixed catalogue fees.
   - `staging/app/` – **the real system** (Phase 1): `index.html` (vanilla JS, no build step), `config.js`
     (staging Supabase URL + publishable key, `STAGING:true`), `manifest.webmanifest`, `img/`
   - `staging/assembler/` – the assembler app link: redirects to `app/?app=asm#/tasks` (`window.ASM_APP`: own manifest

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="fil"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maging Taskadooer – Taskadoo</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Furniture assembler ka? Dagdag kita sa sarili mong oras. Sumali sa Taskadoo – libre ang pagsali.">
+<link rel="icon" href="../app/img/icon-192.png">
+<style>
+:root{--bg:#ECE9E2;--card:#FFFFFF;--navy:#262261;--blue:#0E77BA;--blue-soft:#E2F0FA;--ink:#262261;--muted:#5E5873;--line:#DDD7CC;--green:#13734B;--green-soft:#E3F3EB;--orange:#FF8C3E}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.w{max-width:1200px;margin:0 auto;padding:0 24px}
+header.top{border-bottom:1px solid var(--line)}
+header.top .w{display:flex;align-items:center;gap:24px;height:68px}
+header.top img{height:30px}
+header.top nav{display:flex;gap:24px;margin-left:auto;font-weight:600;font-size:15px}
+header.top nav a{text-decoration:none;color:#4A4556}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;border-radius:999px;background:var(--blue);color:#fff;font-weight:600;text-decoration:none;font-size:16px;font-family:inherit;box-shadow:0 6px 16px rgba(14,119,186,.25)}
+.btn.ghost{background:transparent;color:var(--navy);border:1.5px solid var(--navy);box-shadow:none}
+.btn.small{padding:9px 18px;font-size:14px}
+.hero .w{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding-top:48px;padding-bottom:64px;row-gap:32px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--green)}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--green)}
+h1{font-size:76px;white-space:nowrap;line-height:1.02;letter-spacing:-.03em;margin:18px 0 18px;font-weight:800}
+h1 span{color:var(--blue)}
+.lead{font-size:20px;color:#4A4556;max-width:34ch;margin:0 0 26px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.facts{display:flex;flex-wrap:wrap;gap:22px;margin-top:26px;font-size:14px;color:var(--muted);font-weight:600}
+.facts b{display:block;font-size:22px;font-weight:600;color:var(--navy)}
+.hhead{grid-column:1/-1}.hhead h1{margin-bottom:0}
+.photo{position:relative}
+.photo img{width:100%;height:440px;object-fit:cover;border-radius:28px;display:block}
+.float{position:absolute;background:#fff;border-radius:16px;padding:12px 16px;box-shadow:0 10px 30px rgba(38,34,97,.15);font-size:13px;color:var(--muted)}
+.float b{display:block;color:var(--navy);font-size:15px}
+.f1{right:-18px;top:28px}.f2{left:-22px;bottom:34px;display:flex;gap:12px;align-items:center}
+.f2 .ic{width:40px;height:40px;border-radius:12px;background:var(--green-soft);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px}
+section{padding:72px 0}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin:0 0 10px}
+h2{font-size:40px;line-height:1.1;letter-spacing:-.02em;margin:0 0 14px;font-weight:700}
+.sub{color:#4A4556;max-width:60ch;margin:0 0 34px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:var(--card);border-radius:20px;padding:26px;border:1px solid var(--line)}
+.card h3{margin:10px 0 6px;font-size:19px;font-weight:600}
+.card p{margin:0;color:#4A4556;font-size:15.5px}
+.ico{width:44px;height:44px;border-radius:12px;background:var(--blue-soft);display:flex;align-items:center;justify-content:center;font-size:22px}
+.navy{background:var(--navy);color:#fff}
+.navy h2{color:#fff}.navy .sub{color:#C9C5E6}.navy .eyebrow{color:#FFB27A}
+.earn{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.earn .card{background:#322E78;border:0;color:#fff}
+.earn .item{font-size:15px;color:#C9C5E6}
+.earn .amt{font-size:40px;font-weight:600;letter-spacing:-.02em;color:#fff;margin:6px 0 2px}
+.earn .how{font-size:14px;color:#AEA9D6}
+.split{display:flex;flex-wrap:wrap;gap:28px;margin-top:30px;font-size:15px;color:#DDDAF2}
+.split div{display:flex;gap:10px;align-items:center}
+.split i{font-style:normal;width:30px;height:30px;border-radius:50%;background:#3E3A8A;display:flex;align-items:center;justify-content:center}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;counter-reset:s}
+.step{background:#fff;border-radius:18px;padding:22px;border:1px solid var(--line)}
+.step .n{width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h3{font-size:17px;margin:12px 0 4px;font-weight:600}.step p{margin:0;font-size:14.5px;color:#4A4556}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.list li{display:flex;gap:12px;align-items:flex-start;font-size:16px}
+.list li span{flex:none;width:26px;height:26px;border-radius:50%;background:var(--green-soft);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.app{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.phones{display:flex;gap:18px;justify-content:center}
+.phones img{width:220px;border-radius:26px;border:6px solid #fff;box-shadow:0 14px 34px rgba(38,34,97,.18)}
+.phones img:nth-child(2){margin-top:40px}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-bottom:10px}
+.faq summary{font-weight:600;cursor:pointer}
+.faq p{margin:10px 0 0;color:#4A4556;font-size:15.5px}
+.final{background:var(--blue);color:#fff;border-radius:28px;padding:48px;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between}
+.final h2{color:#fff;margin:0 0 6px}.final p{margin:0;color:#DCEEFA}
+.final .btn{background:#fff;color:var(--blue)}
+
+.bigpay{text-align:center;display:flex;flex-direction:column;align-items:center}
+.bigpay .sub{margin:6px auto 26px}
+.big{font-size:96px;font-weight:800;letter-spacing:-.04em;line-height:1;color:#fff;margin:6px 0 4px;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:0 18px}
+.big span{font-size:36px;font-weight:700;letter-spacing:0;color:#FFB27A}
+@media(max-width:860px){.big{font-size:52px}.big span{font-size:26px}}
+footer{padding:28px 0 40px;font-size:14px;color:var(--muted)}
+footer .w{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between}
+.mb{display:none}
+@media(max-width:860px){
+  header.top nav{display:none}
+  .hero .w{grid-template-columns:1fr;gap:28px;padding-top:28px}
+  h1{font-size:clamp(30px,9vw,40px);white-space:normal}.lead{font-size:18px}
+  .photo img{height:360px}.f1{right:10px;top:12px}.f2{left:10px;bottom:12px}
+  section{padding:48px 0}h2{font-size:30px}
+  .grid3,.earn,.two,.app{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .phones img{width:46%}
+  .final{padding:30px}
+  .mb{display:flex;position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 16px}
+  .mb .btn{width:100%}
+}
+html::after{content:"STAGING";position:fixed;bottom:10px;left:10px;z-index:99;background:#d32f2f;color:#fff;font:700 11px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.08em;padding:5px 10px;border-radius:999px;pointer-events:none}
+@media(max-width:860px){html::after{bottom:84px}}
+html{scroll-behavior:smooth}
+</style></head><body>
+<header class="top"><div class="w"><a href="../"><img src="../app/img/logo.png" alt="Taskadoo"></a>
+<nav><a href="#pay">Kita</a><a href="#how">Paano sumali</a><a href="#need">Kailangan</a><a href="#faq">Mga tanong</a></nav>
+<a class="btn small" href="../assembler/#/join">Mag-apply na</a></div></header>
+
+<div class="hero"><div class="w">
+  <div class="hhead">
+    <span class="pill"><i></i>Hiring na ng Taskadooers sa Metro Manila</span>
+    <h1>Furniture assembler ka?<br><span>Dagdag kita sa sarili mong oras.</span></h1>
+  </div>
+  <div>
+    <p class="lead">Sumali sa Taskadoo at mag-assemble ng furniture para sa mga pamilya at negosyo sa Metro Manila. Ikaw ang pipili ng araw – at kita mo agad ang bayad bago ka mag-oo.</p>
+    <div class="cta"><a class="btn" href="../assembler/#/join">Mag-apply na →</a><a class="btn ghost" href="#pay">Tingnan ang kikitain mo</a></div>
+    <div class="facts"><div><b>₱0</b>bayad sa pagsali</div><div><b>Linggo-linggo</b>bayad sa GCash</div><div><b>Malapit</b>jobs sa area mo</div></div>
+  </div>
+  <div class="photo"><img src="../hero.jpg" alt="A Taskadooer assembling a wardrobe">
+    <div class="float f1">Walang fixed na shift<b>Ikaw ang pipili ng araw</b></div>
+    <div class="float f2"><div class="ic">₱</div><div>Bago mo tanggapin<b>Kita mo agad ang bayad</b></div></div>
+  </div>
+</div></div>
+
+<section id="why"><div class="w">
+  <p class="eyebrow">Bakit Taskadoo</p><h2>Ikaw ang bahala sa oras – kami sa customers</h2>
+  <p class="sub">Hindi mo na kailangang maghanap ng customer, makipagtawaran o maningil. Dala mo ang skills at tools – kami ang bahala sa bookings, customers at bayad.</p>
+  <div class="grid3">
+    <div class="card"><div class="ico">📅</div><h3>Ikaw ang may hawak ng oras</h3><p>I-set sa app kung anong araw ka available at kailan ka off. Mag-online kung gusto mo ng same-day jobs.</p></div>
+    <div class="card"><div class="ico">📍</div><h3>Jobs malapit sa ’yo</h3><p>Uunahin ang jobs sa area mo, sa layo na ikaw ang nag-set. Hindi mo kailangang tumawid ng buong Maynila.</p></div>
+    <div class="card"><div class="ico">💸</div><h3>Malinaw na bayad</h3><p>Kita mo agad ang kikitain mo bago mo tanggapin ang job – walang tawaran, walang singilan.</p></div>
+    <div class="card"><div class="ico">🏢</div><h3>May business jobs din</h3><p>Sumama sa delivery team ng partners tulad ng Mober at mag-assemble ng maraming order sa isang araw.</p></div>
+    <div class="card"><div class="ico">⭐</div><h3>Mas mataas na score, mas maraming job</h3><p>Magandang rating at laging on time? Ikaw ang mauuna sa susunod na offer.</p></div>
+    <div class="card"><div class="ico">🛡️</div><h3>Kasama mo kami</h3><p>Pumipirma ang customer pag tapos na. Kung may reklamo, Taskadoo team ang hahawak – hindi ka nag-iisa.</p></div>
+  </div>
+</div></section>
+
+<section id="pay" class="navy"><div class="w bigpay">
+  <p class="eyebrow">Kikitain mo</p>
+  <div class="big">Dagdag kita,<span>linggo-linggo</span></div>
+  <p class="sub">Tumanggap ng job kung kailan mo gusto. Diretso sa GCash ang bayad – sagot namin ang fees.</p>
+  <a class="btn" href="#faq">Alamin pa →</a>
+</div></section>
+
+<section id="how"><div class="w">
+  <p class="eyebrow">Paano sumali</p><h2>5 madaling hakbang para kumita</h2>
+  <p class="sub">Mga 10 minuto lang ang application, sa phone mo lang.</p>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>Picturan ang license</h3><p>Kunan ng litrato ang driver’s license mo. Ang app na ang magfi-fill in ng details.</p></div>
+    <div class="step"><div class="n">2</div><h3>Contact details</h3><p>Mobile number, email at password.</p></div>
+    <div class="step"><div class="n">3</div><h3>Experience mo</h3><p>Ano ang kaya mong buuin, ilang taon ka na, at photos ng past work.</p></div>
+    <div class="step"><div class="n">4</div><h3>Pumili ng test day</h3><p>Pumili ng oras para sa maikling hands-on test sa hub namin.</p></div>
+    <div class="step"><div class="n">5</div><h3>Ipakita ang QR</h3><p>Dalhin ang ticket, NBI at medical. Pag pasado, may jobs ka na.</p></div>
+  </div>
+</div></section>
+
+<section id="need"><div class="w two">
+  <div class="card"><p class="eyebrow">Kailangan mo</p><h2 style="font-size:30px">Bago mag-apply</h2>
+    <ul class="list">
+      <li><span>✓</span>21 taong gulang pataas</li>
+      <li><span>✓</span>Valid na driver’s license</li>
+      <li><span>✓</span>NBI clearance at medical certificate</li>
+      <li><span>✓</span>Sariling basic tools (drill, screwdrivers, level)</li>
+      <li><span>✓</span>Smartphone at GCash account</li>
+    </ul></div>
+  <div class="card"><p class="eyebrow">Kaya mong buuin</p><h2 style="font-size:30px">Piliin ang skills mo</h2>
+    <ul class="list">
+      <li><span>✓</span>Kama at aparador</li>
+      <li><span>✓</span>Shelves at storage</li>
+      <li><span>✓</span>Mesa at office chairs</li>
+      <li><span>✓</span>Sofa, dining at outdoor furniture</li>
+      <li><span>✓</span>TV wall mounting, kitchen at cabinets</li>
+    </ul></div>
+</div></section>
+
+<section id="app" style="padding-top:24px"><div class="w app">
+  <div><p class="eyebrow">Ang Taskadooer app</p><h2>Lahat nasa isang app</h2>
+    <ul class="list" style="margin-top:20px">
+      <li><span>✓</span>Tanggapin ang offers – kita mo agad ang bayad</li>
+      <li><span>✓</span>Step-by-step: dating, check ng kahon, assemble, photos, pirma</li>
+      <li><span>✓</span>Swipe para mag-check in sa partner hubs</li>
+      <li><span>✓</span>Kita mo at linggo-linggong bayad</li>
+    </ul></div>
+  <div class="phones"><img src="img/app-tasks.jpg" alt="Tasks screen"><img src="img/app-earnings.jpg" alt="Earnings screen"></div>
+</div></section>
+
+<section id="faq" class="faq" style="padding-top:24px"><div class="w" style="max-width:820px">
+  <p class="eyebrow">Mga tanong</p><h2>Dapat mong malaman</h2>
+  <details open><summary>Paano kinukuwenta ang kita ko?</summary><p>Ang bayad sa assembly ay <b>2% ng presyo ng furniture</b>. Sa ’yo ang <b>78%</b> nito – 22% ang sa Taskadoo.<br>Halimbawa: ₱88,000 na furniture → ₱1,760 na assembly fee → <b>₱1,372.80 ang kita mo</b>.<br>Pag 2 kayo sa job: 55% sa lead (₱755.04), 45% sa kasama (₱617.76). Ang kita mo ay depende sa dami ng job na tatanggapin mo.</p></details>
+  <details><summary>May babayaran ba ako para sumali?</summary><p>Wala. Libre ang pagsali. Sariling tools lang ang kailangan mo.</p></details>
+  <details><summary>Empleyado ba ako?</summary><p>Hindi. Independent Taskadooer ka at ikaw ang pipili kung kailan ka magtatrabaho. Platform ang Taskadoo at hindi nito guaranteed ang dami ng jobs.</p></details>
+  <details><summary>Kailan ako mababayaran?</summary><p>Linggo-linggo sa GCash, para sa jobs na tapos na at lampas na sa 24 oras na check. Sagot ng Taskadoo ang transfer fees.</p></details>
+  <details><summary>Ano ang mangyayari sa evaluation?</summary><p>Maikling hands-on test sa hub: titingnan namin ang documents mo at papanoorin kang mag-buo ng isang piece. Malalaman mo ang resulta pagkatapos ng test.</p></details>
+  <details><summary>Taga-Mober ako. Pwede ba akong sumali?</summary><p>Oo. Medical certificate at confirmation ng employment lang ang kailangan ng Mober employees.</p></details>
+</div></section>
+
+<section style="padding-top:8px"><div class="w"><div class="final">
+  <div><h2>May job nang naghihintay sa ’yo</h2><p>10 minuto lang mag-apply. Libre – walang bayad kahit kailan.</p></div>
+  <a class="btn" href="../assembler/#/join">Mag-apply na →</a></div></div></section>
+
+<footer><div class="w"><span><a href="../" style="text-decoration:none">© 2026 Taskadoo</a></span><span>Taskadooer ka na? <a href="../assembler/">Mag-log in sa app</a></span></div></footer>
+<div class="mb"><a class="btn" href="../assembler/#/join">Mag-apply na →</a></div>
+</body></html>
