@@ -14,8 +14,9 @@ Owner: Dennis (non-technical). Explain changes in plain language, one step at a 
     (landing-links.js sends its buttons to the app: Book now/Browse → `app/#/book` or `#/shop/<category>`, Log in → `#/login`,
     For business → `#/signup/enterprise`, Become an assembler → `join/`, receipt buttons → `#/receipt`).
   - `staging/join/index.html` – "Maging Taskadooer" recruitment landing page (Taglish, static, portal system font; images `../hero.jpg`,
-    `join/img/`). Every "Mag-apply na" → `../assembler/#/join`. No peso amounts or percentages on the page (Dennis 2026-11-05);
-    sections: hero, Bakit Taskadoo (6 cards), Ano ang Taskadoo, furniture + appliances, FAQ, final CTA. Dennis floated 2% of furniture value pricing – not built.
+    `join/img/`). Every "Mag-apply na" → `../assembler/#/join`. Dennis chose the version from commit 8fde301 (2026-11-05):
+    hero, Bakit Taskadoo, pay band, 5 steps, needs/skills, app, FAQ (pay FAQ explains 2% of furniture price, 78% – app still uses fixed fees), final CTA.
+    A later redesign (no amounts, Ano ang Taskadoo, appliances) is in git history (c83cf33) if he wants it back.
   - `staging/app/` – **the real system** (Phase 1): `index.html` (vanilla JS, no build step), `config.js`
     (staging Supabase URL + publishable key, `STAGING:true`), `manifest.webmanifest`, `img/`
   - `staging/assembler/` – the assembler app link: redirects to `app/?app=asm#/tasks` (`window.ASM_APP`: own manifest
